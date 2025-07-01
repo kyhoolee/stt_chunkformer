@@ -10,12 +10,14 @@ from tqdm import tqdm
 from colorama import Fore, Style
 
 import torchaudio.compliance.kaldi as kaldi
-from model.utils.init_model import init_model
-from model.utils.checkpoint import load_checkpoint
-from model.utils.file_utils import read_symbol_table
-from model.utils.ctc_utils import get_output_with_timestamps, get_output
+from .model.utils.init_model import init_model
+from .model.utils.checkpoint import load_checkpoint
+from .model.utils.file_utils import read_symbol_table
+from .model.utils.ctc_utils import get_output_with_timestamps, get_output
 from contextlib import nullcontext
 from pydub import AudioSegment
+import torch
+import torchaudio
 
 @torch.no_grad()
 def init(model_checkpoint, device):
@@ -39,13 +41,47 @@ def init(model_checkpoint, device):
 
     return model, char_dict
 
+# def load_audio(audio_path):
+#     audio = AudioSegment.from_file(audio_path)
+#     audio = audio.set_frame_rate(16000)
+#     audio = audio.set_sample_width(2)  # set bit depth to 16bit
+#     audio = audio.set_channels(1)  # set to mono
+#     audio = torch.as_tensor(audio.get_array_of_samples(), dtype=torch.float32).unsqueeze(0)
+#     return audio
+
+
+
 def load_audio(audio_path):
+    print(f"\n📥 Loading file: {audio_path}")
+
+    # === 1. Dùng pydub để decode
     audio = AudioSegment.from_file(audio_path)
-    audio = audio.set_frame_rate(16000)
-    audio = audio.set_sample_width(2)  # set bit depth to 16bit
-    audio = audio.set_channels(1)  # set to mono
-    audio = torch.as_tensor(audio.get_array_of_samples(), dtype=torch.float32).unsqueeze(0)
-    return audio
+    print(f"🔍 [pydub] Raw frame_rate   : {audio.frame_rate}")
+    print(f"🔍 [pydub] Sample width     : {audio.sample_width} bytes ({audio.sample_width * 8} bits)")
+    print(f"🔍 [pydub] Channels         : {audio.channels}")
+    print(f"🔍 [pydub] Duration (ms)    : {len(audio)} ms")
+
+    # === 2. Chuẩn hóa về định dạng chuẩn (mono, 16kHz, 16-bit PCM)
+    audio = audio.set_frame_rate(16000).set_sample_width(2).set_channels(1)
+
+    # === 3. Trích waveform
+    raw_array = audio.get_array_of_samples()
+    print(f"🧪 [pydub] Type of array     : {type(raw_array)}, dtype: int{audio.sample_width * 8}")
+    print(f"🧪 [pydub] First 10 samples  : {raw_array[:10]}")
+
+    waveform = torch.as_tensor(raw_array, dtype=torch.float32).unsqueeze(0)  # Shape: (1, N)
+    print(f"✅ [pydub] Waveform shape    : {waveform.shape}")
+    print(f"📊 [pydub] Min: {waveform.min().item():.2f}, Max: {waveform.max().item():.2f}, Mean: {waveform.mean().item():.2f}")
+
+    # === 4. So sánh với torchaudio (nếu cần)
+    print("\n🔁 [Compare] Loading with torchaudio.load()")
+    waveform_torch, sr_torch = torchaudio.load(audio_path)
+    print(f"✅ [torchaudio] shape        : {waveform_torch.shape}, sample_rate: {sr_torch}")
+    print(f"📊 [torchaudio] Min: {waveform_torch.min().item():.4f}, Max: {waveform_torch.max().item():.4f}, Mean: {waveform_torch.mean().item():.4f}")
+    print(f"📏 Diff (mean abs): {(waveform_torch * 32768.0 - waveform).abs().mean().item():.4f} (assuming torchaudio gives normalized)")
+
+    return waveform
+
 
 @torch.no_grad()
 def endless_decode(args, model, char_dict):    
@@ -142,6 +178,8 @@ def batch_decode(args, model, char_dict):
     xs = []
     xs_origin_lens = []
     for idx, audio_path in tqdm(enumerate(df['wav'].to_list())):
+        print(f"Chunk {idx}: input {x.shape[1]} frames → encoder out {encoder_outs.shape[1]}")
+
         waveform = load_audio(audio_path)
         x = kaldi.fbank(waveform,
                                 num_mel_bins=80,
@@ -167,7 +205,10 @@ def batch_decode(args, model, char_dict):
             )
 
             hyps = model.encoder.ctc_forward(encoder_outs, encoder_lens, n_chunks)
+            print(f"Full hyp shape: {hyps.shape}")
+
             decodes += get_output(hyps, char_dict)
+            print(f"Decodes len: ", len(decodes))
                                          
 
             # reset
@@ -272,8 +313,10 @@ def main():
     model, char_dict = init(args.model_checkpoint, device)
     with torch.autocast(device.type, dtype) if dtype is not None else nullcontext():
         if args.long_form_audio:
+            print(">>> Long_form_audio:: ", args.long_form_audio)
             endless_decode(args, model, char_dict)
         else:
+            print("<<< short form audio:: ")
             batch_decode(args, model, char_dict)
 
 if __name__ == "__main__":

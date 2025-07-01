@@ -22,7 +22,7 @@ from torch import nn
 
 
 class ConvolutionModule(nn.Module):
-    """ConvolutionModule in ChunkFormer model."""
+    """ConvolutionModule in ChunkFormer ."""
     def __init__(self,
                  channels: int,
                  kernel_size: int = 15,

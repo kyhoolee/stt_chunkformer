@@ -1,5 +1,12 @@
 import math
+
+import torch
 from .common import remove_duplicates_and_blank
+
+
+
+def greedy_ctc_decode(log_probs: torch.Tensor) -> torch.Tensor:
+    return log_probs.argmax(dim=-1)
 
 def class2str(target, char_dict):
     content = []

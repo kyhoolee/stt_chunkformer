@@ -21,15 +21,15 @@ import torch
 import math
 
 
-from model.attention import MultiHeadedAttention
-from model.attention import StreamingRelPositionMultiHeadedAttention
-from model.convolution import ConvolutionModule
-from model.embedding import StreamingRelPositionalEncoding
-from model.encoder_layer import ChunkFormerEncoderLayer
-from model.positionwise_feed_forward import PositionwiseFeedForward
-from model.subsampling import DepthwiseConvSubsampling
-from model.utils.common import get_activation
-from model.utils.mask import make_pad_mask
+from .attention import MultiHeadedAttention
+from .attention import StreamingRelPositionMultiHeadedAttention
+from .convolution import ConvolutionModule
+from .embedding import StreamingRelPositionalEncoding
+from .encoder_layer import ChunkFormerEncoderLayer
+from .positionwise_feed_forward import PositionwiseFeedForward
+from .subsampling import DepthwiseConvSubsampling
+from .utils.common import get_activation
+from .utils.mask import make_pad_mask
 
 class BaseEncoder(torch.nn.Module):
     def __init__(
