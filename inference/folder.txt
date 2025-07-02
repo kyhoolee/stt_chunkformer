@@ -1,0 +1,52 @@
+.
+├── chunkformer-large-vie
+│   ├── config.yaml
+│   ├── dataset.tsv
+│   ├── global_cmvn
+│   ├── paper.pdf
+│   ├── pytorch_model.bin
+│   ├── README.md
+│   └── vocab.txt
+├── folder.txt
+├── run_infer.py
+├── stt_chunkformer
+│   ├── data
+│   │   ├── audio_list.tsv
+│   │   └── common_voice_vi_23397238.wav
+│   ├── decode.py
+│   ├── docs
+│   │   ├── chunkformer_architecture.png
+│   │   └── paper.pdf
+│   ├── __init__.py
+│   ├── model
+│   │   ├── asr_model.py
+│   │   ├── attention.py
+│   │   ├── cmvn.py
+│   │   ├── convolution.py
+│   │   ├── ctc.py
+│   │   ├── embedding.py
+│   │   ├── encoder_layer.py
+│   │   ├── encoder.py
+│   │   ├── __init__.py
+│   │   ├── positionwise_feed_forward.py
+│   │   ├── __pycache__
+│   │   │   ├── asr_model.cpython-39.pyc
+│   │   │   └── __init__.cpython-39.pyc
+│   │   ├── subsampling.py
+│   │   ├── swish.py
+│   │   └── utils
+│   │       ├── checkpoint.py
+│   │       ├── cmvn.py
+│   │       ├── common.py
+│   │       ├── ctc_utils.py
+│   │       ├── file_utils.py
+│   │       ├── init_model.py
+│   │       ├── __init__.py
+│   │       └── mask.py
+│   ├── notebook
+│   │   └── _1_dataset.ipynb
+│   ├── README.md
+│   └── requirements.txt
+└── stt.md
+
+9 directories, 41 files

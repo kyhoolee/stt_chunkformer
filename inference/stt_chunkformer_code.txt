@@ -1,0 +1,3062 @@
+# === Combined source code from stt_chunkformer ===
+
+
+# === FILE: stt_chunkformer/decode.py ===
+import os
+import torch
+import torchaudio
+import yaml
+import jiwer
+import argparse
+import pandas as pd
+
+from tqdm import tqdm
+from colorama import Fore, Style
+
+import torchaudio.compliance.kaldi as kaldi
+from .model.utils.init_model import init_model
+from .model.utils.checkpoint import load_checkpoint
+from .model.utils.file_utils import read_symbol_table
+from .model.utils.ctc_utils import get_output_with_timestamps, get_output
+from contextlib import nullcontext
+from pydub import AudioSegment
+
+@torch.no_grad()
+def init(model_checkpoint, device):
+
+    config_path = os.path.join(model_checkpoint, "config.yaml")
+    checkpoint_path = os.path.join(model_checkpoint, "pytorch_model.bin")
+    symbol_table_path = os.path.join(model_checkpoint, "vocab.txt")
+
+    with open(config_path, 'r') as fin:
+        config = yaml.load(fin, Loader=yaml.FullLoader)
+    model = init_model(config, config_path)
+    model.eval()
+    load_checkpoint(model , checkpoint_path)
+
+    model.encoder = model.encoder.to(device)
+    model.ctc = model.ctc.to(device)
+    # print('the number of encoder params: {:,d}'.format(num_params))
+
+    symbol_table = read_symbol_table(symbol_table_path)
+    char_dict = {v: k for k, v in symbol_table.items()}
+
+    return model, char_dict
+
+def load_audio(audio_path):
+    audio = AudioSegment.from_file(audio_path)
+    audio = audio.set_frame_rate(16000)
+    audio = audio.set_sample_width(2)  # set bit depth to 16bit
+    audio = audio.set_channels(1)  # set to mono
+    audio = torch.as_tensor(audio.get_array_of_samples(), dtype=torch.float32).unsqueeze(0)
+    return audio
+
+@torch.no_grad()
+def endless_decode(args, model, char_dict):    
+    def get_max_input_context(c, r, n):
+        return r + max(c, r) * (n-1)
+    
+    device = next(model.parameters()).device
+    audio_path = args.long_form_audio
+    # model configuration
+    subsampling_factor = model.encoder.embed.subsampling_factor
+    chunk_size = args.chunk_size
+    left_context_size = args.left_context_size
+    right_context_size = args.right_context_size
+    conv_lorder = model.encoder.cnn_module_kernel // 2
+
+    # get the maximum length that the gpu can consume
+    max_length_limited_context = args.total_batch_duration
+    max_length_limited_context = int((max_length_limited_context // 0.01))//2 # in 10ms second
+
+    multiply_n = max_length_limited_context // chunk_size // subsampling_factor
+    truncated_context_size = chunk_size * multiply_n # we only keep this part for text decoding
+
+    # get the relative right context size
+    rel_right_context_size = get_max_input_context(chunk_size, max(right_context_size, conv_lorder), model.encoder.num_blocks)
+    rel_right_context_size = rel_right_context_size * subsampling_factor
+
+
+    waveform = load_audio(audio_path)
+    offset = torch.zeros(1, dtype=torch.int, device=device)
+
+    # waveform = padding(waveform, sample_rate)
+    xs = kaldi.fbank(waveform,
+                            num_mel_bins=80,
+                            frame_length=25,
+                            frame_shift=10,
+                            dither=0.0,
+                            energy_floor=0.0,
+                            sample_frequency=16000).unsqueeze(0)
+
+    hyps = []
+    att_cache = torch.zeros((model.encoder.num_blocks, left_context_size, model.encoder.attention_heads, model.encoder._output_size * 2 // model.encoder.attention_heads)).to(device)
+    cnn_cache = torch.zeros((model.encoder.num_blocks, model.encoder._output_size, conv_lorder)).to(device)    # print(context_size)
+    for idx, _ in tqdm(list(enumerate(range(0, xs.shape[1], truncated_context_size * subsampling_factor)))):
+        start = max(truncated_context_size * subsampling_factor * idx, 0)
+        end = min(truncated_context_size * subsampling_factor * (idx+1) + 7, xs.shape[1])
+
+        x = xs[:, start:end+rel_right_context_size]
+        x_len = torch.tensor([x[0].shape[0]], dtype=torch.int).to(device)
+
+        encoder_outs, encoder_lens, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(xs=x, 
+                                                                    xs_origin_lens=x_len, 
+                                                                    chunk_size=chunk_size,
+                                                                    left_context_size=left_context_size,
+                                                                    right_context_size=right_context_size,
+                                                                    att_cache=att_cache,
+                                                                    cnn_cache=cnn_cache,
+                                                                    truncated_context_size=truncated_context_size,
+                                                                    offset=offset
+                                                                    )
+        encoder_outs = encoder_outs.reshape(1, -1, encoder_outs.shape[-1])[:, :encoder_lens]
+        if chunk_size * multiply_n * subsampling_factor * idx + rel_right_context_size < xs.shape[1]:
+            encoder_outs = encoder_outs[:, :truncated_context_size]  # (B, maxlen, vocab_size) # exclude the output of rel right context
+        offset = offset - encoder_lens + encoder_outs.shape[1]
+
+
+        hyp = model.encoder.ctc_forward(encoder_outs).squeeze(0)
+        hyps.append(hyp)
+        if device.type == "cuda":
+            torch.cuda.empty_cache()
+        if chunk_size * multiply_n * subsampling_factor * idx + rel_right_context_size >= xs.shape[1]:
+            break
+    hyps = torch.cat(hyps)
+    decode = get_output_with_timestamps([hyps], char_dict)[0]
+
+    for item in decode:
+        start = f"{Fore.RED}{item['start']}{Style.RESET_ALL}"
+        end = f"{Fore.RED}{item['end']}{Style.RESET_ALL}"
+        print(f"{start} - {end}: {item['decode']}")
+
+
+@torch.no_grad()
+def batch_decode(args, model, char_dict):
+    df = pd.read_csv(args.audio_list, sep="\t")
+
+    max_length_limited_context = args.total_batch_duration
+    max_length_limited_context = int((max_length_limited_context // 0.01)) // 2 # in 10ms second    xs = []
+    max_frames = max_length_limited_context
+    chunk_size = args.chunk_size
+    left_context_size = args.left_context_size
+    right_context_size = args.right_context_size
+    device = next(model.parameters()).device
+
+    decodes = []
+    xs = []
+    xs_origin_lens = []
+    for idx, audio_path in tqdm(enumerate(df['wav'].to_list())):
+        waveform = load_audio(audio_path)
+        x = kaldi.fbank(waveform,
+                                num_mel_bins=80,
+                                frame_length=25,
+                                frame_shift=10,
+                                dither=0.0,
+                                energy_floor=0.0,
+                                sample_frequency=16000)
+
+        xs.append(x)
+        xs_origin_lens.append(x.shape[0])
+        max_frames -= xs_origin_lens[-1]
+
+        if (max_frames <= 0) or (idx == len(df) - 1):
+            xs_origin_lens = torch.tensor(xs_origin_lens, dtype=torch.int, device=device)
+            offset = torch.zeros(len(xs), dtype=torch.int, device=device)
+            encoder_outs, encoder_lens, n_chunks, _, _, _ = model.encoder.forward_parallel_chunk(xs=xs, 
+                                                                        xs_origin_lens=xs_origin_lens, 
+                                                                        chunk_size=chunk_size,
+                                                                        left_context_size=left_context_size,
+                                                                        right_context_size=right_context_size,
+                                                                        offset=offset
+            )
+
+            hyps = model.encoder.ctc_forward(encoder_outs, encoder_lens, n_chunks)
+            decodes += get_output(hyps, char_dict)
+                                         
+
+            # reset
+            xs = []
+            xs_origin_lens = []
+            max_frames = max_length_limited_context
+
+
+    df['decode'] = decodes
+    if "txt" in df:
+        wer = jiwer.wer(df["txt"].to_list(), decodes)
+        print("WER: ", wer)
+    df.to_csv(args.audio_list, sep="\t", index=False)
+
+
+
+def main():
+    # Create argument parser
+    parser = argparse.ArgumentParser(description="Process arguments with default values.")
+
+    # Add arguments with default values
+    parser.add_argument(
+        "--model_checkpoint", 
+        type=str, 
+        default=None, 
+        help="Path to Huggingface checkpoint repo"
+    )
+    parser.add_argument(
+        "--total_batch_duration", 
+        type=int, 
+        default=1800, 
+        help="The total audio duration (in second) in a batch that your GPU memory can handle at once. Default is 1800s"
+    )
+    parser.add_argument(
+        "--chunk_size", 
+        type=int, 
+        default=64, 
+        help="Size of the chunks (default: 64)"
+    )
+    parser.add_argument(
+        "--left_context_size", 
+        type=int, 
+        default=128, 
+        help="Size of the left context (default: 128)"
+    )
+    parser.add_argument(
+        "--right_context_size", 
+        type=int, 
+        default=128, 
+        help="Size of the right context (default: 128)"
+    )
+    parser.add_argument(
+        "--long_form_audio", 
+        type=str, 
+        default=None, 
+        help="Path to the long audio file (default: None)"
+    )
+    parser.add_argument(
+        "--audio_list", 
+        type=str, 
+        default=None, 
+        required=False, 
+        help="Path to the TSV file containing the audio list. The TSV file must have one column named 'wav'. If 'txt' column is provided, Word Error Rate (WER) is computed"
+    )
+    parser.add_argument(
+        "--full_attn", 
+        action="store_true",
+        help="Whether to use full attention with caching. If not provided, limited-chunk attention will be used (default: False)"
+    )
+    parser.add_argument(
+        "--device",
+        type=torch.device,
+        default="cuda" if torch.cuda.is_available() else "cpu",
+        help="Device to run the model on (default: cuda if available else cpu)"
+    )
+    parser.add_argument(
+        "--autocast_dtype",
+        type=str,
+        choices=["fp32", "bf16", "fp16"],
+        default=None,
+        help="Dtype for autocast. If not provided, autocast is disabled by default."
+    )
+
+    # Parse arguments
+    args = parser.parse_args()
+    device = torch.device(args.device)
+    dtype = {"fp32": torch.float32, "bf16": torch.bfloat16, "fp16": torch.float16, None: None}[args.autocast_dtype]
+
+    # Print the arguments
+    print(f"Model Checkpoint: {args.model_checkpoint}")
+    print(f"Device: {device}")
+    print(f"Total Duration in a Batch (in second): {args.total_batch_duration}")
+    print(f"Chunk Size: {args.chunk_size}")
+    print(f"Left Context Size: {args.left_context_size}")
+    print(f"Right Context Size: {args.right_context_size}")
+    print(f"Long Form Audio Path: {args.long_form_audio}")
+    print(f"Audio List Path: {args.audio_list}")
+    
+    assert args.model_checkpoint is not None, "You must specify the path to the model"
+    assert args.long_form_audio or args.audio_list, "`long_form_audio` or `audio_list` must be activated"
+
+    model, char_dict = init(args.model_checkpoint, device)
+    with torch.autocast(device.type, dtype) if dtype is not None else nullcontext():
+        if args.long_form_audio:
+            endless_decode(args, model, char_dict)
+        else:
+            batch_decode(args, model, char_dict)
+
+if __name__ == "__main__":
+    main()
+
+
+
+# === FILE: stt_chunkformer/__init__.py ===
+
+
+# === FILE: stt_chunkformer/model/asr_model.py ===
+from collections import defaultdict
+from typing import Dict, List, Optional, Tuple
+
+import torch
+import logging
+
+from torch.nn.utils.rnn import pad_sequence
+from .ctc import CTC
+from .utils.common import (IGNORE_ID, add_sos_eos, log_add,
+                                remove_duplicates_and_blank, th_accuracy,
+                                reverse_pad_list)
+# from .mwer import MWER
+from .utils.mask import (make_pad_mask, mask_finished_preds,
+                              mask_finished_scores, subsequent_mask)
+
+
+class ASRModel(torch.nn.Module):
+    """CTC-attention hybrid Encoder-Decoder model"""
+    def __init__(
+        self,
+        vocab_size: int,
+        encoder,
+        ctc: CTC,
+        ctc_weight: float = 0.5,
+        ignore_id: int = IGNORE_ID,
+        reverse_weight: float = 0.0,
+    ):
+        assert 0.0 <= ctc_weight <= 1.0, ctc_weight
+
+        super().__init__()
+        # note that eos is the same as sos (equivalent ID)
+        self.sos = vocab_size - 1
+        self.eos = vocab_size - 1
+        self.vocab_size = vocab_size
+        self.ignore_id = ignore_id
+        self.ctc_weight = ctc_weight
+        self.reverse_weight = reverse_weight
+
+        self.encoder = encoder
+        self.encoder.ctc = ctc
+        self.ctc = ctc        
+
+# === FILE: stt_chunkformer/model/attention.py ===
+"""Multi-Head Attention layer definition."""
+
+import math
+from typing import Tuple, Union
+
+import torch
+from torch import nn
+
+
+class MultiHeadedAttention(nn.Module):
+    """Multi-Head Attention layer.
+
+    Args:
+        n_head (int): The number of heads.
+        n_feat (int): The number of features.
+        dropout_rate (float): Dropout rate.
+
+    """
+    def __init__(self, n_head: int, n_feat: int, dropout_rate: float):
+        """Construct an MultiHeadedAttention object."""
+        super().__init__()
+        assert n_feat % n_head == 0
+        # We assume d_v always equals d_k
+        self.d_k = n_feat // n_head
+        self.h = n_head
+        self.n_feat = n_feat
+        self.linear_q = nn.Linear(n_feat, n_feat)
+        self.linear_k = nn.Linear(n_feat, n_feat)
+        self.linear_v = nn.Linear(n_feat, n_feat)
+        self.linear_out = nn.Linear(n_feat, n_feat)
+        self.dropout = nn.Dropout(p=dropout_rate)
+
+    def forward_qkv(
+        self, query: torch.Tensor, key: torch.Tensor, value: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Transform query, key and value.
+
+        Args:
+            query (torch.Tensor): Query tensor (#batch, time1, size).
+            key (torch.Tensor): Key tensor (#batch, time2, size).
+            value (torch.Tensor): Value tensor (#batch, time2, size).
+
+        Returns:
+            torch.Tensor: Transformed query tensor, size
+                (#batch, n_head, time1, d_k).
+            torch.Tensor: Transformed key tensor, size
+                (#batch, n_head, time2, d_k).
+            torch.Tensor: Transformed value tensor, size
+                (#batch, n_head, time2, d_k).
+
+        """
+        n_batch = query.size(0)
+        q = self.linear_q(query).view(n_batch, -1, self.h, self.d_k)
+        k = self.linear_k(key).view(n_batch, -1, self.h, self.d_k)
+        v = self.linear_v(value).view(n_batch, -1, self.h, self.d_k)
+        q = q.transpose(1, 2)  # (batch, head, time1, d_k)
+        k = k.transpose(1, 2)  # (batch, head, time2, d_k)
+        v = v.transpose(1, 2)  # (batch, head, time2, d_k)
+
+        return q, k, v
+
+    def forward_attention(
+        self, value: torch.Tensor, scores: torch.Tensor,
+        mask: torch.Tensor = torch.ones((0, 0, 0), dtype=torch.bool)
+    ) -> torch.Tensor:
+        """Compute attention context vector.
+
+        Args:
+            value (torch.Tensor): Transformed value, size
+                (#batch, n_head, time2, d_k).
+            scores (torch.Tensor): Attention score, size
+                (#batch, n_head, time1, time2).
+            mask (torch.Tensor): Mask, size (#batch, 1, time2) or
+                (#batch, time1, time2), (0, 0, 0) means fake mask.
+
+        Returns:
+            torch.Tensor: Transformed value (#batch, time1, d_model)
+                weighted by the attention score (#batch, time1, time2).
+
+        """
+        n_batch = value.size(0)
+        # NOTE(xcsong): When will `if mask.size(2) > 0` be True?
+        #   1. onnx(16/4) [WHY? Because we feed real cache & real mask for the
+        #           1st chunk to ease the onnx export.]
+        #   2. pytorch training
+        if mask.size(2) > 0 :  # time2 > 0
+            mask = mask.unsqueeze(1).eq(0)  # (batch, 1, *, time2)
+            # For last chunk, time2 might be larger than scores.size(-1)
+            mask = mask[:, :, :, :scores.size(-1)]  # (batch, 1, *, time2)
+            scores = scores.masked_fill(mask, -float('inf'))
+            attn = torch.softmax(scores, dim=-1).masked_fill(
+                mask, 0.0)  # (batch, head, time1, time2)
+        # NOTE(xcsong): When will `if mask.size(2) > 0` be False?
+        #   1. onnx(16/-1, -1/-1, 16/0)
+        #   2. jit (16/-1, -1/-1, 16/0, 16/4)
+        else:
+            attn = torch.softmax(scores, dim=-1)  # (batch, head, time1, time2)
+
+        p_attn = self.dropout(attn)
+        x = torch.matmul(p_attn, value)  # (batch, head, time1, d_k)
+        x = (x.transpose(1, 2).contiguous().view(n_batch, -1,
+                                                 self.h * self.d_k)
+             )  # (batch, time1, d_model)
+
+
+        return self.linear_out(x)  # (batch, time1, d_model)
+
+    def forward(self, query: torch.Tensor, key: torch.Tensor,
+                value: torch.Tensor,
+                mask: torch.Tensor = torch.ones((0, 0, 0), dtype=torch.bool),
+                pos_emb: torch.Tensor = torch.empty(0),
+                cache: torch.Tensor = torch.zeros((0, 0, 0, 0))
+                ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Compute scaled dot product attention.
+
+        Args:
+            query (torch.Tensor): Query tensor (#batch, time1, size).
+            key (torch.Tensor): Key tensor (#batch, time2, size).
+            value (torch.Tensor): Value tensor (#batch, time2, size).
+            mask (torch.Tensor): Mask tensor (#batch, 1, time2) or
+                (#batch, time1, time2).
+                1.When applying cross attention between decoder and encoder,
+                the batch padding mask for input is in (#batch, 1, T) shape.
+                2.When applying self attention of encoder,
+                the mask is in (#batch, T, T)  shape.
+                3.When applying self attention of decoder,
+                the mask is in (#batch, L, L)  shape.
+                4.If the different position in decoder see different block
+                of the encoder, such as Mocha, the passed in mask could be
+                in (#batch, L, T) shape. But there is no such case in current
+                Wenet.
+            cache (torch.Tensor): Cache tensor (1, head, cache_t, d_k * 2),
+                where `cache_t == chunk_size * num_decoding_left_chunks`
+                and `head * d_k == size`
+
+
+        Returns:
+            torch.Tensor: Output tensor (#batch, time1, d_model).
+            torch.Tensor: Cache tensor (1, head, cache_t + time1, d_k * 2)
+                where `cache_t == chunk_size * num_decoding_left_chunks`
+                and `head * d_k == size`
+
+        """
+        q, k, v = self.forward_qkv(query, key, value)
+
+        # NOTE(xcsong):
+        #   when export onnx model, for 1st chunk, we feed
+        #       cache(1, head, 0, d_k * 2) (16/-1, -1/-1, 16/0 mode)
+        #       or cache(1, head, real_cache_t, d_k * 2) (16/4 mode).
+        #       In all modes, `if cache.size(0) > 0` will alwayse be `True`
+        #       and we will always do splitting and
+        #       concatnation(this will simplify onnx export). Note that
+        #       it's OK to concat & split zero-shaped tensors(see code below).
+        #   when export jit  model, for 1st chunk, we always feed
+        #       cache(0, 0, 0, 0) since jit supports dynamic if-branch.
+        # >>> a = torch.ones((1, 2, 0, 4))
+        # >>> b = torch.ones((1, 2, 3, 4))
+        # >>> c = torch.cat((a, b), dim=2)
+        # >>> torch.equal(b, c)        # True
+        # >>> d = torch.split(a, 2, dim=-1)
+        # >>> torch.equal(d[0], d[1])  # True
+        if cache.size(0) > 0:
+            key_cache, value_cache = torch.split(
+                cache, cache.size(-1) // 2, dim=-1)
+            k = torch.cat([key_cache, k], dim=2)
+            v = torch.cat([value_cache, v], dim=2)
+        # NOTE(xcsong): We do cache slicing in encoder.forward_chunk, since it's
+        #   non-trivial to calculate `next_cache_start` here.
+        new_cache = torch.cat((k, v), dim=-1)
+
+        scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.d_k)
+        return self.forward_attention(v, scores, mask), new_cache
+
+
+class StreamingRelPositionMultiHeadedAttention(MultiHeadedAttention):
+    """Multi-Head Attention layer with relative position encoding.
+    Paper: https://arxiv.org/abs/1901.02860
+    Args:
+        n_head (int): The number of heads.
+        n_feat (int): The number of features.
+        dropout_rate (float): Dropout rate.
+    """
+    def __init__(self, n_head, n_feat, dropout_rate):
+        """Construct an RelPositionMultiHeadedAttention object."""
+        super().__init__(n_head, n_feat, dropout_rate)
+        # linear transformation for positional encoding
+        self.linear_pos = nn.Linear(n_feat, n_feat, bias=False)
+        # these two learnable bias are used in matrix c and matrix d
+        # as described in https://arxiv.org/abs/1901.02860 Section 3.3
+        self.pos_bias_u = nn.Parameter(torch.Tensor(self.h, self.d_k))
+        self.pos_bias_v = nn.Parameter(torch.Tensor(self.h, self.d_k))
+        torch.nn.init.xavier_uniform_(self.pos_bias_u)
+        torch.nn.init.xavier_uniform_(self.pos_bias_v)
+
+    def rel_shift(self, x, offset: int = 0, right_context_size: int = 0):
+        """Compute relative positional encoding.
+
+        Args:
+            x: Input tensor (batch, head, time1, 2*time1-1+left_context).
+                time1 means the length of query vector.
+            left_context (int): left context (in frames) used during streaming decoding.
+                this is used only in real streaming decoding, in other circumstances,
+                it MUST be 0.
+
+        Returns:
+            Tensor: tensor of shape (batch, head, time1, time2)
+          (note: time2 has the same value as time1, but it is for
+          the key, while time1 is for the query).
+        """
+        (batch_size, num_heads, time1, n) = x.size()
+        time2 = time1 + offset + right_context_size
+        batch_stride = x.stride(0)
+        head_stride = x.stride(1)
+        time1_stride = x.stride(2)
+        n_stride = x.stride(3)
+        return x.as_strided(
+            (batch_size, num_heads, time1, time2),
+            (batch_stride, head_stride, time1_stride - n_stride, n_stride),
+            storage_offset=n_stride * (time1 - 1),
+        )
+
+    def forward_parallel_chunk(self, query: torch.Tensor,
+                key: torch.Tensor, value: torch.Tensor,
+                mask: torch.Tensor = torch.ones((0, 0, 0), dtype=torch.bool),
+                pos_emb: torch.Tensor = torch.empty(0),
+                cache: torch.Tensor = torch.zeros((0, 0, 0, 0)),
+                right_context_size: int = 0,
+                left_context_size: int = 0,
+                truncated_context_size: int = 0
+                ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Compute 'Scaled Dot Product Attention' with rel. positional encoding.
+        Args:
+            query (torch.Tensor): Query tensor (#batch, time1, size).
+            key (torch.Tensor): Key tensor (#batch, time2, size).
+            value (torch.Tensor): Value tensor (#batch, time2, size).
+            mask (torch.Tensor): Mask tensor (#batch, 1, time2) or
+                (#batch, time1, time2), (0, 0, 0) means fake mask.
+            pos_emb (torch.Tensor): Positional embedding tensor
+                (#batch, time2, size).
+            cache (torch.Tensor): Cache tensor (B, 1, head, cache_t, d_k * 2),
+                where `cache_t == chunk_size * num_decoding_left_chunks`
+                and `head * d_k == size`
+        Returns:
+            torch.Tensor: Output tensor (#batch, time1, d_model).
+            torch.Tensor: Cache tensor (1, head, cache_t + time1, d_k * 2)
+                where `cache_t == chunk_size * num_decoding_left_chunks`
+                and `head * d_k == size`
+        """
+        q, k, v = self.forward_qkv(query, key, value)
+
+        q = q.transpose(1, 2)  # (batch, time1, head, d_k)
+
+        if cache.size(2) <= 0:
+            cache = torch.zeros((left_context_size, self.h, self.d_k * 2), device=q.device, dtype=q.dtype)
+
+        kv = torch.cat([k, v], dim=-1) # (B, head, time1, d_k * 2),
+        kv = kv.transpose(1, 2).reshape(-1, self.h, self.d_k * 2) # [n_chunk * chunk_size, head, F]
+
+
+        #----------Overlapping Chunk Transformation-----------------------------------
+        kv = torch.cat([cache, kv], dim=0)
+        new_cache = kv[:truncated_context_size + cache.size(0)][-cache.size(0):].cpu()
+        kv = torch.nn.functional.pad(kv, (0, 0, 0, 0, 0, right_context_size))
+        kv = kv.unfold(0, left_context_size + q.shape[1] + right_context_size, q.shape[1])
+        #-----------------------------------------------------------------------------
+
+
+        kv = kv.transpose(2, 3) #[n_chunk + 1, head, F, left_context_size]
+        k, v = torch.split(
+            kv, kv.size(-1) // 2, dim=-1)
+        
+        # NOTE(xcsong): We do cache slicing in encoder.forward_chunk, since it's
+        #   non-trivial to calculate `next_cache_start` here.
+
+
+        n_batch_pos = pos_emb.size(0)
+        p = self.linear_pos(pos_emb).view(n_batch_pos, -1, self.h, self.d_k)
+        p = p.transpose(1, 2)  # (batch, head, time1, d_k)
+
+        # (batch, head, time1, d_k)
+        q_with_bias_u = (q + self.pos_bias_u).transpose(1, 2)
+        # (batch, head, time1, d_k)
+        q_with_bias_v = (q + self.pos_bias_v).transpose(1, 2)
+
+
+        # compute attention score
+        # first compute matrix a and matrix c
+        # as described in https://arxiv.org/abs/1901.02860 Section 3.3
+        # (batch, head, time1, time2)
+        matrix_ac = torch.matmul(q_with_bias_u, k.transpose(-2, -1))
+
+
+        # compute matrix b and matrix d
+        # (batch, head, time1, time2)
+        matrix_bd = torch.matmul(q_with_bias_v, p.transpose(-2, -1))
+
+        # Remove rel_shift since it is useless in speech recognition,
+        # and it requires special attention for streaming.
+
+        matrix_bd = self.rel_shift(matrix_bd, left_context_size, right_context_size)
+
+        scores = (matrix_ac + matrix_bd) / math.sqrt(
+            self.d_k)  # (batch, head, time1, time2)
+
+
+        return self.forward_attention(v, scores, mask), new_cache
+
+
+
+# === FILE: stt_chunkformer/model/cmvn.py ===
+# Copyright (c) 2020 Mobvoi Inc (Binbin Zhang)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import torch
+
+
+class GlobalCMVN(torch.nn.Module):
+    def __init__(self,
+                 mean: torch.Tensor,
+                 istd: torch.Tensor,
+                 norm_var: bool = True):
+        """
+        Args:
+            mean (torch.Tensor): mean stats
+            istd (torch.Tensor): inverse std, std which is 1.0 / std
+        """
+        super().__init__()
+        assert mean.shape == istd.shape
+        self.norm_var = norm_var
+        # The buffer can be accessed from this module using self.mean
+        self.register_buffer("mean", mean)
+        self.register_buffer("istd", istd)
+
+    def forward(self, x: torch.Tensor):
+        """
+        Args:
+            x (torch.Tensor): (batch, max_len, feat_dim)
+
+        Returns:
+            (torch.Tensor): normalized feature
+        """
+        x = x - self.mean
+        if self.norm_var:
+            x = x * self.istd
+        return x
+
+
+# === FILE: stt_chunkformer/model/convolution.py ===
+# Copyright (c) 2020 Mobvoi Inc. (authors: Binbin Zhang, Di Wu)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Modified from ESPnet(https://github.com/espnet/espnet)
+
+"""ConvolutionModule definition."""
+
+from typing import Tuple
+
+import torch
+from torch import nn
+
+
+class ConvolutionModule(nn.Module):
+    """ConvolutionModule in ChunkFormer ."""
+    def __init__(self,
+                 channels: int,
+                 kernel_size: int = 15,
+                 activation: nn.Module = nn.ReLU(),
+                 norm: str = "batch_norm",
+                 causal: bool = False,
+                 bias: bool = True,
+                 use_dynamic_conv: bool = False):
+        """Construct an ConvolutionModule object.
+        Args:
+            channels (int): The number of channels of conv layers.
+            kernel_size (int): Kernel size of conv layers.
+            causal (int): Whether use causal convolution or not
+        """
+        super().__init__()
+        self.use_dynamic_conv = use_dynamic_conv
+        self.channels = channels
+        self.kernel_size = kernel_size
+        self.pointwise_conv1 = nn.Conv1d(
+            channels,
+            2 * channels,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            bias=bias,
+        )
+        # self.lorder is used to distinguish if it's a causal convolution,
+        # if self.lorder > 0: it's a causal convolution, the input will be
+        #    padded with self.lorder frames on the left in forward.
+        # else: it's a symmetrical convolution
+        if causal:
+            padding = 0
+            self.lorder = kernel_size - 1
+        elif use_dynamic_conv:
+            assert (kernel_size - 1) % 2 == 0
+            padding = 0
+            self.lorder = (kernel_size - 1)//2
+        else:
+            # kernel_size should be an odd number for none causal convolution
+            padding = (kernel_size - 1) // 2
+            self.lorder = 0
+        self.depthwise_conv = nn.Conv1d(
+            channels,
+            channels,
+            kernel_size,
+            stride=1,
+            padding=padding,
+            groups=channels,
+            bias=bias,
+        )
+
+        assert norm in ['batch_norm', 'layer_norm']
+        if norm == "batch_norm":
+            self.use_layer_norm = False
+            self.norm = nn.BatchNorm1d(channels)
+        else:
+            self.use_layer_norm = True
+            self.norm = nn.LayerNorm(channels)
+
+        self.pointwise_conv2 = nn.Conv1d(
+            channels,
+            channels,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            bias=bias,
+        )
+        self.activation = activation
+        
+    def forward_parallel_chunk(
+        self,
+        x: torch.Tensor,
+        mask_pad: torch.Tensor = torch.ones((0, 0, 0), dtype=torch.bool),
+        cache: torch.Tensor = torch.zeros((0, 0, 0)),
+        truncated_context_size: int = 0
+
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Compute convolution module.
+        Args:
+            x (torch.Tensor): Input tensor (#batch, time, channels).
+            mask_pad (torch.Tensor): used for batch padding (#batch, 1, time),
+                (0, 0, 0) means fake mask.
+            cache (torch.Tensor): left context cache, it is only
+                used in causal convolution (#batch, channels, cache_t),
+                (0, 0, 0) meas fake cache.
+        Returns:
+            torch.Tensor: Output tensor (#batch, time, channels).
+        """
+        # exchange the temporal dimension and the feature dimension
+        x = x.transpose(1, 2)  # (#batch, channels, time)
+        lorder = self.kernel_size//2
+        chunk_size = x.shape[-1]
+        if cache.size(0) == 0:
+            cache = torch.zeros(self.channels, lorder).to(x.device)
+        # GLU mechanism
+        x = self.pointwise_conv1(x)  # (batch, 2*channel, dim)
+        x = nn.functional.glu(x, dim=1)  # (batch, channel, dim)
+
+        #----------Overlapping Chunk Transformation-----------------------------------
+        x = x.transpose(0, 1).reshape( self.channels, -1)  # [C, n_chunk * T]
+        x = torch.cat([cache, x], dim=-1)
+        new_cache = x[:, :truncated_context_size + cache.size(-1)][:, -cache.size(-1):].cpu()
+        x = nn.functional.pad(x, (0, lorder), 'constant', 0.0)
+        x = x.unfold(-1, chunk_size + 2 * lorder, chunk_size).transpose(0, 1) #[n_chunk +1, C, cnn_cache_size]
+        #-----------------------------------------------------------------------------
+
+        if mask_pad.size(2) > 0:  # time > 0
+            x = torch.where(mask_pad, x, 0)
+
+        # 1D Depthwise Conv
+        x = self.depthwise_conv(x)
+
+        if self.use_layer_norm:
+            x = x.transpose(1, 2)
+        x = self.activation(self.norm(x))
+        if self.use_layer_norm:
+            x = x.transpose(1, 2)
+        x = self.pointwise_conv2(x)
+        # mask batch padding
+        if mask_pad.size(2) > 0:  # time > 0
+            # x.masked_fill_(~mask_pad[:, :, self.lorder:], 0.0)
+            x.masked_fill_(~mask_pad[:, :, self.lorder:-self.lorder], 0.0)
+
+        return x.transpose(1, 2), new_cache
+
+
+# === FILE: stt_chunkformer/model/ctc.py ===
+# Copyright (c) 2020 Mobvoi Inc. (authors: Binbin Zhang, Di Wu)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Modified from ESPnet(https://github.com/espnet/espnet)
+
+import torch
+import torch.nn.functional as F
+import random
+
+class CTC(torch.nn.Module):
+    """CTC module"""
+    def __init__(
+        self,
+        odim: int,
+        encoder_output_size: int,
+        dropout_rate: float = 0.0,
+        reduce: bool = True,
+        blank: int = 0,
+    ):
+        """ Construct CTC module
+        Args:
+            odim: dimension of outputs
+            encoder_output_size: number of encoder projection units
+            dropout_rate: dropout rate (0.0 ~ 1.0)
+            reduce: reduce the CTC loss into a scalar
+        """
+        super().__init__()
+        eprojs = encoder_output_size
+        self.dropout_rate = dropout_rate
+        self.ctc_lo = torch.nn.Linear(eprojs * 1, odim)
+
+        reduction_type = "sum" if reduce else "none"
+        self.ctc_loss = torch.nn.CTCLoss(reduction=reduction_type)
+        self.blank = blank
+
+
+    def log_softmax(self, hs_pad: torch.Tensor) -> torch.Tensor:
+        """log_softmax of frame activations
+
+        Args:
+            Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
+        Returns:
+            torch.Tensor: log softmax applied 3d tensor (B, Tmax, odim)
+        """
+        return F.log_softmax(self.ctc_lo(hs_pad), dim=2)
+
+    def argmax(self, hs_pad: torch.Tensor) -> torch.Tensor:
+        """argmax of frame activations
+
+        Args:
+            torch.Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
+        Returns:
+            torch.Tensor: argmax applied 2d tensor (B, Tmax)
+        """
+        return torch.argmax(self.ctc_lo(hs_pad), dim=2)
+    
+
+# === FILE: stt_chunkformer/model/embedding.py ===
+"""Positonal Encoding Module."""
+
+import math
+from typing import Tuple, Union
+
+import torch
+import torch.nn.functional as F
+
+class StreamingRelPositionalEncoding(torch.nn.Module):
+    """Relative positional encoding module.
+
+    See : Appendix B in "Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context"
+    Modified from https://github.com/espnet/espnet/blob/master/espnet/nets/pytorch_backend/transformer/embedding.py
+
+    Args:
+        d_model: Embedding dimension.
+        dropout_rate: Dropout rate.
+        max_len: Maximum input length.
+
+    """
+
+    def __init__(self, d_model: int, dropout_rate: float, max_len: int = 50000) -> None:
+        """Construct an PositionalEncoding object."""
+        super(StreamingRelPositionalEncoding, self).__init__()
+
+        self.d_model = d_model
+        self.dropout = torch.nn.Dropout(p=dropout_rate)
+        self.pe = None
+        self.xscale = math.sqrt(self.d_model)
+        self.max_len = max_len
+        self.extend_pe(max_len)
+
+    def extend_pe(self, size: int, left_context: Union[int, torch.Tensor] = 0) -> None:
+        """Reset the positional encodings."""
+        x_size_1 = size + left_context
+
+        # Suppose `i` means to the position of query vector and `j` means the
+        # position of key vector. We use position relative positions when keys
+        # are to the left (i>j) and negative relative positions otherwise (i<j).
+        pe_positive = torch.zeros(x_size_1, self.d_model)
+        pe_negative = torch.zeros(x_size_1, self.d_model)
+        position = torch.arange(0, x_size_1, dtype=torch.float32).unsqueeze(1)
+        div_term = torch.exp(
+            torch.arange(0, self.d_model, 2, dtype=torch.float32)
+            * -(math.log(10000.0) / self.d_model)
+        )
+        pe_positive[:, 0::2] = torch.sin(position * div_term)
+        pe_positive[:, 1::2] = torch.cos(position * div_term)
+        pe_negative[:, 0::2] = torch.sin(-1 * position * div_term)
+        pe_negative[:, 1::2] = torch.cos(-1 * position * div_term)
+
+        # Reserve the order of positive indices and concat both positive and
+        # negative indices. This is used to support the shifting trick
+        # as in "Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context"
+        pe_positive = torch.flip(pe_positive, [0]).unsqueeze(0)
+        pe_negative = pe_negative[1:].unsqueeze(0)
+        self.pe = torch.cat([pe_positive, pe_negative], dim=1)
+
+    def position_encoding(self, offset: Union[int, torch.Tensor], size: int,
+                          apply_dropout: bool = False, 
+                          right_context_size: Union[int, torch.Tensor] = 0) -> torch.Tensor:
+
+        if isinstance(offset, int):
+            assert offset + size < self.max_len
+            x_size_1 = size + offset
+            pos_emb = self.pe[
+                :,
+                self.pe.size(1) // 2
+                - x_size_1
+                + 1 : self.pe.size(1) // 2  # noqa E203
+                + size + right_context_size,
+            ]
+        else:
+            assert offset + size < self.max_len
+            x_size_1 = size + offset
+            pos_emb = self.pe[
+                :,
+                self.pe.size(1) // 2
+                - x_size_1
+                + 1 : self.pe.size(1) // 2  # noqa E203
+                + size + right_context_size,
+            ]
+
+        return pos_emb
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        offset: Union[int, torch.Tensor] = 0,
+        right_context_size: Union[int, torch.Tensor] = 0,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Add positional encoding.
+
+        Args:
+            x (torch.Tensor): Input tensor (batch, time, `*`).
+            offset (int): left context (in frames) used during streaming decoding.
+                this is used only in real streaming decoding, in other circumstances,
+                it MUST be 0.
+
+        Returns:
+            torch.Tensor: Encoded tensor (batch, time, `*`).
+            torch.Tensor: Encoded tensor (batch, 2*time-1, `*`).
+
+        """
+        x = x * self.xscale
+        pos_emb = self.position_encoding(offset, x.size(1), False, right_context_size).to(device=x.device, dtype=x.dtype)
+        return self.dropout(x), self.dropout(pos_emb)
+
+# === FILE: stt_chunkformer/model/encoder_layer.py ===
+"""Encoder self-attention layer definition."""
+
+from typing import Optional, Tuple
+
+import torch
+from torch import nn
+
+
+class ChunkFormerEncoderLayer(nn.Module):
+    """Encoder layer module.
+    Args:
+        size (int): Input dimension.
+        self_attn (torch.nn.Module): Self-attention module instance.
+            `MultiHeadedAttention` or `RelPositionMultiHeadedAttention`
+            instance can be used as the argument.
+        feed_forward (torch.nn.Module): Feed-forward module instance.
+            `PositionwiseFeedForward` instance can be used as the argument.
+        feed_forward_macaron (torch.nn.Module): Additional feed-forward module
+             instance.
+            `PositionwiseFeedForward` instance can be used as the argument.
+        conv_module (torch.nn.Module): Convolution module instance.
+            `ConvlutionModule` instance can be used as the argument.
+        dropout_rate (float): Dropout rate.
+        normalize_before (bool):
+            True: use layer_norm before each sub-block.
+            False: use layer_norm after each sub-block.
+    """
+    def __init__(
+        self,
+        size: int,
+        self_attn: torch.nn.Module,
+        feed_forward: Optional[nn.Module] = None,
+        feed_forward_macaron: Optional[nn.Module] = None,
+        conv_module: Optional[nn.Module] = None,
+        dropout_rate: float = 0.1,
+        normalize_before: bool = True,
+        aggregate: int = 1
+    ):
+        """Construct an EncoderLayer object."""
+        super().__init__()
+        self.aggregate = aggregate
+        if self.aggregate < 1:
+            self.project_linear = nn.Linear(size * aggregate, size)
+        else:
+            self.project_linear = None
+        self.self_attn = self_attn
+        self.feed_forward = feed_forward
+        self.feed_forward_macaron = feed_forward_macaron
+        self.conv_module = conv_module
+        self.norm_ff = nn.LayerNorm(size, eps=1e-5)  # for the FNN module
+        self.norm_mha = nn.LayerNorm(size, eps=1e-5)  # for the MHA module
+        if feed_forward_macaron is not None:
+            self.norm_ff_macaron = nn.LayerNorm(size, eps=1e-5)
+            self.ff_scale = 0.5
+        else:
+            self.ff_scale = 1.0
+        if self.conv_module is not None:
+            self.norm_conv = nn.LayerNorm(size,
+                                          eps=1e-5)  # for the CNN module
+            self.norm_final = nn.LayerNorm(
+                size, eps=1e-5)  # for the final output of the block
+        self.dropout = nn.Dropout(dropout_rate)
+        self.size = size
+        self.normalize_before = normalize_before
+
+    def forward_parallel_chunk(
+        self,
+        x: torch.Tensor,
+        mask: torch.Tensor,
+        pos_emb: torch.Tensor,
+        mask_pad: torch.Tensor,
+        att_cache: torch.Tensor = torch.zeros((0, 0, 0)),
+        cnn_cache: torch.Tensor = torch.zeros((0, 0, 0)),
+        right_context_size: int = 0,
+        left_context_size: int = 0,
+        truncated_context_size: int = 0
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Compute encoded features.
+
+        Args:
+            x (torch.Tensor): (#batch, time, size)
+            mask (torch.Tensor): Mask tensor for the input (#batch, time，time),
+                (0, 0, 0) means fake mask.
+            pos_emb (torch.Tensor): positional encoding, must not be None
+                for ChunkFormerEncoderLayer.
+            mask_pad (torch.Tensor): batch padding mask used for conv module.
+                (#batch, 1，time), (0, 0, 0) means fake mask.
+            att_cache (torch.Tensor): Cache tensor of the KEY & VALUE
+                (batch, 1, head, cache_t1, d_k * 2), head * d_k == size.
+            cnn_cache (torch.Tensor): Convolution cache in ChunkFormer layer
+                (batch, 1, size, cache_t2)
+        Returns:
+            torch.Tensor: Output tensor (#batch, time, size).
+            torch.Tensor: Mask tensor (#batch, time, time).
+            torch.Tensor: att_cache tensor,
+                (#batch=1, head, cache_t1 + time, d_k * 2).
+            torch.Tensor: cnn_cahce tensor (#batch, size, cache_t2).
+        """
+
+
+        # whether to use macaron style
+        if self.feed_forward_macaron is not None:
+            residual = x
+            if self.normalize_before:
+                x = self.norm_ff_macaron(x)
+            x = residual + self.ff_scale * self.dropout(
+                self.feed_forward_macaron(x))
+            if not self.normalize_before:
+                x = self.norm_ff_macaron(x)
+
+        # multi-headed self-attention module
+        residual = x
+        if self.normalize_before:
+            x = self.norm_mha(x)
+
+        x_att, new_att_cache = self.self_attn.forward_parallel_chunk(
+            x, x, x, mask, pos_emb, att_cache, right_context_size=right_context_size, left_context_size=left_context_size, truncated_context_size=truncated_context_size)
+
+        x = residual + self.dropout(x_att)
+        if not self.normalize_before:
+            x = self.norm_mha(x)
+
+        # convolution module
+        # Fake new cnn cache here, and then change it in conv_module
+        new_cnn_cache = torch.zeros((0, 0, 0), dtype=x.dtype, device=x.device)
+        if self.conv_module is not None:
+            residual = x
+            if self.normalize_before:
+                x = self.norm_conv(x)
+
+            x, new_cnn_cache = self.conv_module.forward_parallel_chunk(x, mask_pad, cnn_cache, truncated_context_size=truncated_context_size)
+
+            x = residual + self.dropout(x)
+
+            if not self.normalize_before:
+                x = self.norm_conv(x)
+        # feed forward module
+        residual = x
+        if self.normalize_before:
+            x = self.norm_ff(x)
+
+        x = residual + self.ff_scale * self.dropout(self.feed_forward(x))
+        if not self.normalize_before:
+            x = self.norm_ff(x)
+
+        if self.conv_module is not None:
+            x = self.norm_final(x)
+
+
+        return x, mask, new_att_cache, new_cnn_cache
+
+
+# === FILE: stt_chunkformer/model/encoder.py ===
+# Copyright (c) 2021 Mobvoi Inc (Binbin Zhang, Di Wu)
+#               2022 Xingchen Song (sxc19@mails.tsinghua.edu.cn)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Modified from ESPnet(https://github.com/espnet/espnet)
+
+"""Encoder definition."""
+from typing import Tuple, Optional
+
+import torch
+import math
+
+
+from .attention import MultiHeadedAttention
+from .attention import StreamingRelPositionMultiHeadedAttention
+from .convolution import ConvolutionModule
+from .embedding import StreamingRelPositionalEncoding
+from .encoder_layer import ChunkFormerEncoderLayer
+from .positionwise_feed_forward import PositionwiseFeedForward
+from .subsampling import DepthwiseConvSubsampling
+from .utils.common import get_activation
+from .utils.mask import make_pad_mask
+
+class BaseEncoder(torch.nn.Module):
+    def __init__(
+        self,
+        input_size: int,
+        output_size: int = 256,
+        attention_heads: int = 4,
+        linear_units: int = 2048,
+        num_blocks: int = 6,
+        dropout_rate: float = 0.1,
+        positional_dropout_rate: float = 0.1,
+        attention_dropout_rate: float = 0.0,
+        input_layer: str = "conv2d",
+        pos_enc_layer_type: str = "abs_pos",
+        normalize_before: bool = True,
+        static_chunk_size: int = 0,
+        use_dynamic_chunk: bool = False,
+        global_cmvn: torch.nn.Module = None,
+        use_dynamic_left_chunk: bool = False,
+        use_limited_chunk: bool = False,
+        limited_decoding_chunk_sizes: list = [],
+        limited_left_chunk_sizes: list = [],
+        use_context_hint_chunk: bool = False,
+        right_context_sizes: list = [],
+        right_context_probs: list = [],
+        freeze_subsampling_layer: bool = False,
+    ):
+        """
+        Args:
+            input_size (int): input dim
+            output_size (int): dimension of attention
+            attention_heads (int): the number of heads of multi head attention
+            linear_units (int): the hidden units number of position-wise feed
+                forward
+            num_blocks (int): the number of decoder blocks
+            dropout_rate (float): dropout rate
+            attention_dropout_rate (float): dropout rate in attention
+            positional_dropout_rate (float): dropout rate after adding
+                positional encoding
+            input_layer (str): input layer type.
+                optional [linear, conv2d, conv2d6, conv2d8]
+            pos_enc_layer_type (str): Encoder positional encoding layer type.
+                opitonal [abs_pos, scaled_abs_pos, rel_pos, no_pos]
+            normalize_before (bool):
+                True: use layer_norm before each sub-block of a layer.
+                False: use layer_norm after each sub-block of a layer.
+            static_chunk_size (int): chunk size for static chunk training and
+                decoding
+            use_dynamic_chunk (bool): whether use dynamic chunk size for
+                training or not, You can only use fixed chunk(chunk_size > 0)
+                or dyanmic chunk size(use_dynamic_chunk = True)
+            global_cmvn (Optional[torch.nn.Module]): Optional GlobalCMVN module
+            use_dynamic_left_chunk (bool): whether use dynamic left chunk in
+                dynamic chunk training
+        """
+        super().__init__()
+        self._output_size = output_size
+        self.pos_enc_layer_type = pos_enc_layer_type
+        self.attention_heads = attention_heads
+        self.input_layer = input_layer
+
+
+        pos_enc_class = StreamingRelPositionalEncoding
+        subsampling_class = DepthwiseConvSubsampling
+
+        self.global_cmvn = global_cmvn
+        if subsampling_class == DepthwiseConvSubsampling:
+            self.embed = subsampling_class(
+                subsampling="dw_striding",
+                subsampling_factor=8,
+                feat_in=input_size,
+                feat_out=output_size,
+                conv_channels=output_size,
+                pos_enc_class=pos_enc_class(output_size, positional_dropout_rate),
+                subsampling_conv_chunking_factor=1,
+                activation=torch.nn.ReLU(),
+                is_causal=False,
+            )
+        else:
+            self.embed = subsampling_class(
+                input_size,
+                output_size,
+                dropout_rate,
+                pos_enc_class(output_size, positional_dropout_rate),
+            )
+
+        self.normalize_before = normalize_before
+        self.after_norm = torch.nn.LayerNorm(output_size * 1, eps=1e-5)
+        self.static_chunk_size = static_chunk_size
+        self.use_dynamic_chunk = use_dynamic_chunk
+        self.use_dynamic_left_chunk = use_dynamic_left_chunk
+        self.use_limited_chunk = use_limited_chunk
+        self.limited_decoding_chunk_sizes = torch.IntTensor(limited_decoding_chunk_sizes)
+        self.limited_left_chunk_sizes = torch.IntTensor(limited_left_chunk_sizes)
+        self.use_context_hint_chunk = use_context_hint_chunk
+        self.right_context_sizes = torch.IntTensor(right_context_sizes)
+        self.right_context_probs = torch.FloatTensor(right_context_probs)
+
+        if freeze_subsampling_layer:
+            self.freeze_subsampling_layer()
+
+
+    def output_size(self) -> int:
+        return self._output_size
+
+    def freeze_subsampling_layer(self):
+        for param in self.embed.parameters():
+            param.requires_grad = False
+    
+    def forward_parallel_chunk(
+        self,
+        xs,
+        xs_origin_lens,
+        chunk_size: int = -1,
+        left_context_size: int = -1,
+        right_context_size: int = -1,
+        att_cache: torch.Tensor = torch.zeros((0, 0, 0, 0)),
+        cnn_cache: torch.Tensor = torch.zeros((0, 0, 0, 0)),
+        truncated_context_size:int = 0,
+        offset: torch.Tensor = torch.zeros(0),
+        ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Embed positions in tensor.
+
+        Args:
+            xs: padded input tensor (B, T, D)
+            xs_lens: input length (B)
+            decoding_chunk_size: decoding chunk size for dynamic chunk
+                0: default for training, use random dynamic chunk.
+                <0: for decoding, use full chunk.
+                >0: for decoding, use fixed chunk size as set.
+            num_decoding_left_chunks: number of left chunks, this is for decoding,
+            the chunk size is decoding_chunk_size.
+                >=0: use num_decoding_left_chunks
+                <0: use all left chunks
+        Returns:
+            encoder output tensor xs, and subsampled masks
+            xs: padded output tensor (B, T' ~= T/subsample_rate, D)
+            masks: torch.Tensor batch padding mask after subsample
+                (B, 1, T' ~= T/subsample_rate)
+        """
+        assert offset.shape[0] == len(xs), f"{offset.shape[0]} - {len(xs)}"
+        
+        # --------------------------Chunk Batching-------------------------------------------
+        subsampling = self.embed.subsampling_factor
+        context = self.embed.right_context + 1 # Add current frame
+        size = (chunk_size - 1) * subsampling + context
+        step = subsampling * chunk_size
+        device = xs_origin_lens.device
+
+        conv_lorder = self.cnn_module_kernel // 2
+
+        upper_bounds = []
+        lower_bounds = []
+        upper_bounds_conv = []
+        lower_bounds_conv = []
+        x_pad = []
+        xs_lens = []
+        n_chunks = []
+        for xs_origin_len, x, offs in zip(xs_origin_lens, xs, offset): # cost O(input_batch_size | ccu)
+            x = x.to(device)
+            if x.size(0) >= size:
+                n_frames_pad = (step - ((x.size(0) - size) %  step)) % step
+            else:
+                n_frames_pad = size - x.size(0)
+            x = torch.nn.functional.pad(x, (0, 0, 0, n_frames_pad)) # (T, 80)
+            n_chunk = ((x.size(0) - size) // step) + 1
+            x = x.unfold(0, size=size, step=step) # [n_chunk, 80, size]
+            x = x.transpose(2, 1)
+
+            max_len = 1  + (xs_origin_len - context)//subsampling
+            upper_bound = chunk_size + right_context_size + torch.arange(0, 1 + (xs_origin_len + n_frames_pad - context)//subsampling, 1 + (size - context)//subsampling, device=device)
+            lower_bound = upper_bound - max_len
+            upper_bound += offs
+            
+            upper_bound_conv = chunk_size + conv_lorder + torch.arange(0, 1  + (xs_origin_len + n_frames_pad - context)//subsampling, 1 + (size - context)//subsampling, device=device)
+            lower_bound_conv = torch.maximum(upper_bound_conv - max_len, torch.full_like(upper_bound_conv, conv_lorder - right_context_size))
+            upper_bound_conv += offs
+
+
+            xs_lens += [size] * (n_chunk - 1) + [size - n_frames_pad]
+            upper_bounds.append(upper_bound)
+            lower_bounds.append(lower_bound)
+            upper_bounds_conv.append(upper_bound_conv)
+            lower_bounds_conv.append(lower_bound_conv)
+            x_pad.append(x)
+            n_chunks.append(n_chunk)
+
+
+        xs = torch.cat(x_pad, dim=0).to(device)
+        xs_lens = torch.tensor(xs_lens).to(device)
+        upper_bounds = torch.cat(upper_bounds).unsqueeze(1).to(device)
+        lower_bounds = torch.cat(lower_bounds).unsqueeze(1).to(device)
+        upper_bounds_conv = torch.cat(upper_bounds_conv).unsqueeze(1).to(device)
+        lower_bounds_conv = torch.cat(lower_bounds_conv).unsqueeze(1).to(device)
+
+
+        # forward model
+        if self.global_cmvn is not None:
+            xs = self.global_cmvn(xs)
+
+
+        xs, pos_emb, xs_lens = self.embed(xs, xs_lens, offset=left_context_size, right_context_size=right_context_size)
+        masks = ~make_pad_mask(xs_lens, xs.size(1)).unsqueeze(1)  # (B, 1, T)
+
+
+        mask_pad = torch.arange(0, conv_lorder + chunk_size + conv_lorder, device=masks.device).unsqueeze(0).repeat(xs.size(0), 1) # [B, left_context_size + chunksize]
+        mask_pad = (lower_bounds_conv <= mask_pad) & (mask_pad < upper_bounds_conv)
+        mask_pad = mask_pad.flip(-1).unsqueeze(1)
+        att_mask = torch.arange(0, left_context_size + chunk_size + right_context_size, device=masks.device).unsqueeze(0).repeat(xs.size(0), 1) # [B, left_context_size + chunksize]
+        att_mask = (lower_bounds <= att_mask) & (att_mask < upper_bounds)
+        att_mask = att_mask.flip(-1).unsqueeze(1)
+
+
+        r_att_cache = []
+        r_cnn_cache = []
+        for i, layer in enumerate(self.encoders):
+            xs, _, new_att_cache, new_cnn_cache = layer.forward_parallel_chunk(xs, att_mask, pos_emb, 
+                mask_pad=mask_pad,
+                right_context_size=right_context_size,
+                left_context_size=left_context_size,
+                att_cache=att_cache[i].to(device) if att_cache.size(0) > 0 else att_cache,
+                cnn_cache=cnn_cache[i].to(device) if cnn_cache.size(0) > 0 else cnn_cache,
+                truncated_context_size=truncated_context_size
+
+            )
+            r_att_cache.append(new_att_cache)
+            r_cnn_cache.append(new_cnn_cache)
+
+        del att_cache
+        del cnn_cache
+        if self.normalize_before:
+            xs = self.after_norm(xs)
+
+        xs_lens = self.embed.calc_length(xs_origin_lens)
+        offset += xs_lens
+
+
+        # NOTE(xcsong): shape(r_att_cache) is (elayers, head, ?, d_k * 2),
+        #   ? may be larger than cache_t1, it depends on required_cache_size
+        r_att_cache = torch.stack(r_att_cache, dim=0)
+        # NOTE(xcsong): shape(r_cnn_cache) is (e, b=1, hidden-dim, cache_t2)
+        r_cnn_cache = torch.stack(r_cnn_cache, dim=0)
+        return xs, xs_lens, n_chunks, r_att_cache, r_cnn_cache, offset
+    
+    def ctc_forward(self, xs, xs_lens=None, n_chunks=None):
+        ctc_probs = self.ctc.log_softmax(xs)
+        topk_prob, topk_index = ctc_probs.topk(1, dim=2)  # (B, maxlen, 1)
+        hyps = topk_index.squeeze(-1)  # (B, maxlen)
+
+        if (n_chunks is not None) and (xs_lens is not None):
+            hyps = hyps.split(n_chunks, dim=0)   
+            hyps = [hyp.flatten()[:x_len] for hyp, x_len in zip(hyps, xs_lens)]
+        return hyps  
+
+
+    def rearrange(
+        self, 
+        xs,
+        xs_lens,
+        n_chunks
+    ):
+        xs = xs.split(n_chunks, dim=0)   
+        xs_lens = self.embed.calc_length(xs_lens)
+        xs = [x.reshape(-1, self._output_size)[:x_len] for x, x_len in zip(xs, xs_lens)]
+
+
+
+        xs = torch.nn.utils.rnn.pad_sequence(xs,
+                                    batch_first=True,
+                                    padding_value=0)
+        masks = ~make_pad_mask(xs_lens, xs.size(1)).unsqueeze(1).to(xs.device) # (B, 1, T)
+        return xs, masks
+
+class ChunkFormerEncoder(BaseEncoder):
+    """ChunkFormer encoder module."""
+    def __init__(
+        self,
+        input_size: int,
+        output_size: int = 256,
+        attention_heads: int = 4,
+        linear_units: int = 2048,
+        num_blocks: int = 6,
+        dropout_rate: float = 0.1,
+        positional_dropout_rate: float = 0.1,
+        attention_dropout_rate: float = 0.0,
+        input_layer: str = "conv2d",
+        pos_enc_layer_type: str = "rel_pos",
+        normalize_before: bool = True,
+        static_chunk_size: int = 0,
+        use_dynamic_chunk: bool = False,
+        global_cmvn: torch.nn.Module = None,
+        use_dynamic_left_chunk: bool = False,
+        positionwise_conv_kernel_size: int = 1,
+        macaron_style: bool = True,
+        selfattention_layer_type: str = "rel_selfattn",
+        activation_type: str = "swish",
+        use_cnn_module: bool = True,
+        cnn_module_kernel: int = 15,
+        causal: bool = False,
+        cnn_module_norm: str = "batch_norm",
+        use_limited_chunk: bool = False,
+        limited_decoding_chunk_sizes: list = [],
+        limited_left_chunk_sizes: list = [],
+        use_dynamic_conv: bool = False,
+        use_context_hint_chunk: bool = False,
+        right_context_sizes: list = [],
+        right_context_probs: list = [],
+        freeze_subsampling_layer: bool = False,
+    ):
+        """Construct ChunkFormerEncoder
+
+        Args:
+            input_size to use_dynamic_chunk, see in BaseEncoder
+            positionwise_conv_kernel_size (int): Kernel size of positionwise
+                conv1d layer.
+            macaron_style (bool): Whether to use macaron style for
+                positionwise layer.
+            selfattention_layer_type (str): Encoder attention layer type,
+                the parameter has no effect now, it's just for configure
+                compatibility.
+            activation_type (str): Encoder activation function type.
+            use_cnn_module (bool): Whether to use convolution module.
+            cnn_module_kernel (int): Kernel size of convolution module.
+            causal (bool): whether to use causal convolution or not.
+        """
+        super().__init__(input_size, output_size, attention_heads,
+                         linear_units, num_blocks, dropout_rate,
+                         positional_dropout_rate, attention_dropout_rate,
+                         input_layer, pos_enc_layer_type, normalize_before,
+                         static_chunk_size, use_dynamic_chunk,
+                         global_cmvn, use_dynamic_left_chunk, 
+                         use_limited_chunk=use_limited_chunk,
+                         limited_decoding_chunk_sizes=limited_decoding_chunk_sizes,
+                         limited_left_chunk_sizes=limited_left_chunk_sizes,
+                         use_context_hint_chunk=use_context_hint_chunk,
+                         right_context_sizes=right_context_sizes,
+                         right_context_probs=right_context_probs,
+                         freeze_subsampling_layer=freeze_subsampling_layer)
+        self.cnn_module_kernel = cnn_module_kernel
+        activation = get_activation(activation_type)
+        self.num_blocks = num_blocks
+        self.use_dynamic_conv = use_dynamic_conv
+        self.input_size = input_size
+        self.attention_heads = attention_heads
+
+        # self-attention module definition
+        if pos_enc_layer_type == "abs_pos":
+            encoder_selfattn_layer = MultiHeadedAttention
+        elif pos_enc_layer_type == "rel_pos":
+            encoder_selfattn_layer = RelPositionMultiHeadedAttention
+        elif pos_enc_layer_type == "stream_rel_pos":
+            encoder_selfattn_layer = StreamingRelPositionMultiHeadedAttention
+        
+        encoder_selfattn_layer_args = (
+            attention_heads,
+            output_size,
+            attention_dropout_rate,
+        )
+
+        # feed-forward module definition
+        positionwise_layer = PositionwiseFeedForward
+        positionwise_layer_args = (
+            output_size,
+            linear_units,
+            dropout_rate,
+            activation,
+        )
+        # convolution module definition
+        convolution_layer = ConvolutionModule
+        convolution_layer_args = (output_size, cnn_module_kernel, activation,
+                                  cnn_module_norm, causal, True, use_dynamic_conv)
+
+        self.encoders = torch.nn.ModuleList([
+            ChunkFormerEncoderLayer(
+                output_size,
+                encoder_selfattn_layer(*encoder_selfattn_layer_args),
+                positionwise_layer(*positionwise_layer_args),
+                positionwise_layer(
+                    *positionwise_layer_args) if macaron_style else None,
+                convolution_layer(
+                    *convolution_layer_args) if use_cnn_module else None,
+                dropout_rate,
+                normalize_before,
+                aggregate=2 if ((i % 3 == 0) and  (i > 0)) else 1
+            ) for i in range(num_blocks)
+        ])
+
+
+# === FILE: stt_chunkformer/model/__init__.py ===
+
+
+# === FILE: stt_chunkformer/model/positionwise_feed_forward.py ===
+# Copyright (c) 2019 Shigeki Karita
+#               2020 Mobvoi Inc (Binbin Zhang)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Positionwise feed forward layer definition."""
+
+import torch
+
+
+class PositionwiseFeedForward(torch.nn.Module):
+    """Positionwise feed forward layer.
+
+    FeedForward are appied on each position of the sequence.
+    The output dim is same with the input dim.
+
+    Args:
+        idim (int): Input dimenstion.
+        hidden_units (int): The number of hidden units.
+        dropout_rate (float): Dropout rate.
+        activation (torch.nn.Module): Activation function
+    """
+    def __init__(self,
+                 idim: int,
+                 hidden_units: int,
+                 dropout_rate: float,
+                 activation: torch.nn.Module = torch.nn.ReLU()):
+        """Construct a PositionwiseFeedForward object."""
+        super(PositionwiseFeedForward, self).__init__()
+        self.w_1 = torch.nn.Linear(idim, hidden_units)
+        self.activation = activation
+        self.dropout = torch.nn.Dropout(dropout_rate)
+        self.w_2 = torch.nn.Linear(hidden_units, idim)
+
+    def forward(self, xs: torch.Tensor) -> torch.Tensor:
+        """Forward function.
+
+        Args:
+            xs: input tensor (B, L, D)
+        Returns:
+            output tensor, (B, L, D)
+        """
+        return self.w_2(self.dropout(self.activation(self.w_1(xs))))
+
+
+# === FILE: stt_chunkformer/model/subsampling.py ===
+"""Subsampling layer definition."""
+
+from typing import Tuple, Union
+
+import torch
+import math
+
+class DepthwiseConvSubsampling(torch.nn.Module):
+    """Convolutional subsampling which supports VGGNet and striding approach introduced in:
+    VGGNet Subsampling: Transformer-transducer: end-to-end speech recognition with self-attention (https://arxiv.org/pdf/1910.12977.pdf)
+    Striding Subsampling: "Speech-Transformer: A No-Recurrence Sequence-to-Sequence Model for Speech Recognition" by Linhao Dong et al. (https://ieeexplore.ieee.org/document/8462506)
+    Args:
+        subsampling (str): The subsampling technique from {"vggnet", "striding", "dw-striding"}
+        subsampling_factor (int): The subsampling factor which should be a power of 2
+        subsampling_conv_chunking_factor (int): Input chunking factor which can be -1 (no chunking) 
+        1 (auto) or a power of 2. Default is 1
+        feat_in (int): size of the input features
+        feat_out (int): size of the output features
+        conv_channels (int): Number of channels for the convolution layers.
+        activation (Module): activation function, default is nn.ReLU()
+    """
+
+    def __init__(
+        self,
+        subsampling,
+        subsampling_factor,
+        feat_in,
+        feat_out,
+        conv_channels,
+        pos_enc_class: torch.nn.Module,
+        subsampling_conv_chunking_factor=1,
+        activation=torch.nn.ReLU(),
+        is_causal=False,
+    ):
+        super(DepthwiseConvSubsampling, self).__init__()
+        self._subsampling = subsampling
+        self._conv_channels = conv_channels
+        self._feat_in = feat_in
+        self._feat_out = feat_out
+        self.pos_enc = pos_enc_class
+
+        if subsampling_factor % 2 != 0:
+            raise ValueError("Sampling factor should be a multiply of 2!")
+        self._sampling_num = int(math.log(subsampling_factor, 2))
+        self.subsampling_factor = subsampling_factor
+        self.right_context = 14
+        self.is_causal = is_causal
+
+        if (
+            subsampling_conv_chunking_factor != -1
+            and subsampling_conv_chunking_factor != 1
+            and subsampling_conv_chunking_factor % 2 != 0
+        ):
+            raise ValueError("subsampling_conv_chunking_factor should be -1, 1, or a power of 2")
+        self.subsampling_conv_chunking_factor = subsampling_conv_chunking_factor
+
+        in_channels = 1
+        layers = []
+
+        if subsampling == 'vggnet':
+            self._stride = 2
+            self._kernel_size = 2
+            self._ceil_mode = True
+
+            self._left_padding = 0
+            self._right_padding = 0
+
+            for i in range(self._sampling_num):
+                layers.append(
+                    torch.nn.Conv2d(
+                        in_channels=in_channels, out_channels=conv_channels, kernel_size=3, stride=1, padding=1
+                    )
+                )
+                layers.append(activation)
+                layers.append(
+                    torch.nn.Conv2d(
+                        in_channels=conv_channels, out_channels=conv_channels, kernel_size=3, stride=1, padding=1
+                    )
+                )
+                layers.append(activation)
+                layers.append(
+                    torch.nn.MaxPool2d(
+                        kernel_size=self._kernel_size,
+                        stride=self._stride,
+                        padding=self._left_padding,
+                        ceil_mode=self._ceil_mode,
+                    )
+                )
+                in_channels = conv_channels
+
+        elif subsampling == 'dw_striding':
+            self._stride = 2
+            self._kernel_size = 3
+            self._ceil_mode = False
+
+            if self.is_causal:
+                self._left_padding = self._kernel_size - 1
+                self._right_padding = self._stride - 1
+                self._max_cache_len = subsampling_factor + 1
+            else:
+                self._left_padding = 0
+                self._right_padding = 0
+                self._max_cache_len = 0
+
+            # Layer 1
+            if self.is_causal:
+                layers.append(
+                    CausalConv2D(
+                        in_channels=in_channels,
+                        out_channels=conv_channels,
+                        kernel_size=self._kernel_size,
+                        stride=self._stride,
+                        padding=None,
+                    )
+                )
+            else:
+                layers.append(
+                    torch.nn.Conv2d(
+                        in_channels=in_channels,
+                        out_channels=conv_channels,
+                        kernel_size=self._kernel_size,
+                        stride=self._stride,
+                        padding=0,
+                    )
+                )
+            in_channels = conv_channels
+            layers.append(activation)
+
+            for i in range(self._sampling_num - 1):
+                if self.is_causal:
+                    layers.append(
+                        CausalConv2D(
+                            in_channels=in_channels,
+                            out_channels=in_channels,
+                            kernel_size=self._kernel_size,
+                            stride=self._stride,
+                            padding=None,
+                            groups=in_channels,
+                        )
+                    )
+                else:
+                    layers.append(
+                        torch.nn.Conv2d(
+                            in_channels=in_channels,
+                            out_channels=in_channels,
+                            kernel_size=self._kernel_size,
+                            stride=self._stride,
+                            padding=0,
+                            groups=in_channels,
+                        )
+                    )
+
+                layers.append(
+                    torch.nn.Conv2d(
+                        in_channels=in_channels,
+                        out_channels=conv_channels,
+                        kernel_size=1,
+                        stride=1,
+                        padding=0,
+                        groups=1,
+                    )
+                )
+                layers.append(activation)
+                in_channels = conv_channels
+
+        elif subsampling == 'striding':
+            self._stride = 2
+            self._kernel_size = 3
+            self._ceil_mode = False
+
+            if self.is_causal:
+                self._left_padding = self._kernel_size - 1
+                self._right_padding = self._stride - 1
+                self._max_cache_len = subsampling_factor + 1
+            else:
+                self._left_padding = (self._kernel_size - 1) // 2
+                self._right_padding = (self._kernel_size - 1) // 2
+                self._max_cache_len = 0
+
+            for i in range(self._sampling_num):
+                if self.is_causal:
+                    layers.append(
+                        CausalConv2D(
+                            in_channels=in_channels,
+                            out_channels=conv_channels,
+                            kernel_size=self._kernel_size,
+                            stride=self._stride,
+                            padding=None,
+                        )
+                    )
+                else:
+                    layers.append(
+                        torch.nn.Conv2d(
+                            in_channels=in_channels,
+                            out_channels=conv_channels,
+                            kernel_size=self._kernel_size,
+                            stride=self._stride,
+                            padding=self._left_padding,
+                        )
+                    )
+                layers.append(activation)
+                in_channels = conv_channels
+
+        elif subsampling == 'striding_conv1d':
+
+            in_channels = feat_in
+
+            self._stride = 2
+            self._kernel_size = 5
+            self._ceil_mode = False
+
+            if self.is_causal:
+                self._left_padding = self._kernel_size - 1
+                self._right_padding = self._stride - 1
+                self._max_cache_len = subsampling_factor + 1
+            else:
+                self._left_padding = (self._kernel_size - 1) // 2
+                self._right_padding = (self._kernel_size - 1) // 2
+                self._max_cache_len = 0
+
+            for i in range(self._sampling_num):
+                if self.is_causal:
+                    layers.append(
+                        CausalConv1D(
+                            in_channels=in_channels,
+                            out_channels=feat_out if self._sampling_num == i + 1 else conv_channels,
+                            kernel_size=self._kernel_size,
+                            stride=self._stride,
+                            padding=None,
+                        )
+                    )
+                else:
+                    layers.append(
+                        torch.nn.Conv1d(
+                            in_channels=in_channels,
+                            out_channels=feat_out if self._sampling_num == i + 1 else conv_channels,
+                            kernel_size=self._kernel_size,
+                            stride=self._stride,
+                            padding=self._left_padding,
+                        )
+                    )
+                layers.append(activation)
+                in_channels = conv_channels
+
+        elif subsampling == 'dw_striding_conv1d':
+
+            in_channels = feat_in
+
+            self._stride = 2
+            self._kernel_size = 5
+            self._ceil_mode = False
+
+            self._left_padding = (self._kernel_size - 1) // 2
+            self._right_padding = (self._kernel_size - 1) // 2
+
+            # Layer 1
+            layers.extend(
+                [
+                    torch.nn.Conv1d(
+                        in_channels=in_channels,
+                        out_channels=in_channels,
+                        kernel_size=self._kernel_size,
+                        stride=self._stride,
+                        padding=self._left_padding,
+                        groups=in_channels,
+                    ),
+                    torch.nn.Conv1d(
+                        in_channels=in_channels,
+                        out_channels=feat_out if self._sampling_num == 1 else conv_channels,
+                        kernel_size=1,
+                        stride=1,
+                        padding=0,
+                        groups=1,
+                    ),
+                ]
+            )
+            in_channels = conv_channels
+            layers.append(activation)
+
+            for i in range(self._sampling_num - 1):
+                layers.extend(
+                    [
+                        torch.nn.Conv1d(
+                            in_channels=in_channels,
+                            out_channels=in_channels,
+                            kernel_size=self._kernel_size,
+                            stride=self._stride,
+                            padding=self._left_padding,
+                            groups=in_channels,
+                        ),
+                        torch.nn.Conv1d(
+                            in_channels=in_channels,
+                            out_channels=feat_out if self._sampling_num == i + 2 else conv_channels,
+                            kernel_size=1,
+                            stride=1,
+                            padding=0,
+                            groups=1,
+                        ),
+                    ]
+                )
+                layers.append(activation)
+                in_channels = conv_channels
+
+        else:
+            raise ValueError(f"Not valid sub-sampling: {subsampling}!")
+
+        if subsampling in ["vggnet", "dw_striding", "striding"]:
+
+            in_length = torch.tensor(feat_in, dtype=torch.float)
+            out_length = self.calc_length(
+                lengths=in_length
+            )
+            self.out = torch.nn.Linear(conv_channels * int(out_length), feat_out)
+            self.conv2d_subsampling = True
+        elif subsampling in ["striding_conv1d", "dw_striding_conv1d"]:
+            self.out = None
+            self.conv2d_subsampling = False
+        else:
+            raise ValueError(f"Not valid sub-sampling: {subsampling}!")
+
+        self.conv = torch.nn.Sequential(*layers)
+
+    def get_sampling_frames(self):
+        return [1, self.subsampling_factor]
+
+    def get_streaming_cache_size(self):
+        return [0, self.subsampling_factor + 1]
+
+    def forward(self, x, lengths, offset: Union[int, torch.Tensor] = 0, right_context_size: int = 0):
+        lengths = self.calc_length(
+            lengths,
+        )
+
+        # Unsqueeze Channel Axis
+        if self.conv2d_subsampling:
+            x = x.unsqueeze(1)
+        # Transpose to Channel First mode
+        else:
+            x = x.transpose(1, 2)
+
+        # split inputs if chunking_factor is set
+        if self.subsampling_conv_chunking_factor != -1 and self.conv2d_subsampling:
+            if self.subsampling_conv_chunking_factor == 1:
+                # if subsampling_conv_chunking_factor is 1, we split only if needed
+                # avoiding a bug / feature limiting indexing of tensors to 2**31
+                # see https://github.com/pytorch/pytorch/issues/80020
+                x_ceil = 2 ** 31 / self._conv_channels * self._stride * self._stride
+                if torch.numel(x) > x_ceil:
+                    need_to_split = True
+                else:
+                    need_to_split = False
+            else:
+                # if subsampling_conv_chunking_factor > 1 we always split
+                need_to_split = True
+                
+            # need_to_split = False
+            if need_to_split:
+                x, success = self.conv_split_by_batch(x)
+                # success = False
+                if not success:  # if unable to split by batch, try by channel
+                    if self._subsampling == 'dw_striding':
+                        x = self.conv_split_by_channel(x)
+
+                    else:
+                        x = self.conv(x)  # try anyway
+            else:
+                x = self.conv(x)
+        else:
+            x = self.conv(x)
+
+        # Flatten Channel and Frequency Axes
+        if self.conv2d_subsampling:
+            b, c, t, f = x.size()
+            x = self.out(x.transpose(1, 2).reshape(b, t, -1))
+        # Transpose to Channel Last mode
+        else:
+            x = x.transpose(1, 2)
+        x, pos_emb = self.pos_enc(x, offset=offset, right_context_size=right_context_size)
+
+        return x, pos_emb, lengths
+
+    def reset_parameters(self):
+        # initialize weights
+        if self._subsampling == 'dw_striding':
+            with torch.no_grad():
+                # init conv
+                scale = 1.0 / self._kernel_size
+                dw_max = (self._kernel_size ** 2) ** -0.5
+                pw_max = self._conv_channels ** -0.5
+
+                torch.nn.init.uniform_(self.conv[0].weight, -scale, scale)
+                torch.nn.init.uniform_(self.conv[0].bias, -scale, scale)
+
+                for idx in range(2, len(self.conv), 3):
+                    torch.nn.init.uniform_(self.conv[idx].weight, -dw_max, dw_max)
+                    torch.nn.init.uniform_(self.conv[idx].bias, -dw_max, dw_max)
+                    torch.nn.init.uniform_(self.conv[idx + 1].weight, -pw_max, pw_max)
+                    torch.nn.init.uniform_(self.conv[idx + 1].bias, -pw_max, pw_max)
+
+                fc_scale = (self._feat_out * self._feat_in / self._sampling_num) ** -0.5
+                torch.nn.init.uniform_(self.out.weight, -fc_scale, fc_scale)
+                torch.nn.init.uniform_(self.out.bias, -fc_scale, fc_scale)
+
+    def conv_split_by_batch(self, x):
+        """ Tries to split input by batch, run conv and concat results """
+        b, _, _, _ = x.size()
+        if b == 1:  # can't split if batch size is 1
+            return x, False
+
+        if self.subsampling_conv_chunking_factor > 1:
+            cf = self.subsampling_conv_chunking_factor
+            #logging.debug(f'using manually set chunking factor: {cf}')
+        else:
+            # avoiding a bug / feature limiting indexing of tensors to 2**31
+            # see https://github.com/pytorch/pytorch/issues/80020
+            x_ceil = 2 ** 31 / self._conv_channels * self._stride * self._stride
+            p = math.ceil(math.log(torch.numel(x) / x_ceil, 2))
+            cf = 2 ** p
+            #logging.debug(f'using auto set chunking factor: {cf}')
+
+        new_batch_size = b // cf
+        if new_batch_size == 0:  # input is too big
+            return x, False
+
+        #logging.debug(f'conv subsampling: using split batch size {new_batch_size}')
+        return torch.cat([self.conv(chunk) for chunk in torch.split(x, new_batch_size, 0)]), True
+
+    def conv_split_by_channel(self, x):
+        """ For dw convs, tries to split input by time, run conv and concat results """
+        x = self.conv[0](x)  # full conv2D
+        x = self.conv[1](x)  # activation
+
+        for i in range(self._sampling_num - 1):
+            _, c, t, _ = x.size()
+
+            if self.subsampling_conv_chunking_factor > 1:
+                cf = self.subsampling_conv_chunking_factor
+                #logging.debug(f'using manually set chunking factor: {cf}')
+            else:
+                # avoiding a bug / feature limiting indexing of tensors to 2**31
+                # see https://github.com/pytorch/pytorch/issues/80020
+                p = math.ceil(math.log(torch.numel(x) / 2 ** 31, 2))
+                cf = 2 ** p
+                #logging.debug(f'using auto set chunking factor: {cf}')
+
+            new_c = int(c // cf)
+            if new_c == 0:
+                #logging.warning(f'chunking factor {cf} is too high; splitting down to one channel.')
+                new_c = 1
+
+            new_t = int(t // cf)
+            if new_t == 0:
+                #logging.warning(f'chunking factor {cf} is too high; splitting down to one timestep.')
+                new_t = 1
+
+            #logging.debug(f'conv dw subsampling: using split C size {new_c} and split T size {new_t}')
+            x = self.channel_chunked_conv(self.conv[i * 3 + 2], new_c, x)  # conv2D, depthwise
+
+            # splitting pointwise convs by time
+            x = torch.cat([self.conv[i * 3 + 3](chunk) for chunk in torch.split(x, new_t, 2)], 2)  # conv2D, pointwise
+            x = self.conv[i * 3 + 4](x)  # activation
+        return x
+
+    def channel_chunked_conv(self, conv, chunk_size, x):
+        """ Performs channel chunked convolution"""
+
+        ind = 0
+        out_chunks = []
+        for chunk in torch.split(x, chunk_size, 1):
+            step = chunk.size()[1]
+
+            if self.is_causal:
+                chunk = torch.nn.functional.pad(
+                    chunk, pad=(self._kernel_size - 1, self._stride - 1, self._kernel_size - 1, self._stride - 1)
+                )
+                ch_out = torch.nn.functional.conv2d(
+                    chunk,
+                    conv.weight[ind : ind + step, :, :, :],
+                    bias=conv.bias[ind : ind + step],
+                    stride=self._stride,
+                    padding=0,
+                    groups=step,
+                )
+            else:
+                ch_out = torch.nn.functional.conv2d(
+                    chunk,
+                    conv.weight[ind : ind + step, :, :, :],
+                    bias=conv.bias[ind : ind + step],
+                    stride=self._stride,
+                    padding=self._left_padding,
+                    groups=step,
+                )
+            out_chunks.append(ch_out)
+            ind += step
+
+        return torch.cat(out_chunks, 1)
+
+    def change_subsampling_conv_chunking_factor(self, subsampling_conv_chunking_factor: int):
+        if (
+            subsampling_conv_chunking_factor != -1
+            and subsampling_conv_chunking_factor != 1
+            and subsampling_conv_chunking_factor % 2 != 0
+        ):
+            raise ValueError("subsampling_conv_chunking_factor should be -1, 1, or a power of 2")
+        self.subsampling_conv_chunking_factor = subsampling_conv_chunking_factor
+
+
+    def calc_length(self, lengths):
+        """ Calculates the output length of a Tensor passed through a convolution or max pooling layer"""
+        all_paddings = self._left_padding + self._right_padding
+        kernel_size = self._kernel_size
+        stride = self._stride
+        ceil_mode = self._ceil_mode 
+        repeat_num = self._sampling_num
+        add_pad = all_paddings - kernel_size
+        one = 1.0
+        for i in range(repeat_num):
+            lengths = torch.div(lengths.to(dtype=torch.float) + add_pad, stride) + one
+            if ceil_mode:
+                lengths = torch.ceil(lengths)
+            else:
+                lengths = torch.floor(lengths)
+        return lengths.to(dtype=torch.int)
+
+# === FILE: stt_chunkformer/model/swish.py ===
+# Copyright (c) 2020 Johns Hopkins University (Shinji Watanabe)
+#               2020 Northwestern Polytechnical University (Pengcheng Guo)
+#               2020 Mobvoi Inc (Binbin Zhang)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Swish() activation function for ChunkFormer."""
+
+import torch
+
+
+class Swish(torch.nn.Module):
+    """Construct an Swish object."""
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Return Swish activation function."""
+        return x * torch.sigmoid(x)
+
+
+# === FILE: stt_chunkformer/model/utils/checkpoint.py ===
+import logging
+import os
+import re
+
+import yaml
+import torch
+from collections import OrderedDict
+
+import datetime
+
+
+def load_checkpoint(model: torch.nn.Module, path: str) -> dict:
+    if torch.cuda.is_available():
+        logging.info('Checkpoint: loading from checkpoint %s for GPU' % path)
+        checkpoint = torch.load(path, weights_only=True)
+    else:
+        logging.info('Checkpoint: loading from checkpoint %s for CPU' % path)
+        checkpoint = torch.load(path, map_location='cpu', weights_only=True)
+    missing_keys, unexpected_keys = model.load_state_dict(checkpoint, strict=False)
+
+
+# === FILE: stt_chunkformer/model/utils/cmvn.py ===
+# Copyright (c) 2020 Mobvoi Inc (Binbin Zhang)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import json
+import math
+
+import numpy as np
+
+
+def _load_json_cmvn(json_cmvn_file):
+    """ Load the json format cmvn stats file and calculate cmvn
+
+    Args:
+        json_cmvn_file: cmvn stats file in json format
+
+    Returns:
+        a numpy array of [means, vars]
+    """
+    with open(json_cmvn_file) as f:
+        cmvn_stats = json.load(f)
+
+    means = cmvn_stats['mean_stat']
+    variance = cmvn_stats['var_stat']
+    count = cmvn_stats['frame_num']
+    for i in range(len(means)):
+        means[i] /= count
+        variance[i] = variance[i] / count - means[i] * means[i]
+        if variance[i] < 1.0e-20:
+            variance[i] = 1.0e-20
+        variance[i] = 1.0 / math.sqrt(variance[i])
+    cmvn = np.array([means, variance])
+    return cmvn
+
+
+def _load_kaldi_cmvn(kaldi_cmvn_file):
+    """ Load the kaldi format cmvn stats file and calculate cmvn
+
+    Args:
+        kaldi_cmvn_file:  kaldi text style global cmvn file, which
+           is generated by:
+           compute-cmvn-stats --binary=false scp:feats.scp global_cmvn
+
+    Returns:
+        a numpy array of [means, vars]
+    """
+    means = []
+    variance = []
+    with open(kaldi_cmvn_file, 'r') as fid:
+        # kaldi binary file start with '\0B'
+        if fid.read(2) == '\0B':
+            logging.error('kaldi cmvn binary file is not supported, please '
+                          'recompute it by: compute-cmvn-stats --binary=false '
+                          ' scp:feats.scp global_cmvn')
+            sys.exit(1)
+        fid.seek(0)
+        arr = fid.read().split()
+        assert (arr[0] == '[')
+        assert (arr[-2] == '0')
+        assert (arr[-1] == ']')
+        feat_dim = int((len(arr) - 2 - 2) / 2)
+        for i in range(1, feat_dim + 1):
+            means.append(float(arr[i]))
+        count = float(arr[feat_dim + 1])
+        for i in range(feat_dim + 2, 2 * feat_dim + 2):
+            variance.append(float(arr[i]))
+
+    for i in range(len(means)):
+        means[i] /= count
+        variance[i] = variance[i] / count - means[i] * means[i]
+        if variance[i] < 1.0e-20:
+            variance[i] = 1.0e-20
+        variance[i] = 1.0 / math.sqrt(variance[i])
+    cmvn = np.array([means, variance])
+    return cmvn
+
+
+def load_cmvn(cmvn_file, is_json):
+    if is_json:
+        cmvn = _load_json_cmvn(cmvn_file)
+    else:
+        cmvn = _load_kaldi_cmvn(cmvn_file)
+    return cmvn[0], cmvn[1]
+
+
+# === FILE: stt_chunkformer/model/utils/common.py ===
+# Copyright (c) 2020 Mobvoi Inc (Binbin Zhang)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Modified from ESPnet(https://github.com/espnet/espnet)
+"""Unility functions for Transformer."""
+
+import math
+from typing import List, Tuple
+
+import torch
+from torch.nn.utils.rnn import pad_sequence
+
+IGNORE_ID = -1
+
+
+def pad_list(xs: List[torch.Tensor], pad_value: int):
+    """Perform padding for the list of tensors.
+
+    Args:
+        xs (List): List of Tensors [(T_1, `*`), (T_2, `*`), ..., (T_B, `*`)].
+        pad_value (float): Value for padding.
+
+    Returns:
+        Tensor: Padded tensor (B, Tmax, `*`).
+
+    Examples:
+        >>> x = [torch.ones(4), torch.ones(2), torch.ones(1)]
+        >>> x
+        [tensor([1., 1., 1., 1.]), tensor([1., 1.]), tensor([1.])]
+        >>> pad_list(x, 0)
+        tensor([[1., 1., 1., 1.],
+                [1., 1., 0., 0.],
+                [1., 0., 0., 0.]])
+
+    """
+    n_batch = len(xs)
+    max_len = max([x.size(0) for x in xs])
+    pad = torch.zeros(n_batch, max_len, dtype=xs[0].dtype, device=xs[0].device)
+    pad = pad.fill_(pad_value)
+    for i in range(n_batch):
+        pad[i, :xs[i].size(0)] = xs[i]
+
+    return pad
+
+
+def add_blank(ys_pad: torch.Tensor, blank: int,
+              ignore_id: int) -> torch.Tensor:
+    """ Prepad blank for transducer predictor
+
+    Args:
+        ys_pad (torch.Tensor): batch of padded target sequences (B, Lmax)
+        blank (int): index of <blank>
+
+    Returns:
+        ys_in (torch.Tensor) : (B, Lmax + 1)
+
+    Examples:
+        >>> blank = 0
+        >>> ignore_id = -1
+        >>> ys_pad
+        tensor([[ 1,  2,  3,   4,   5],
+                [ 4,  5,  6,  -1,  -1],
+                [ 7,  8,  9,  -1,  -1]], dtype=torch.int32)
+        >>> ys_in = add_blank(ys_pad, 0, -1)
+        >>> ys_in
+        tensor([[0,  1,  2,  3,  4,  5],
+                [0,  4,  5,  6,  0,  0],
+                [0,  7,  8,  9,  0,  0]])
+    """
+    bs = ys_pad.size(0)
+    _blank = torch.tensor([blank],
+                          dtype=torch.long,
+                          requires_grad=False,
+                          device=ys_pad.device)
+    _blank = _blank.repeat(bs).unsqueeze(1)  # [bs,1]
+    out = torch.cat([_blank, ys_pad], dim=1)  # [bs, Lmax+1]
+    return torch.where(out == ignore_id, blank, out)
+
+
+def add_sos_eos(ys_pad: torch.Tensor, sos: int, eos: int,
+                ignore_id: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Add <sos> and <eos> labels.
+
+    Args:
+        ys_pad (torch.Tensor): batch of padded target sequences (B, Lmax)
+        sos (int): index of <sos>
+        eos (int): index of <eeos>
+        ignore_id (int): index of padding
+
+    Returns:
+        ys_in (torch.Tensor) : (B, Lmax + 1)
+        ys_out (torch.Tensor) : (B, Lmax + 1)
+
+    Examples:
+        >>> sos_id = 10
+        >>> eos_id = 11
+        >>> ignore_id = -1
+        >>> ys_pad
+        tensor([[ 1,  2,  3,  4,  5],
+                [ 4,  5,  6, -1, -1],
+                [ 7,  8,  9, -1, -1]], dtype=torch.int32)
+        >>> ys_in,ys_out=add_sos_eos(ys_pad, sos_id , eos_id, ignore_id)
+        >>> ys_in
+        tensor([[10,  1,  2,  3,  4,  5],
+                [10,  4,  5,  6, 11, 11],
+                [10,  7,  8,  9, 11, 11]])
+        >>> ys_out
+        tensor([[ 1,  2,  3,  4,  5, 11],
+                [ 4,  5,  6, 11, -1, -1],
+                [ 7,  8,  9, 11, -1, -1]])
+    """
+    _sos = torch.tensor([sos],
+                        dtype=torch.long,
+                        requires_grad=False,
+                        device=ys_pad.device)
+    _eos = torch.tensor([eos],
+                        dtype=torch.long,
+                        requires_grad=False,
+                        device=ys_pad.device)
+    ys = [y[y != ignore_id] for y in ys_pad]  # parse padded ys
+    ys_in = [torch.cat([_sos, y], dim=0) for y in ys]
+    ys_out = [torch.cat([y, _eos], dim=0) for y in ys]
+    return pad_list(ys_in, eos), pad_list(ys_out, ignore_id)
+
+
+def reverse_pad_list(ys_pad: torch.Tensor,
+                     ys_lens: torch.Tensor,
+                     pad_value: float = -1.0) -> torch.Tensor:
+    """Reverse padding for the list of tensors.
+
+    Args:
+        ys_pad (tensor): The padded tensor (B, Tokenmax).
+        ys_lens (tensor): The lens of token seqs (B)
+        pad_value (int): Value for padding.
+
+    Returns:
+        Tensor: Padded tensor (B, Tokenmax).
+
+    Examples:
+        >>> x
+        tensor([[1, 2, 3, 4], [5, 6, 7, 0], [8, 9, 0, 0]])
+        >>> pad_list(x, 0)
+        tensor([[4, 3, 2, 1],
+                [7, 6, 5, 0],
+                [9, 8, 0, 0]])
+
+    """
+    r_ys_pad = pad_sequence([(torch.flip(y.int()[:i], [0]))
+                             for y, i in zip(ys_pad, ys_lens)], True,
+                            pad_value)
+    return r_ys_pad
+
+
+def th_accuracy(pad_outputs: torch.Tensor, pad_targets: torch.Tensor,
+                ignore_label: int) -> float:
+    """Calculate accuracy.
+
+    Args:
+        pad_outputs (Tensor): Prediction tensors (B * Lmax, D).
+        pad_targets (LongTensor): Target label tensors (B, Lmax).
+        ignore_label (int): Ignore label id.
+
+    Returns:
+        float: Accuracy value (0.0 - 1.0).
+
+    """
+    pad_pred = pad_outputs.view(pad_targets.size(0), pad_targets.size(1),
+                                pad_outputs.size(1)).argmax(2)
+    mask = pad_targets != ignore_label
+    numerator = torch.sum(
+        pad_pred.masked_select(mask) == pad_targets.masked_select(mask))
+    denominator = torch.sum(mask)
+    return float(numerator) / float(denominator)
+
+
+def get_rnn(rnn_type: str) -> torch.nn.Module:
+    assert rnn_type in ["rnn", "lstm", "gru"]
+    if rnn_type == "rnn":
+        return torch.nn.RNN
+    elif rnn_type == "lstm":
+        return torch.nn.LSTM
+    else:
+        return torch.nn.GRU
+
+
+def get_activation(act):
+    """Return activation function."""
+    # Lazy load to avoid unused import
+    from ..swish import Swish
+
+    activation_funcs = {
+        "hardtanh": torch.nn.Hardtanh,
+        "tanh": torch.nn.Tanh,
+        "relu": torch.nn.ReLU,
+        "selu": torch.nn.SELU,
+        "swish": getattr(torch.nn, "SiLU", Swish),
+        "gelu": torch.nn.GELU
+    }
+
+    return activation_funcs[act]()
+
+
+def get_subsample(config):
+    input_layer = config["encoder_conf"]["input_layer"]
+    assert input_layer in ["conv2d", "conv2d6", "conv2d8"]
+    if input_layer == "conv2d":
+        return 4
+    elif input_layer == "conv2d6":
+        return 6
+    elif input_layer == "conv2d8":
+        return 8
+
+
+def remove_duplicates_and_blank(hyp: List[int]) -> List[int]:
+    new_hyp: List[int] = []
+    cur = 0
+    while cur < len(hyp):
+        if hyp[cur] != 0:
+            new_hyp.append(hyp[cur])
+        prev = cur
+        while cur < len(hyp) and hyp[cur] == hyp[prev]:
+            cur += 1
+    return new_hyp
+
+
+def replace_duplicates_with_blank(hyp: List[int]) -> List[int]:
+    new_hyp: List[int] = []
+    cur = 0
+    while cur < len(hyp):
+        new_hyp.append(hyp[cur])
+        prev = cur
+        cur += 1
+        while cur < len(hyp) and hyp[cur] == hyp[prev] and hyp[cur] != 0:
+            new_hyp.append(0)
+            cur += 1
+    return new_hyp
+
+
+def log_add(args: List[int]) -> float:
+    """
+    Stable log add
+    """
+    if all(a == -float('inf') for a in args):
+        return -float('inf')
+    a_max = max(args)
+    lsp = math.log(sum(math.exp(a - a_max) for a in args))
+    return a_max + lsp
+
+
+def padding(waveform, sample_rate):
+    chunk_step_in_sample = int(0.08 * sample_rate)
+    chunk_size_in_sample = int(0.165 * sample_rate)
+    n_frames_pad = (chunk_step_in_sample - ((waveform.size(1) - chunk_size_in_sample) % chunk_step_in_sample)) % chunk_step_in_sample
+    waveform = torch.nn.functional.pad(waveform, (0, n_frames_pad))
+    return waveform
+
+
+# === FILE: stt_chunkformer/model/utils/ctc_utils.py ===
+import math
+from .common import remove_duplicates_and_blank
+
+def class2str(target, char_dict):
+    content = []
+    for w in target:
+        content.append(char_dict[int(w)])
+    return ''.join(content).replace('▁',' ')
+
+def milliseconds_to_hhmmssms(milliseconds):
+    """
+    Convert milliseconds to hh:mm:ss:ms format.
+
+    Args:
+        milliseconds (int): The total number of milliseconds.
+
+    Returns:
+        str: The formatted time string in hh:mm:ss:ms.
+    """
+    # Calculate hours, minutes, seconds, and remaining milliseconds
+    hours = milliseconds // (1000 * 60 * 60)
+    remaining_ms = milliseconds % (1000 * 60 * 60)
+    minutes = remaining_ms // (1000 * 60)
+    remaining_ms %= (1000 * 60)
+    seconds = remaining_ms // 1000
+    remaining_ms %= 1000
+
+    # Format the result
+    return f"{hours:02}:{minutes:02}:{seconds:02}:{remaining_ms:03}"
+
+
+def get_output(hyps, char_dict):
+    decodes = []
+    for hyp in hyps:
+        hyp = remove_duplicates_and_blank(hyp)
+        decode = class2str(hyp, char_dict)
+        decodes.append(decode)  
+    return decodes
+
+
+def get_output_with_timestamps(hyps, char_dict):
+    decodes = []
+    max_silence = 20
+    for tokens in hyps: # cost O(input_batch_size | ccu)
+        tokens = tokens.cpu()
+        start = -1
+        end = -1
+        prev_end = -1
+        silence_cum = 0
+        decode_per_time = []
+        decode = []
+        for time_stamp, token in enumerate(tokens):
+            if token == 0:
+                silence_cum += 1
+            else:
+                if (start == -1) and (end == -1):
+                    if prev_end != -1:
+                        start = math.ceil((time_stamp + prev_end)/2)
+                    else:
+                        start = max(time_stamp - int(max_silence/2), 0)
+                silence_cum = 0
+                decode_per_time.append(token)
+                    
+            if (silence_cum == max_silence) and (start != -1):
+                end = time_stamp
+                prev_end = end
+                item = {
+                    "decode": class2str(remove_duplicates_and_blank(decode_per_time), char_dict),
+                    "start": milliseconds_to_hhmmssms(start * 8 * 10),
+                    "end": milliseconds_to_hhmmssms(end * 8 * 10)
+                }
+                decode.append(item)
+                decode_per_time = []
+                start = -1
+                end = -1
+                silence_cum = 0
+            
+
+        if (start != -1) and (end == -1) and (len(decode_per_time) > 0):
+            item = {
+                "decode": class2str(remove_duplicates_and_blank(decode_per_time), char_dict),
+                "start": milliseconds_to_hhmmssms(start * 8 * 10),
+                "end": milliseconds_to_hhmmssms(time_stamp * 8 * 10)
+            }
+            decode.append(item)
+        decodes.append(decode)
+
+    return decodes
+
+# === FILE: stt_chunkformer/model/utils/file_utils.py ===
+# Copyright (c) 2021 Mobvoi Inc. (authors: Binbin Zhang)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import re
+
+
+def read_lists(list_files):
+    lists = []
+    with open(list_files, 'r', encoding='utf8') as f:
+        for list_file in f:
+            list_file = list_file.rstrip()
+            with open(list_file, 'r', encoding='utf8') as g:
+                for line in g:
+                    lists.append(line.strip())
+
+    return lists
+
+
+def read_non_lang_symbols(non_lang_sym_path):
+    """read non-linguistic symbol from file.
+
+    The file format is like below:
+
+    {NOISE}\n
+    {BRK}\n
+    ...
+
+
+    Args:
+        non_lang_sym_path: non-linguistic symbol file path, None means no any
+        syms.
+
+    """
+    if non_lang_sym_path is None:
+        return None
+    else:
+        syms = read_lists(non_lang_sym_path)
+        non_lang_syms_pattern = re.compile(r"(\[[^\[\]]+\]|<[^<>]+>|{[^{}]+})")
+        for sym in syms:
+            if non_lang_syms_pattern.fullmatch(sym) is None:
+                class BadSymbolFormat(Exception):
+                    pass
+                raise BadSymbolFormat(
+                    "Non-linguistic symbols should be "
+                    "formatted in {xxx}/<xxx>/[xxx], consider"
+                    " modify '%s' to meet the requirment. "
+                    "More details can be found in discussions here : "
+                    "https://github.com/wenet-e2e/wenet/pull/819" % (sym))
+        return syms
+
+
+def read_symbol_table(symbol_table_file):
+    symbol_table = {}
+    with open(symbol_table_file, 'r', encoding='utf8') as fin:
+        for line in fin:
+            arr = line.strip().split()
+            assert len(arr) == 2
+            symbol_table[arr[0]] = int(arr[1])
+    return symbol_table
+
+
+# === FILE: stt_chunkformer/model/utils/init_model.py ===
+# Copyright (c) 2022 Binbin Zhang (binbzha@qq.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import torch
+from ..asr_model import ASRModel
+
+from ..cmvn import GlobalCMVN
+from ..ctc import CTC
+from ..encoder import ChunkFormerEncoder
+from ..utils.cmvn import load_cmvn
+import os
+
+
+def init_model(configs, config_path):
+    if configs['cmvn_file'] is not None:
+        cmvn_file = os.path.abspath(os.path.join(config_path, '..', '..', configs['cmvn_file']))
+        mean, istd = load_cmvn(cmvn_file, configs['is_json_cmvn'])
+        global_cmvn = GlobalCMVN(
+            torch.from_numpy(mean).float(),
+            torch.from_numpy(istd).float())
+    else:
+        global_cmvn = None
+
+    input_dim = configs['input_dim']
+    vocab_size = configs['output_dim']
+
+    encoder = ChunkFormerEncoder(input_dim,
+                                global_cmvn=global_cmvn,
+                                **configs['encoder_conf'])
+
+    ctc = CTC(vocab_size, encoder.output_size())
+
+    model = ASRModel(vocab_size=vocab_size,
+                        encoder=encoder,
+                        ctc=ctc)
+
+
+    return model
+
+
+# === FILE: stt_chunkformer/model/utils/__init__.py ===
+
+
+# === FILE: stt_chunkformer/model/utils/mask.py ===
+# Copyright (c) 2019 Shigeki Karita
+#               2020 Mobvoi Inc (Binbin Zhang)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+import torch
+import numpy as np
+import random
+
+'''
+def subsequent_mask(
+        size: int,
+        device: torch.device = torch.device("cpu"),
+) -> torch.Tensor:
+    """Create mask for subsequent steps (size, size).
+
+    This mask is used only in decoder which works in an auto-regressive mode.
+    This means the current step could only do attention with its left steps.
+
+    In encoder, fully attention is used when streaming is not necessary and
+    the sequence is not long. In this  case, no attention mask is needed.
+
+    When streaming is need, chunk-based attention is used in encoder. See
+    subsequent_chunk_mask for the chunk-based attention mask.
+
+    Args:
+        size (int): size of mask
+        str device (str): "cpu" or "cuda" or torch.Tensor.device
+        dtype (torch.device): result dtype
+
+    Returns:
+        torch.Tensor: mask
+
+    Examples:
+        >>> subsequent_mask(3)
+        [[1, 0, 0],
+         [1, 1, 0],
+         [1, 1, 1]]
+    """
+    ret = torch.ones(size, size, device=device, dtype=torch.bool)
+    return torch.tril(ret)
+'''
+
+def subsequent_mask(
+        size: int,
+        device: torch.device = torch.device("cpu"),
+) -> torch.Tensor:
+    """Create mask for subsequent steps (size, size).
+
+    This mask is used only in decoder which works in an auto-regressive mode.
+    This means the current step could only do attention with its left steps.
+
+    In encoder, fully attention is used when streaming is not necessary and
+    the sequence is not long. In this  case, no attention mask is needed.
+
+    When streaming is need, chunk-based attention is used in encoder. See
+    subsequent_chunk_mask for the chunk-based attention mask.
+
+    Args:
+        size (int): size of mask
+        str device (str): "cpu" or "cuda" or torch.Tensor.device
+        dtype (torch.device): result dtype
+
+    Returns:
+        torch.Tensor: mask
+
+    Examples:
+        >>> subsequent_mask(3)
+        [[1, 0, 0],
+         [1, 1, 0],
+         [1, 1, 1]]
+    """
+    arange = torch.arange(size, device=device)
+    mask = arange.expand(size, size)
+    arange = arange.unsqueeze(-1)
+    mask = mask <= arange
+    return mask
+
+
+def subsequent_chunk_mask(
+        size: int,
+        chunk_size: int,
+        num_left_chunks: int = -1,
+        device: torch.device = torch.device("cpu"),
+) -> torch.Tensor:
+    """Create mask for subsequent steps (size, size) with chunk size,
+       this is for streaming encoder
+
+    Args:
+        size (int): size of mask
+        chunk_size (int): size of chunk
+        num_left_chunks (int): number of left chunks
+            <0: use full chunk
+            >=0: use num_left_chunks
+        device (torch.device): "cpu" or "cuda" or torch.Tensor.device
+
+    Returns:
+        torch.Tensor: mask
+
+    Examples:
+        >>> subsequent_chunk_mask(4, 2)
+        [[1, 1, 0, 0],
+         [1, 1, 0, 0],
+         [1, 1, 1, 1],
+         [1, 1, 1, 1]]
+    """
+    ret = torch.zeros(size, size, device=device, dtype=torch.bool)
+    for i in range(size):
+        if num_left_chunks < 0:
+            start = 0
+        else:
+            start = max((i // chunk_size - num_left_chunks) * chunk_size, 0)
+        ending = min((i // chunk_size + 1) * chunk_size, size)
+        ret[i, start:ending] = True
+    return ret
+
+
+def get_chunk_config(
+    decoding_chunk_sizes,
+    left_context_sizes,
+    right_context_sizes,
+):
+    idx = torch.randint(0, decoding_chunk_sizes.size(0), ())
+    chunk_size = decoding_chunk_sizes[idx].item()
+
+    # idx = torch.randint(0, left_context_sizes.size(0), ())
+    left_context_size = left_context_sizes[idx].item()
+
+    # idx = torch.randint(0, right_context_sizes.size(0), ())
+    right_context_size = right_context_sizes[idx].item()
+    # print(decoding_chunk_sizes, left_context_sizes, right_context_sizes)
+    return left_context_size, chunk_size, right_context_size
+
+
+def make_pad_mask(lengths: torch.Tensor, max_len: int = 0) -> torch.Tensor:
+    """Make mask tensor containing indices of padded part.
+
+    See description of make_non_pad_mask.
+
+    Args:
+        lengths (torch.Tensor): Batch of lengths (B,).
+    Returns:
+        torch.Tensor: Mask tensor containing indices of padded part.
+
+    Examples:
+        >>> lengths = [5, 3, 2]
+        >>> make_pad_mask(lengths)
+        masks = [[0, 0, 0, 0 ,0],
+                 [0, 0, 0, 1, 1],
+                 [0, 0, 1, 1, 1]]
+    """
+    batch_size = lengths.size(0)
+    max_len = max_len if max_len > 0 else lengths.max().item()
+    seq_range = torch.arange(0,
+                             max_len,
+                             dtype=torch.int64,
+                             device=lengths.device)
+    seq_range_expand = seq_range.unsqueeze(0).expand(batch_size, max_len)
+    seq_length_expand = lengths.unsqueeze(-1)
+    mask = seq_range_expand >= seq_length_expand
+    return mask
+
+
+def make_non_pad_mask(lengths: torch.Tensor) -> torch.Tensor:
+    """Make mask tensor containing indices of non-padded part.
+
+    The sequences in a batch may have different lengths. To enable
+    batch computing, padding is need to make all sequence in same
+    size. To avoid the padding part pass value to context dependent
+    block such as attention or convolution , this padding part is
+    masked.
+
+    This pad_mask is used in both encoder and decoder.
+
+    1 for non-padded part and 0 for padded part.
+
+    Args:
+        lengths (torch.Tensor): Batch of lengths (B,).
+    Returns:
+        torch.Tensor: mask tensor containing indices of padded part.
+
+    Examples:
+        >>> lengths = [5, 3, 2]
+        >>> make_non_pad_mask(lengths)
+        masks = [[1, 1, 1, 1 ,1],
+                 [1, 1, 1, 0, 0],
+                 [1, 1, 0, 0, 0]]
+    """
+    return ~make_pad_mask(lengths)
+
+
+def mask_finished_scores(score: torch.Tensor,
+                         flag: torch.Tensor) -> torch.Tensor:
+    """
+    If a sequence is finished, we only allow one alive branch. This function
+    aims to give one branch a zero score and the rest -inf score.
+
+    Args:
+        score (torch.Tensor): A real value array with shape
+            (batch_size * beam_size, beam_size).
+        flag (torch.Tensor): A bool array with shape
+            (batch_size * beam_size, 1).
+
+    Returns:
+        torch.Tensor: (batch_size * beam_size, beam_size).
+    """
+    beam_size = score.size(-1)
+    zero_mask = torch.zeros_like(flag, dtype=torch.bool)
+    if beam_size > 1:
+        unfinished = torch.cat((zero_mask, flag.repeat([1, beam_size - 1])),
+                               dim=1)
+        finished = torch.cat((flag, zero_mask.repeat([1, beam_size - 1])),
+                             dim=1)
+    else:
+        unfinished = zero_mask
+        finished = flag
+    score.masked_fill_(unfinished, -float('inf'))
+    score.masked_fill_(finished, 0)
+    return score
+
+
+def mask_finished_preds(pred: torch.Tensor, flag: torch.Tensor,
+                        eos: int) -> torch.Tensor:
+    """
+    If a sequence is finished, all of its branch should be <eos>
+
+    Args:
+        pred (torch.Tensor): A int array with shape
+            (batch_size * beam_size, beam_size).
+        flag (torch.Tensor): A bool array with shape
+            (batch_size * beam_size, 1).
+
+    Returns:
+        torch.Tensor: (batch_size * beam_size).
+    """
+    beam_size = pred.size(-1)
+    finished = flag.repeat([1, beam_size])
+    return pred.masked_fill_(finished, eos)
