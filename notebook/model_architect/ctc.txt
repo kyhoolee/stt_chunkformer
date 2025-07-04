@@ -1,0 +1,6 @@
+==== CTC Head ====
+
+CTC(
+  (ctc_lo): Linear(in_features=512, out_features=6992, bias=True)
+  (ctc_loss): CTCLoss()
+)

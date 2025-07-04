@@ -1,0 +1,75 @@
+.
+├── data
+│   ├── 10000.wav
+│   ├── audio_list.tsv
+│   └── common_voice_vi_23397238.wav
+├── decode.py
+├── docs
+│   ├── 0.issue_PCM_vs_range_1.md
+│   ├── chunkformer_architecture.png
+│   └── paper.pdf
+├── inference
+│   ├── compare_waveform_debug.py
+│   ├── debug_wav_format.py
+│   ├── export_code.sh
+│   ├── folder.txt
+│   ├── __init__.py
+│   ├── run_compare.py
+│   ├── run_infer.py
+│   ├── run_vivos_cmp.py
+│   ├── run_vivos_eval.py
+│   ├── stt_chunkformer_code.txt
+│   └── stt.md
+├── inference_chunkformer.txt
+├── __init__.py
+├── model
+│   ├── asr_model.py
+│   ├── attention.py
+│   ├── cmvn.py
+│   ├── convolution.py
+│   ├── ctc.py
+│   ├── embedding.py
+│   ├── encoder_layer.py
+│   ├── encoder.py
+│   ├── __init__.py
+│   ├── positionwise_feed_forward.py
+│   ├── __pycache__
+│   │   ├── asr_model.cpython-39.pyc
+│   │   ├── attention.cpython-39.pyc
+│   │   ├── cmvn.cpython-39.pyc
+│   │   ├── convolution.cpython-39.pyc
+│   │   ├── ctc.cpython-39.pyc
+│   │   ├── embedding.cpython-39.pyc
+│   │   ├── encoder.cpython-39.pyc
+│   │   ├── encoder_layer.cpython-39.pyc
+│   │   ├── __init__.cpython-39.pyc
+│   │   ├── positionwise_feed_forward.cpython-39.pyc
+│   │   ├── subsampling.cpython-39.pyc
+│   │   └── swish.cpython-39.pyc
+│   ├── subsampling.py
+│   ├── swish.py
+│   └── utils
+│       ├── checkpoint.py
+│       ├── cmvn.py
+│       ├── common.py
+│       ├── ctc_utils.py
+│       ├── file_utils.py
+│       ├── init_model.py
+│       ├── __init__.py
+│       ├── mask.py
+│       └── __pycache__
+│           ├── checkpoint.cpython-39.pyc
+│           ├── cmvn.cpython-39.pyc
+│           ├── common.cpython-39.pyc
+│           ├── ctc_utils.cpython-39.pyc
+│           ├── file_utils.cpython-39.pyc
+│           ├── __init__.cpython-39.pyc
+│           ├── init_model.cpython-39.pyc
+│           └── mask.cpython-39.pyc
+├── model_utils.py
+├── notebook
+│   └── _1_dataset.ipynb
+├── README.md
+└── requirements.txt
+
+9 directories, 64 files

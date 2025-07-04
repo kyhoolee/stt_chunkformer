@@ -12,12 +12,12 @@ from .model.utils.ctc_utils import get_output_with_timestamps
 
 
 class Args:
-    model_checkpoint = "chunkformer-large-vie"
+    model_checkpoint = "../chunkformer-large-vie"
     total_batch_duration = 1800
     chunk_size = 64
     left_context_size = 128
     right_context_size = 128
-    long_form_audio = "debug_wavs_1/sample_00.wav"
+    long_form_audio = "../debug_wavs/sample_00.wav"
     label_text = "NỬA VÒNG TRÁI ĐẤT HƠN BẢY NĂM".lower()
 
 

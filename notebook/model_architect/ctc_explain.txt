@@ -1,0 +1,106 @@
+Rất tốt! Mình sẽ giúp bạn hiểu thật **rõ ràng – từng lớp – về CTC** và **logic decode của mô hình `ChunkFormer`**.
+
+---
+
+## 🧠 I. General Idea: **CTC (Connectionist Temporal Classification)**
+
+### 1. Bài toán đặt ra:
+
+ASR cần **map 1 chuỗi âm thanh (T frame)** → **1 chuỗi ký tự (L token)**, nhưng:
+
+* Không biết align chính xác frame nào ứng với ký tự nào.
+* Frame có thể kéo dài, chồng lên nhau, bị drop...
+
+**CTC ra đời để giải quyết bài toán này**: học cách **gán mỗi frame → 1 nhãn hoặc “blank”**, và tự học cách merge lại thành câu hoàn chỉnh.
+
+---
+
+### 2. Cách hoạt động:
+
+#### 🔁 Input:
+
+`T` frames → qua encoder → cho ra `T × V` logits
+(`V` là vocab + 1 blank token `_`)
+
+#### 🧮 Output:
+
+* CTC head: `Linear(hidden_dim → vocab_size + blank)`
+* Dự đoán tại mỗi timestep: 1 nhãn hoặc `_` (blank)
+
+#### 🧹 Postprocess (greedy decoding):
+
+```
+CTC raw output:      a  a  _  a  _  b  b  _
+→ Remove dup:        a     a     b
+→ Remove blanks:     a a b
+```
+
+\=> Kết quả: `"aab"`
+
+---
+
+### 3. Training CTC:
+
+* Loss function dùng **dynamic programming (DP)** để tính tổng xác suất của **tất cả các alignment hợp lệ**.
+* Không cần align thủ công — cực kỳ phù hợp cho ASR.
+
+---
+
+## 🧭 II. CTC Decoding Logic trong `ChunkFormer`
+
+### Bạn đang dùng: **Greedy decoding + timestamp tracking**
+
+---
+
+### Bước 1: `encoder_outs = model.encoder(...)`
+
+* Input `[1, T, 80]` → output `[1, T', 512]` (sau subsampling)
+
+---
+
+### Bước 2: `logits = model.ctc_forward(encoder_outs)`
+
+* Linear projection: `[T', 512]` → `[T', vocab_size]`
+
+---
+
+### Bước 3: `get_output_with_timestamps(logits, char_dict)`
+
+#### Gồm các bước:
+
+1. **Argmax** mỗi timestep → sequence `[b, b, a, a, _, _, b, b]`
+2. **Remove duplicates** → `[b, a, _, b]`
+3. **Remove blank `_`** → `[b, a, b]`
+4. **Map index → char** qua `char_dict`
+5. **Tính start / end timestamp** cho mỗi nhãn (frame index × frame\_shift)
+
+---
+
+## ✅ Tổng kết: Ưu điểm decode kiểu này
+
+| Yếu tố                 | Lý do sử dụng                              |
+| ---------------------- | ------------------------------------------ |
+| ⚡ Nhanh                | Không beam search, chỉ argmax + cleanup    |
+| 💡 Dễ debug            | Mỗi bước rõ ràng, dễ kiểm tra              |
+| 🧠 Tối ưu cho realtime | Có thể decode từng chunk nhỏ (streaming)   |
+| ⏱ Có timestamp         | Phù hợp với speech analytics, callbot, ... |
+
+---
+
+## 🧰 Tóm tắt lại pipeline bạn đang có:
+
+```
+[Audio Waveform]
+   ↓
+[Log Mel FBanks] (fbank)
+   ↓
+[Encoder (ChunkFormer)]
+   ↓
+[CTC Linear + Softmax]
+   ↓
+[Argmax → Remove Dup → Remove Blank]
+   ↓
+[Text + Timestamp]
+```
+
+

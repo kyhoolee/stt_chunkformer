@@ -3,8 +3,8 @@ from torchaudio.compliance.kaldi import fbank
 from torch.utils.benchmark import Timer
 from jiwer import wer
 
-from ..model_utils import args, device, prepare_input_file, prepare_input_waveform, decode_long_form
-from ..model_utils import voice_char_dict, voice_model
+from ..model_utils_test import args, device, prepare_input_file, prepare_input_waveform, decode_long_form
+from ..model_utils_test import voice_char_dict, voice_model
 
 
 

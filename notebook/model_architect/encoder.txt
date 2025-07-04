@@ -1,0 +1,63 @@
+==== Encoder ====
+
+ChunkFormerEncoder(
+  (global_cmvn): GlobalCMVN()
+  (embed): DepthwiseConvSubsampling(
+    (pos_enc): StreamingRelPositionalEncoding(
+      (dropout): Dropout(p=0.1, inplace=False)
+    )
+    (out): Linear(in_features=4608, out_features=512, bias=True)
+    (conv): Sequential(
+      (0): Conv2d(1, 512, kernel_size=(3, 3), stride=(2, 2))
+      (1): ReLU()
+      (2): Conv2d(512, 512, kernel_size=(3, 3), stride=(2, 2), groups=512)
+      (3): Conv2d(512, 512, kernel_size=(1, 1), stride=(1, 1))
+      (4): ReLU()
+      (5): Conv2d(512, 512, kernel_size=(3, 3), stride=(2, 2), groups=512)
+      (6): Conv2d(512, 512, kernel_size=(1, 1), stride=(1, 1))
+      (7): ReLU()
+    )
+  )
+  (after_norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+  (encoders): ModuleList(
+    (0-16): 17 x ChunkFormerEncoderLayer(
+      (self_attn): StreamingRelPositionMultiHeadedAttention(
+        (linear_q): Linear(in_features=512, out_features=512, bias=True)
+        (linear_k): Linear(in_features=512, out_features=512, bias=True)
+        (linear_v): Linear(in_features=512, out_features=512, bias=True)
+        (linear_out): Linear(in_features=512, out_features=512, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+        (linear_pos): Linear(in_features=512, out_features=512, bias=False)
+      )
+      (feed_forward): PositionwiseFeedForward(
+        (w_1): Linear(in_features=512, out_features=2048, bias=True)
+        (activation): SiLU()
+        (dropout): Dropout(p=0.1, inplace=False)
+        (w_2): Linear(in_features=2048, out_features=512, bias=True)
+      )
+      (feed_forward_macaron): PositionwiseFeedForward(
+        (w_1): Linear(in_features=512, out_features=2048, bias=True)
+        (activation): SiLU()
+        (dropout): Dropout(p=0.1, inplace=False)
+        (w_2): Linear(in_features=2048, out_features=512, bias=True)
+      )
+      (conv_module): ConvolutionModule(
+        (pointwise_conv1): Conv1d(512, 1024, kernel_size=(1,), stride=(1,))
+        (depthwise_conv): Conv1d(512, 512, kernel_size=(15,), stride=(1,), groups=512)
+        (norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (pointwise_conv2): Conv1d(512, 512, kernel_size=(1,), stride=(1,))
+        (activation): SiLU()
+      )
+      (norm_ff): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (norm_mha): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (norm_ff_macaron): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (norm_conv): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+    )
+  )
+  (ctc): CTC(
+    (ctc_lo): Linear(in_features=512, out_features=6992, bias=True)
+    (ctc_loss): CTCLoss()
+  )
+)
