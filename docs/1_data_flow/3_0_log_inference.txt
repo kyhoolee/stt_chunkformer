@@ -50,17 +50,6 @@
 ✅ Applied Global CMVN
 🎛️ Embedded xs shape: torch.Size([1, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
 🧮 att_mask shape: torch.Size([1, 1, 320]), mask_pad shape: torch.Size([1, 1, 78])
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 0: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 0
 		ChunkFormerEncoderLayer(
@@ -98,17 +87,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 1: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 1
 		ChunkFormerEncoderLayer(
@@ -146,17 +124,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 2: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 2
 		ChunkFormerEncoderLayer(
@@ -194,17 +161,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 3: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 3
 		ChunkFormerEncoderLayer(
@@ -242,17 +198,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 4: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 4
 		ChunkFormerEncoderLayer(
@@ -290,17 +235,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 5: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 5
 		ChunkFormerEncoderLayer(
@@ -338,17 +272,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 6: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 6
 		ChunkFormerEncoderLayer(
@@ -386,17 +309,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 7: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 7
 		ChunkFormerEncoderLayer(
@@ -434,17 +346,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 8: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 8
 		ChunkFormerEncoderLayer(
@@ -482,17 +383,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 9: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 9
 		ChunkFormerEncoderLayer(
@@ -530,17 +420,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 10: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 10
 		ChunkFormerEncoderLayer(
@@ -578,17 +457,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 11: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 11
 		ChunkFormerEncoderLayer(
@@ -626,17 +494,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 12: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 12
 		ChunkFormerEncoderLayer(
@@ -674,17 +531,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 13: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 13
 		ChunkFormerEncoderLayer(
@@ -722,17 +568,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 14: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 14
 		ChunkFormerEncoderLayer(
@@ -770,17 +605,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 15: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 15
 		ChunkFormerEncoderLayer(
@@ -818,17 +642,6 @@
   (norm_final): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.1, inplace=False)
 )
-
-======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======
-📥 Input shape: x = torch.Size([1, 64, 512]), mask = torch.Size([1, 1, 320]), pos_emb = torch.Size([1, 383, 512])
-📥 Cache shapes: att_cache = torch.Size([128, 8, 128]), cnn_cache = torch.Size([512, 7])
-⚙️ Contexts: left = 128, right = 128, trunc = 11200
-🔹 After macaron FFN: x = torch.Size([1, 64, 512])
-🧠 After MultiHeadAttention: x = torch.Size([1, 64, 512]), new_att_cache = torch.Size([128, 8, 128])
-🌊 After Convolution Module: x = torch.Size([1, 64, 512]), new_cnn_cache = torch.Size([512, 7])
-🔸 After final FFN: x = torch.Size([1, 64, 512])
-📏 After norm_final (due to conv_module): x = torch.Size([1, 64, 512])
-✅ [EncoderLayer.forward_parallel_chunk] DONE
 🧩 Layer 16: xs shape after layer = torch.Size([1, 64, 512])
 	🧩 Layer 16
 		ChunkFormerEncoderLayer(
