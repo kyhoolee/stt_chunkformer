@@ -3,6 +3,7 @@ setup.py
 chunkformer_vpb/__init__.py
 chunkformer_vpb/decode.py
 chunkformer_vpb/model_utils.py
+chunkformer_vpb/model_utils_test.py
 chunkformer_vpb.egg-info/PKG-INFO
 chunkformer_vpb.egg-info/SOURCES.txt
 chunkformer_vpb.egg-info/dependency_links.txt

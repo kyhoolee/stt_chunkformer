@@ -18,28 +18,90 @@ from contextlib import nullcontext
 from pydub import AudioSegment
 import torch
 import torchaudio
+import os
+import torch
+import yaml
+from wenet.transformer.decoder import BiTransformerDecoder
 
 @torch.no_grad()
 def init(model_checkpoint, device):
-
     config_path = os.path.join(model_checkpoint, "config.yaml")
     checkpoint_path = os.path.join(model_checkpoint, "pytorch_model.bin")
     symbol_table_path = os.path.join(model_checkpoint, "vocab.txt")
 
+    # 1. Load config
     with open(config_path, 'r') as fin:
         config = yaml.load(fin, Loader=yaml.FullLoader)
+
+    # 2. Init model (encoder + ctc)
     model = init_model(config, config_path)
     model.eval()
-    load_checkpoint(model , checkpoint_path)
 
+    # 3. Load full checkpoint
+    ckpt = torch.load(checkpoint_path, map_location="cpu")
+    load_checkpoint(model, checkpoint_path)
+
+    # 4. Add decoder (AED) if exists in checkpoint
+    if any(k.startswith("decoder.left_decoder") for k in ckpt):
+        vocab_size = ckpt["decoder.left_decoder.embed.0.weight"].size(0)
+        d_model = ckpt["decoder.left_decoder.after_norm.weight"].size(0)
+        block_ids = {int(k.split('.')[3]) for k in ckpt if k.startswith("decoder.left_decoder.decoders.")}
+        num_blocks = max(block_ids) + 1
+
+        decoder = BiTransformerDecoder(
+            vocab_size=vocab_size,
+            encoder_output_size=d_model,
+            attention_heads=8,
+            linear_units=2048,
+            num_blocks=num_blocks,
+            r_num_blocks=0,
+            dropout_rate=0.1,
+            positional_dropout_rate=0.1,
+            self_attention_dropout_rate=0.0,
+            src_attention_dropout_rate=0.0,
+            input_layer="embed",
+            use_output_layer=True,
+            normalize_before=True,
+            src_attention=True,
+            query_bias=True,
+            key_bias=True,
+            value_bias=True,
+            activation_type="relu",
+            gradient_checkpointing=False,
+            tie_word_embedding=False,
+            use_sdpa=False,
+            layer_norm_type='layer_norm',
+            norm_eps=1e-5,
+            n_kv_head=None,
+            head_dim=None,
+            mlp_type='position_wise_feed_forward',
+            mlp_bias=True,
+            n_expert=8,
+            n_expert_activated=2
+        )
+
+        # ✅ Load đúng phần left_decoder
+        decoder.left_decoder.load_state_dict({
+            k[len("decoder.left_decoder."):]: v
+            for k, v in ckpt.items()
+            if k.startswith("decoder.left_decoder.")
+        }, strict=False)
+
+        decoder = decoder.to(device)
+        decoder.eval()
+
+        model.decoder = decoder  # Attach to main model
+
+    # 5. Move parts to device
     model.encoder = model.encoder.to(device)
     model.ctc = model.ctc.to(device)
-    # print('the number of encoder params: {:,d}'.format(num_params))
 
+    # 6. Build char dictionary
     symbol_table = read_symbol_table(symbol_table_path)
     char_dict = {v: k for k, v in symbol_table.items()}
 
     return model, char_dict
+
 
 # def load_audio(audio_path):
 #     audio = AudioSegment.from_file(audio_path)

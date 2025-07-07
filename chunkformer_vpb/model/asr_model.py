@@ -24,6 +24,7 @@ class ASRModel(torch.nn.Module):
         ctc_weight: float = 0.5,
         ignore_id: int = IGNORE_ID,
         reverse_weight: float = 0.0,
+        decoder=None
     ):
         assert 0.0 <= ctc_weight <= 1.0, ctc_weight
 
@@ -39,3 +40,23 @@ class ASRModel(torch.nn.Module):
         self.encoder = encoder
         self.encoder.ctc = ctc
         self.ctc = ctc        
+
+        self.decoder = decoder
+
+
+    def decode_aed(self, encoder_out: torch.Tensor, encoder_mask: torch.Tensor, maxlen: int = 100):
+        """Greedy decoding using AED"""
+        batch_size = encoder_out.size(0)
+        ys = encoder_out.new_full((batch_size, 1), fill_value=self.sos, dtype=torch.long)
+
+        scores = []
+        for i in range(maxlen):
+            decoder_out, _ = self.decoder(ys, encoder_out, encoder_mask)
+            prob = torch.nn.functional.log_softmax(decoder_out[:, -1], dim=-1)
+            next_token = prob.argmax(dim=-1, keepdim=True)
+            ys = torch.cat([ys, next_token], dim=1)
+            scores.append(prob)
+            if (next_token == self.eos).all():
+                break
+
+        return ys[:, 1:], torch.stack(scores, dim=1)  # remove <sos>

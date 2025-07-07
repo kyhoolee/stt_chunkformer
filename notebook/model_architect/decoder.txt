@@ -1,0 +1,53 @@
+==== Decoder ====
+
+BiTransformerDecoder(
+  (left_decoder): TransformerDecoder(
+    (embed): Sequential(
+      (0): Embedding(6992, 512)
+      (1): PositionalEncoding(
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+    (after_norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (output_layer): Linear(in_features=512, out_features=6992, bias=True)
+    (decoders): ModuleList(
+      (0-2): 3 x DecoderLayer(
+        (self_attn): MultiHeadedAttention(
+          (linear_q): Linear(in_features=512, out_features=512, bias=True)
+          (linear_k): Linear(in_features=512, out_features=512, bias=True)
+          (linear_v): Linear(in_features=512, out_features=512, bias=True)
+          (linear_out): Linear(in_features=512, out_features=512, bias=True)
+          (dropout): Dropout(p=0.0, inplace=False)
+        )
+        (src_attn): MultiHeadedCrossAttention(
+          (linear_q): Linear(in_features=512, out_features=512, bias=True)
+          (linear_k): Linear(in_features=512, out_features=512, bias=True)
+          (linear_v): Linear(in_features=512, out_features=512, bias=True)
+          (linear_out): Linear(in_features=512, out_features=512, bias=True)
+          (dropout): Dropout(p=0.0, inplace=False)
+        )
+        (feed_forward): PositionwiseFeedForward(
+          (w_1): Linear(in_features=512, out_features=2048, bias=True)
+          (activation): ReLU()
+          (dropout): Dropout(p=0.1, inplace=False)
+          (w_2): Linear(in_features=2048, out_features=512, bias=True)
+        )
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (right_decoder): TransformerDecoder(
+    (embed): Sequential(
+      (0): Embedding(6992, 512)
+      (1): PositionalEncoding(
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+    )
+    (after_norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+    (output_layer): Linear(in_features=512, out_features=6992, bias=True)
+    (decoders): ModuleList()
+  )
+)
