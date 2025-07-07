@@ -1,0 +1,94 @@
+=== 🧪 Decoder Checkpoint Verification ===
+🔹 Total model params: 84
+✅ Matched params     : 83
+❌ Missing params     : 1
+❌ Mismatched shapes  : 0
+⚠️ Extra params in ckpt: 0
+
+✅ Matching Keys:
+   + embed.0.weight
+   + after_norm.weight
+   + after_norm.bias
+   + output_layer.weight
+   + output_layer.bias
+   + decoders.0.self_attn.linear_q.weight
+   + decoders.0.self_attn.linear_q.bias
+   + decoders.0.self_attn.linear_k.weight
+   + decoders.0.self_attn.linear_k.bias
+   + decoders.0.self_attn.linear_v.weight
+   + decoders.0.self_attn.linear_v.bias
+   + decoders.0.self_attn.linear_out.weight
+   + decoders.0.self_attn.linear_out.bias
+   + decoders.0.src_attn.linear_q.weight
+   + decoders.0.src_attn.linear_q.bias
+   + decoders.0.src_attn.linear_k.weight
+   + decoders.0.src_attn.linear_k.bias
+   + decoders.0.src_attn.linear_v.weight
+   + decoders.0.src_attn.linear_v.bias
+   + decoders.0.src_attn.linear_out.weight
+   + decoders.0.src_attn.linear_out.bias
+   + decoders.0.feed_forward.w_1.weight
+   + decoders.0.feed_forward.w_1.bias
+   + decoders.0.feed_forward.w_2.weight
+   + decoders.0.feed_forward.w_2.bias
+   + decoders.0.norm1.weight
+   + decoders.0.norm1.bias
+   + decoders.0.norm2.weight
+   + decoders.0.norm2.bias
+   + decoders.0.norm3.weight
+   + decoders.0.norm3.bias
+   + decoders.1.self_attn.linear_q.weight
+   + decoders.1.self_attn.linear_q.bias
+   + decoders.1.self_attn.linear_k.weight
+   + decoders.1.self_attn.linear_k.bias
+   + decoders.1.self_attn.linear_v.weight
+   + decoders.1.self_attn.linear_v.bias
+   + decoders.1.self_attn.linear_out.weight
+   + decoders.1.self_attn.linear_out.bias
+   + decoders.1.src_attn.linear_q.weight
+   + decoders.1.src_attn.linear_q.bias
+   + decoders.1.src_attn.linear_k.weight
+   + decoders.1.src_attn.linear_k.bias
+   + decoders.1.src_attn.linear_v.weight
+   + decoders.1.src_attn.linear_v.bias
+   + decoders.1.src_attn.linear_out.weight
+   + decoders.1.src_attn.linear_out.bias
+   + decoders.1.feed_forward.w_1.weight
+   + decoders.1.feed_forward.w_1.bias
+   + decoders.1.feed_forward.w_2.weight
+   + decoders.1.feed_forward.w_2.bias
+   + decoders.1.norm1.weight
+   + decoders.1.norm1.bias
+   + decoders.1.norm2.weight
+   + decoders.1.norm2.bias
+   + decoders.1.norm3.weight
+   + decoders.1.norm3.bias
+   + decoders.2.self_attn.linear_q.weight
+   + decoders.2.self_attn.linear_q.bias
+   + decoders.2.self_attn.linear_k.weight
+   + decoders.2.self_attn.linear_k.bias
+   + decoders.2.self_attn.linear_v.weight
+   + decoders.2.self_attn.linear_v.bias
+   + decoders.2.self_attn.linear_out.weight
+   + decoders.2.self_attn.linear_out.bias
+   + decoders.2.src_attn.linear_q.weight
+   + decoders.2.src_attn.linear_q.bias
+   + decoders.2.src_attn.linear_k.weight
+   + decoders.2.src_attn.linear_k.bias
+   + decoders.2.src_attn.linear_v.weight
+   + decoders.2.src_attn.linear_v.bias
+   + decoders.2.src_attn.linear_out.weight
+   + decoders.2.src_attn.linear_out.bias
+   + decoders.2.feed_forward.w_1.weight
+   + decoders.2.feed_forward.w_1.bias
+   + decoders.2.feed_forward.w_2.weight
+   + decoders.2.feed_forward.w_2.bias
+   + decoders.2.norm1.weight
+   + decoders.2.norm1.bias
+   + decoders.2.norm2.weight
+   + decoders.2.norm2.bias
+   + decoders.2.norm3.weight
+   + decoders.2.norm3.bias
+
+❌ Missing in checkpoint:
+   - embed.1.pe

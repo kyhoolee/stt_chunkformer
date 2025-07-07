@@ -1,0 +1,121 @@
+.
+├── base_env.yml
+├── chunkformer_vpb
+│   ├── decode.py
+│   ├── inference
+│   │   ├── compare_waveform_debug.py
+│   │   ├── debug_wav_format.py
+│   │   ├── export_code.sh
+│   │   ├── folder.txt
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-311.pyc
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── __init__.cpython-39.pyc
+│   │   │   ├── run_compare.cpython-311.pyc
+│   │   │   ├── run_compare.cpython-312.pyc
+│   │   │   └── run_compare.cpython-39.pyc
+│   │   ├── run_compare.py
+│   │   ├── run_infer.py
+│   │   ├── run_vivos_cmp.py
+│   │   ├── run_vivos_eval.py
+│   │   ├── stt_chunkformer_code.txt
+│   │   └── stt.md
+│   ├── __init__.py
+│   ├── model
+│   │   ├── asr_model.py
+│   │   ├── attention.py
+│   │   ├── cmvn.py
+│   │   ├── convolution.py
+│   │   ├── ctc.py
+│   │   ├── embedding.py
+│   │   ├── encoder_layer.py
+│   │   ├── encoder.py
+│   │   ├── __init__.py
+│   │   ├── positionwise_feed_forward.py
+│   │   ├── __pycache__
+│   │   │   ├── asr_model.cpython-39.pyc
+│   │   │   ├── attention.cpython-39.pyc
+│   │   │   ├── cmvn.cpython-39.pyc
+│   │   │   ├── convolution.cpython-39.pyc
+│   │   │   ├── ctc.cpython-39.pyc
+│   │   │   ├── embedding.cpython-39.pyc
+│   │   │   ├── encoder.cpython-39.pyc
+│   │   │   ├── encoder_layer.cpython-39.pyc
+│   │   │   ├── __init__.cpython-39.pyc
+│   │   │   ├── positionwise_feed_forward.cpython-39.pyc
+│   │   │   ├── subsampling.cpython-39.pyc
+│   │   │   └── swish.cpython-39.pyc
+│   │   ├── subsampling.py
+│   │   ├── swish.py
+│   │   └── utils
+│   │       ├── checkpoint.py
+│   │       ├── cmvn.py
+│   │       ├── common.py
+│   │       ├── ctc_utils.py
+│   │       ├── file_utils.py
+│   │       ├── init_model.py
+│   │       ├── __init__.py
+│   │       ├── mask.py
+│   │       └── __pycache__
+│   │           ├── checkpoint.cpython-39.pyc
+│   │           ├── cmvn.cpython-39.pyc
+│   │           ├── common.cpython-39.pyc
+│   │           ├── ctc_utils.cpython-39.pyc
+│   │           ├── file_utils.cpython-39.pyc
+│   │           ├── __init__.cpython-39.pyc
+│   │           ├── init_model.cpython-39.pyc
+│   │           └── mask.cpython-39.pyc
+│   ├── model_utils.py
+│   ├── model_utils_test.py
+│   └── __pycache__
+│       ├── decode.cpython-39.pyc
+│       ├── __init__.cpython-311.pyc
+│       ├── __init__.cpython-312.pyc
+│       ├── __init__.cpython-39.pyc
+│       └── model_utils.cpython-39.pyc
+├── chunkformer_vpb.egg-info
+│   ├── dependency_links.txt
+│   ├── PKG-INFO
+│   ├── SOURCES.txt
+│   └── top_level.txt
+├── data
+│   ├── 10000.wav
+│   ├── audio_list.tsv
+│   └── common_voice_vi_23397238.wav
+├── docs
+│   ├── 0.issue_PCM_vs_range_1.md
+│   ├── 1_data_flow
+│   │   ├── 1_frame.md
+│   │   ├── 2_1_subsampling.md
+│   │   ├── 2_chunk.md
+│   │   ├── 3_0_log_inference.txt
+│   │   ├── 3_1_detail.md
+│   │   ├── 3_encoder_layer.md
+│   │   ├── 3_encoder.md
+│   │   ├── 4_con_vs_chunk_former.md
+│   │   ├── 5_model_parts.md
+│   │   ├── 6_1_strategy.md
+│   │   └── 6_transformer_foundation.md
+│   ├── 2_aed
+│   │   └── 1_attention_decoder.md
+│   ├── chunkformer_architecture.png
+│   ├── inference_chunkformer.txt
+│   └── paper.pdf
+├── inference_chunkformer.txt
+├── log_inference.txt
+├── notebook
+│   ├── _1_dataset.ipynb
+│   ├── _2_model.ipynb
+│   ├── _3_architect.ipynb
+│   ├── _4_aed.ipynb
+│   └── model_architect
+│       ├── ctc_explain.txt
+│       ├── ctc.txt
+│       ├── encoder.txt
+│       └── full_model.txt
+├── README.md
+├── requirements.txt
+└── setup.py
+
+16 directories, 103 files
