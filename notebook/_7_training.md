@@ -176,4 +176,19 @@ scheduler = NoamScheduler(
 
 ---
 
-Chúc bạn triển khai suôn sẻ! Nếu cần thêm bất cứ chi tiết hay ví dụ code mẫu, cứ báo mình nhé.
+Dưới đây là ước tính thời gian cho từng giai đoạn huấn luyện trên cụm **8×NVIDIA H100**, sử dụng WeNet 2.0 với mixed-precision. Tất cả con số là tham khảo và có thể thay đổi tùy batch-size, độ dài trung bình của audio, và các chi tiết I/O.
+
+| Giai đoạn                                             | Steps / Epochs             | Thời gian ước tính             | Ghi chú                                             |
+| ----------------------------------------------------- | -------------------------- | ------------------------------ | --------------------------------------------------- |
+| **1. Full-context pre-train (small-scale, 960 h LS)** | 200 epochs (\~400 k steps) | **50 – 65 giờ** (\~2–2.5 ngày) | Dữ liệu Librispeech; sequence ngắn → throughput cao |
+| **2. Full-context pre-train (large-scale, 25 000 h)** | \~400 k steps              | **60 – 75 giờ** (\~2.5–3 ngày) | Audio dài hơn, I/O nặng hơn nên chậm hơn \~15%      |
+| **3. Fine-tune limited-context (small-scale)**        | 50 epochs (\~100 k steps)  | **12 – 15 giờ**                | Resume từ full-context small; lr=1e-5               |
+| **4. Fine-tune limited-context (large-scale)**        | 100 k steps                | **15 – 18 giờ**                | Resume từ full-context large; lr=1e-5               |
+
+**Tổng cộng**: \~137–173 giờ (\~5.5–7 ngày) để hoàn thiện toàn bộ pipeline từ pre-train đến fine-tune.
+
+> **Lưu ý**
+>
+> * Nếu dùng batch-size lớn hơn hoặc kinh nghiệm I/O tốt (caching, prefetch), bạn có thể rút ngắn \~10–20%.
+> * Theo dõi utilization GPU; nếu thấp có thể tăng batch-size hoặc gradient-accumulation để đạt throughput tối ưu.
+> * Phần checkpoint averaging và các bước hậu xử lý (evaluation, export) cũng chiếm thêm \~2–4 giờ.
