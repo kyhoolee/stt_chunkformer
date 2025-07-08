@@ -254,8 +254,8 @@ class BaseEncoder(torch.nn.Module):
             )
             r_att_cache.append(new_att_cache)
             r_cnn_cache.append(new_cnn_cache)
-            print(f"🧩 Layer {i}: xs shape after layer = {xs.shape}")
-            print(f"\t🧩 Layer {i}\n\t\t{layer}")
+            # print(f"🧩 Layer {i}: xs shape after layer = {xs.shape}")
+            # print(f"\t🧩 Layer {i}\n\t\t{layer}")
 
         # --------- Final normalization and output ---------
         if self.normalize_before:

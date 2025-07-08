@@ -6,7 +6,7 @@ from torchaudio.compliance.kaldi import fbank
 from jiwer import wer
 from chunkformer_vpb.decode import init, load_audio
 from chunkformer_vpb.model.utils.ctc_utils import get_output_with_timestamps
-
+from chunkformer_vpb.model.utils.mask import make_pad_mask
 # ==================== ARG PARSE ====================
 def get_args():
     parser = argparse.ArgumentParser()
@@ -22,6 +22,17 @@ def get_args():
     parser.add_argument('--total_batch_duration', type=int, default=1800)  # in ms
     args = parser.parse_args()
     return args
+
+def get_default_args():
+    return argparse.Namespace(
+        model_checkpoint="chunkformer-large-vie",
+        audio_path="samples/test.wav",
+        label_text=None,
+        chunk_size=64,
+        left_context_size=128,
+        right_context_size=128,
+        total_batch_duration=1800
+    )
 
 # ==================== MODEL ====================
 def load_model_only(model_checkpoint="../chunkformer-large-vie", device=None):
@@ -58,79 +69,117 @@ def prepare_input_file(audio_path, device):
     ).unsqueeze(0).to(device)
     return feats
 
-'''
-(stt_lab) kyhoolee@ThinkpadX1Carbon:~/work/1_backend/4_financial_analysis/3_crypto/9_data_science/stt_repo/stt_chunkformer$ python -m chunkformer_vpb.model_utils   --model_checkpoint ../chunkformer-large-vie   --audio_path ../debug_wavs/sample_00.wav   --label_text "nửa vòng trái đất hơn bảy năm"
+@torch.no_grad()
+def decode_aed_long_form(xs, model, char_dict, args, device):
+    chunk_size = args.chunk_size
+    left_context_size = args.left_context_size
+    right_context_size = args.right_context_size
+    subsampling_factor = model.encoder.embed.subsampling_factor
+    conv_kernel_size = model.encoder.cnn_module_kernel
+    conv_lorder = conv_kernel_size // 2
+    num_blocks = model.encoder.num_blocks
+    hidden_dim = model.encoder._output_size
+    attention_heads = model.encoder.attention_heads
 
-📥 Loading file: ../debug_wavs/sample_00.wav
-🔍 [pydub] Raw frame_rate   : 16000
-🔍 [pydub] Sample width     : 4 bytes (32 bits)
-🔍 [pydub] Channels         : 1
-🔍 [pydub] Duration (ms)    : 2375 ms
-🧪 [pydub] Type of array     : <class 'array.array'>, dtype: int16
-🧪 [pydub] First 10 samples  : array('h', [0, 0, -1, 0, 0, 0, 1, 3, 9, 11])
-✅ [pydub] Waveform shape    : torch.Size([1, 38000])
-📊 [pydub] Min: -22944.00, Max: 24431.00, Mean: -0.01
+    max_len = int(args.total_batch_duration // 0.01) // 2
+    multiply_n = max_len // chunk_size // subsampling_factor
+    truncated_context_size = chunk_size * multiply_n
+    rel_right_context_size = (
+        right_context_size + max(chunk_size, right_context_size) * (num_blocks - 1)
+    ) * subsampling_factor
 
-🔁 [Compare] Loading with torchaudio.load()
-✅ [torchaudio] shape        : torch.Size([1, 38000]), sample_rate: 16000
-📊 [torchaudio] Min: -0.7002, Max: 0.7456, Mean: -0.0000
-📏 Diff (mean abs): 0.0000 (assuming torchaudio gives normalized)
-========== 🔧 CONFIG SUMMARY ==========
-  chunk_size               = 64
-  left_context_size        = 128
-  right_context_size       = 128
-  subsampling_factor       = 8
-  conv_kernel_size         = 15
-  conv_lorder              = 7
-  num_blocks               = 17
-  hidden_dim (_output_size)= 512
-  attention_heads          = 8
-  Input shape              = torch.Size([1, 236, 80])
-=======================================
-Bắt đầu từ .wav:
-Duration: 2375 ms = 2.375 giây
-Sample rate: 16,000 Hz
-⇒ Tổng số mẫu (sample points):
-2.375 × 16000 = 38000 samples
+    # Init cache
+    offset = torch.zeros(1, dtype=torch.int, device=device)
+    att_cache = torch.zeros((num_blocks, left_context_size, attention_heads, hidden_dim * 2 // attention_heads), device=device)
+    cnn_cache = torch.zeros((num_blocks, hidden_dim, conv_lorder), device=device)
 
-# === Tính số frame đầu vào từ waveform (fbank input shape: [1, T_frame, 80]) ===
-# Với sample_rate = 16kHz, frame_shift = 10ms = 160 samples, frame_length = 25ms = 400 samples
-# Tổng số frame đầu ra được tính như sau:
-#     T_frame = floor((len(samples) - frame_length) / frame_shift) + 1
-#             = floor((38000 - 400) / 160) + 1 = 236
-# → Đầu vào sau fbank có shape: [1, 236, 80]
+    encoder_outs_chunks = []
+    encoder_lens_total = 0
+
+    for idx in range(0, xs.shape[1], truncated_context_size * subsampling_factor):
+        start = truncated_context_size * subsampling_factor * idx
+        end = min(start + truncated_context_size * subsampling_factor + 7, xs.shape[1])
+
+        x = xs[:, start:end + rel_right_context_size]
+        x_len = torch.tensor([x[0].shape[0]], dtype=torch.int, device=device)
+
+        encoder_outs, encoder_lens, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(
+            xs=x, 
+            xs_origin_lens=x_len,
+            chunk_size=chunk_size,
+            left_context_size=left_context_size,
+            right_context_size=right_context_size,
+            att_cache=att_cache,
+            cnn_cache=cnn_cache,
+            truncated_context_size=truncated_context_size,
+            offset=offset
+        )
+
+        encoder_outs = encoder_outs[:, :encoder_lens]
+        encoder_outs_chunks.append(encoder_outs)
+        encoder_lens_total += encoder_outs.shape[1]
+
+        if start + rel_right_context_size >= xs.shape[1]:
+            break
+
+    # Cat all chunk outputs
+    encoder_outs_full = torch.cat(encoder_outs_chunks, dim=1)
+    encoder_mask = torch.ones(1, 1, encoder_outs_full.shape[1], dtype=torch.bool, device=device)
+
+    # Decode AED
+    pred_token_ids, _ = model.decode_aed(encoder_outs_full, encoder_mask, maxlen=100)
+    pred_ids = pred_token_ids[0].tolist()  # Đổi tên cho ngắn gọn
+
+    # Raw vs Clean
+    raw = transcript_raw(pred_ids, char_dict)
+    clean = transcript_clean(pred_ids, char_dict)
+
+    print(f"📣 AED RAW   : {raw}")
+    print(f"📣 AED CLEAN : {clean}")
+
+    return raw, clean
+
+def transcript_raw(token_ids, char_dict):
+    """
+    Convert list of token IDs → raw string (giữ nguyên các ký tự subword, <sos>, <eos>, blank).
+    Args:
+        token_ids: List[int]
+        char_dict: Dict[int, str]
+    Returns:
+        raw_transcript: str
+    """
+    return "".join(char_dict.get(idx, "") for idx in token_ids)
 
 
+def transcript_clean(token_ids, char_dict,
+                     sos_token="<sos>", eos_token="<eos>",
+                     blank_token="_"):
+    """
+    Tạo bản clean:
+      - Loại bỏ sos/eos/blank
+      - Chuyển ký tự subword (‘▁’) thành khoảng trắng
+    Args:
+        token_ids: List[int]
+        char_dict: Dict[int, str]
+        sos_token: chuỗi biểu diễn <sos> trong char_dict
+        eos_token: chuỗi biểu diễn <eos> trong char_dict
+        blank_token: ký tự blank (thường là "_")
+    Returns:
+        clean_transcript: str
+    """
+    parts = []
+    for idx in token_ids:
+        c = char_dict.get(idx, "")
+        if c in (sos_token, eos_token, blank_token):
+            continue
+        if c.startswith("▁"):
+            # subword marker → space + phần còn lại
+            parts.append(" " + c.lstrip("▁"))
+        else:
+            parts.append(c)
+    return "".join(parts).strip()
 
-🧮 CALCULATED CONTEXT INFO
-  total_batch_duration     = 1800
-  max_len (frame count)    = 89999
-  multiply_n               = 175
-  truncated_context_size   = 11200
-  rel_right_context_size   = 17408
 
-
-📦 Chunk 0
-  Input chunk frame idx: 0 → 236
-  Input x shape         : torch.Size([1, 236, 80])
-  x_len                 : [236]
-  encoder_outs shape    : torch.Size([1, 64, 512])
-  encoder_lens          : [28]
-  framewise_ids shape   : torch.Size([28])
-  framewise_ids (first 10): [0, 0, 0, 0, 4657, 0, 0, 6324, 0, 0]
-
-📊 Total full_framewise_ids shape: torch.Size([28])
-    Sample token IDs (first 20): [0, 0, 0, 0, 4657, 0, 0, 6324, 0, 0, 5854, 0, 0, 6819, 0, 2983, 0, 0, 1635, 0]
-
-📝 Decoded segments (first 3):
-  → {'decode': ' nửa vòng trái đất hơn bảy năm', 'start': '00:00:00:000', 'end': '00:00:02:160'}
-
-✅ Final transcript:  nửa vòng trái đất hơn bảy năm
-🟢 Prediction     :  nửa vòng trái đất hơn bảy năm
-🔵 Ground Truth   : nửa vòng trái đất hơn bảy năm
-❌ WER            : 0.0
-
-'''
 @torch.no_grad()  # Không cần gradient vì đang trong chế độ inference
 def decode_long_form(xs, model, char_dict, args, device):
     """
@@ -185,18 +234,18 @@ def decode_long_form(xs, model, char_dict, args, device):
     hidden_dim = model.encoder._output_size
     attention_heads = model.encoder.attention_heads
 
-    print("========== 🔧 CONFIG SUMMARY ==========")
-    print(f"  chunk_size               = {chunk_size}")
-    print(f"  left_context_size        = {left_context_size}")
-    print(f"  right_context_size       = {right_context_size}")
-    print(f"  subsampling_factor       = {subsampling_factor}")
-    print(f"  conv_kernel_size         = {conv_kernel_size}")
-    print(f"  conv_lorder              = {conv_lorder}")
-    print(f"  num_blocks               = {num_blocks}")
-    print(f"  hidden_dim (_output_size)= {hidden_dim}")
-    print(f"  attention_heads          = {attention_heads}")
-    print(f"  Input shape              = {xs.shape}")  # [1, T_raw, 80]
-    print("=======================================\n")
+    # print("========== 🔧 CONFIG SUMMARY ==========")
+    # print(f"  chunk_size               = {chunk_size}")
+    # print(f"  left_context_size        = {left_context_size}")
+    # print(f"  right_context_size       = {right_context_size}")
+    # print(f"  subsampling_factor       = {subsampling_factor}")
+    # print(f"  conv_kernel_size         = {conv_kernel_size}")
+    # print(f"  conv_lorder              = {conv_lorder}")
+    # print(f"  num_blocks               = {num_blocks}")
+    # print(f"  hidden_dim (_output_size)= {hidden_dim}")
+    # print(f"  attention_heads          = {attention_heads}")
+    # print(f"  Input shape              = {xs.shape}")  # [1, T_raw, 80]
+    # print("=======================================\n")
 
     # === Tính độ dài thực tế mỗi chunk có thể xử lý trong GPU ===
     max_len = int(args.total_batch_duration // 0.01) // 2  # Tổng số frame (trước subsample)
@@ -209,12 +258,12 @@ def decode_long_form(xs, model, char_dict, args, device):
     ) * subsampling_factor
 
 
-    print("🧮 CALCULATED CONTEXT INFO")
-    print(f"  total_batch_duration     = {args.total_batch_duration}")
-    print(f"  max_len (frame count)    = {max_len}")
-    print(f"  multiply_n               = {multiply_n}")
-    print(f"  truncated_context_size   = {truncated_context_size}")
-    print(f"  rel_right_context_size   = {rel_right_context_size}\n")
+    # print("🧮 CALCULATED CONTEXT INFO")
+    # print(f"  total_batch_duration     = {args.total_batch_duration}")
+    # print(f"  max_len (frame count)    = {max_len}")
+    # print(f"  multiply_n               = {multiply_n}")
+    # print(f"  truncated_context_size   = {truncated_context_size}")
+    # print(f"  rel_right_context_size   = {rel_right_context_size}\n")
     
 
     '''
@@ -279,10 +328,10 @@ def decode_long_form(xs, model, char_dict, args, device):
                     Argmax → [64]  ← framewise_token_ids (ID nhãn)
         Mỗi chunk → chuỗi ID token dự đoán cho 64 frame.
         '''
-        print(f"\n📦 Chunk {num_chunks}")
-        print(f"  Input chunk frame idx: {start} → {end}")
-        print(f"  Input x shape         : {x.shape}")
-        print(f"  x_len                 : {x_len.tolist()}")
+        # print(f"\n📦 Chunk {num_chunks}")
+        # print(f"  Input chunk frame idx: {start} → {end}")
+        # print(f"  Input x shape         : {x.shape}")
+        # print(f"  x_len                 : {x_len.tolist()}")
 
 
         encoder_outs, encoder_lens, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(
@@ -297,8 +346,8 @@ def decode_long_form(xs, model, char_dict, args, device):
             offset=offset
         )
         # encoder_outs: [1, T_out, 512], encoder_lens: [1]
-        print(f"  encoder_outs shape    : {encoder_outs.shape}")
-        print(f"  encoder_lens          : {encoder_lens.tolist()}")
+        # print(f"  encoder_outs shape    : {encoder_outs.shape}")
+        # print(f"  encoder_lens          : {encoder_lens.tolist()}")
 
         # === Reshape và cắt bỏ phần rel_right_context thừa ===
         encoder_outs = encoder_outs.reshape(1, -1, encoder_outs.shape[-1])[:, :encoder_lens]
@@ -309,8 +358,8 @@ def decode_long_form(xs, model, char_dict, args, device):
 
         # === Chạy CTC forward: từ [1, T_out, 512] → [T_out] token_id ===
         framewise_ids = model.encoder.ctc_forward(encoder_outs).squeeze(0)  # shape: [T_out]
-        print(f"  framewise_ids shape   : {framewise_ids.shape}")
-        print(f"  framewise_ids (first 10): {framewise_ids.tolist()[:10]}")
+        # print(f"  framewise_ids shape   : {framewise_ids.shape}")
+        # print(f"  framewise_ids (first 10): {framewise_ids.tolist()[:10]}")
         
         framewise_token_ids_chunks.append(framewise_ids)
         num_chunks += 1

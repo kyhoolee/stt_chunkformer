@@ -85,10 +85,10 @@ class ChunkFormerEncoderLayer(nn.Module):
             new_att_cache: Updated cache for attention (for next chunk)
             new_cnn_cache: Updated cache for convolution (for next chunk)
         """
-        print("\n======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======")
-        print(f"📥 Input shape: x = {x.shape}, mask = {mask.shape}, pos_emb = {pos_emb.shape}")
-        print(f"📥 Cache shapes: att_cache = {att_cache.shape}, cnn_cache = {cnn_cache.shape}")
-        print(f"⚙️ Contexts: left = {left_context_size}, right = {right_context_size}, trunc = {truncated_context_size}")
+        # print("\n======= 🧩 [EncoderLayer.forward_parallel_chunk] START =======")
+        # print(f"📥 Input shape: x = {x.shape}, mask = {mask.shape}, pos_emb = {pos_emb.shape}")
+        # print(f"📥 Cache shapes: att_cache = {att_cache.shape}, cnn_cache = {cnn_cache.shape}")
+        # print(f"⚙️ Contexts: left = {left_context_size}, right = {right_context_size}, trunc = {truncated_context_size}")
 
         # ----------------------------------------------------------------------------------
         # 1️⃣ Macaron Feed-Forward Network (optional, giống vị trí FFN đầu trong Transformer XL)
@@ -101,7 +101,7 @@ class ChunkFormerEncoderLayer(nn.Module):
             x = residual + self.ff_scale * self.dropout(x_ff_mac)
             if not self.normalize_before:
                 x = self.norm_ff_macaron(x)
-            print(f"🔹 After macaron FFN: x = {x.shape}")
+            # print(f"🔹 After macaron FFN: x = {x.shape}")
 
         # ----------------------------------------------------------------------------------
         # 2️⃣ Self-Attention (streaming-aware, use cache + relative position)
@@ -121,7 +121,7 @@ class ChunkFormerEncoderLayer(nn.Module):
         x = residual + self.dropout(x_att)
         if not self.normalize_before:
             x = self.norm_mha(x)
-        print(f"🧠 After MultiHeadAttention: x = {x.shape}, new_att_cache = {new_att_cache.shape}")
+        # print(f"🧠 After MultiHeadAttention: x = {x.shape}, new_att_cache = {new_att_cache.shape}")
 
         # ----------------------------------------------------------------------------------
         # 3️⃣ Convolution Module (lấy ngữ cảnh cục bộ gần – giống CNN trong CNN-Transformer)
@@ -139,7 +139,7 @@ class ChunkFormerEncoderLayer(nn.Module):
             x = residual + self.dropout(x)
             if not self.normalize_before:
                 x = self.norm_conv(x)
-            print(f"🌊 After Convolution Module: x = {x.shape}, new_cnn_cache = {new_cnn_cache.shape}")
+            # print(f"🌊 After Convolution Module: x = {x.shape}, new_cnn_cache = {new_cnn_cache.shape}")
 
         # ----------------------------------------------------------------------------------
         # 4️⃣ Feed-Forward Network (cuối lớp, như chuẩn transformer)
@@ -152,14 +152,14 @@ class ChunkFormerEncoderLayer(nn.Module):
         x = residual + self.ff_scale * self.dropout(x_ff)
         if not self.normalize_before:
             x = self.norm_ff(x)
-        print(f"🔸 After final FFN: x = {x.shape}")
+        # print(f"🔸 After final FFN: x = {x.shape}")
 
         # ----------------------------------------------------------------------------------
         # 5️⃣ Normalize cuối nếu có conv (đảm bảo ổn định chuỗi tầng conv → FFN)
         # ----------------------------------------------------------------------------------
         if self.conv_module is not None:
             x = self.norm_final(x)
-            print(f"📏 After norm_final (due to conv_module): x = {x.shape}")
+            # print(f"📏 After norm_final (due to conv_module): x = {x.shape}")
 
-        print("✅ [EncoderLayer.forward_parallel_chunk] DONE")
+        # print("✅ [EncoderLayer.forward_parallel_chunk] DONE")
         return x, mask, new_att_cache, new_cnn_cache

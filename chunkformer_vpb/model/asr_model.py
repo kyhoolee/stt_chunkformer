@@ -43,20 +43,41 @@ class ASRModel(torch.nn.Module):
 
         self.decoder = decoder
 
-
     def decode_aed(self, encoder_out: torch.Tensor, encoder_mask: torch.Tensor, maxlen: int = 100):
-        """Greedy decoding using AED"""
+        """
+        Greedy AED decoding:  
+          - encoder_out: [B, T_in, D]  
+          - encoder_mask: [B, 1, T_in]  
+        Trả về:  
+          - token IDs [B, T_out], score sequence [B, T_out, V]
+        """
         batch_size = encoder_out.size(0)
+        # Khởi tạo ys với sos
         ys = encoder_out.new_full((batch_size, 1), fill_value=self.sos, dtype=torch.long)
-
         scores = []
-        for i in range(maxlen):
-            decoder_out, _ = self.decoder(ys, encoder_out, encoder_mask)
-            prob = torch.nn.functional.log_softmax(decoder_out[:, -1], dim=-1)
-            next_token = prob.argmax(dim=-1, keepdim=True)
-            ys = torch.cat([ys, next_token], dim=1)
+
+        for _ in range(maxlen):
+            # Tạo tensor độ dài của ys
+            ys_lens = torch.tensor([ys.size(1)] * batch_size, dtype=torch.long, device=ys.device)
+            # Gọi decoder với đúng thứ tự args
+            l_x, r_x, olens = self.decoder(
+                encoder_out,    # memory
+                encoder_mask,   # memory_mask
+                ys,             # ys_in_pad
+                ys_lens,        # ys_in_lens
+                None,           # r_ys_in_pad (không dùng reverse here)
+                0.0,            # reverse_weight
+            )
+            # l_x: [B, T_cur, V]
+            # Lấy logits của token cuối cùng
+            prob = torch.nn.functional.log_softmax(l_x[:, -1], dim=-1)
+            next_token = prob.argmax(dim=-1, keepdim=True)  # [B,1]
+            ys = torch.cat([ys, next_token], dim=1)         # [B, T_cur+1]
             scores.append(prob)
+
+            # Nếu tất cả batch đều sinh eos thì dừng sớm
             if (next_token == self.eos).all():
                 break
 
-        return ys[:, 1:], torch.stack(scores, dim=1)  # remove <sos>
+        # Trả về sequence bỏ sos + scores
+        return ys[:, 1:], torch.stack(scores, dim=1)
