@@ -3,7 +3,10 @@ from typing import Dict, List, Optional, Tuple
 
 import torch
 import logging
+import torch.nn.functional as F
 
+
+from wenet.transformer.label_smoothing_loss import LabelSmoothingLoss
 from torch.nn.utils.rnn import pad_sequence
 from .ctc import CTC
 from .utils.common import (IGNORE_ID, add_sos_eos, log_add,
@@ -23,7 +26,7 @@ class ASRModel(torch.nn.Module):
         ctc: CTC,
         ctc_weight: float = 0.5,
         ignore_id: int = IGNORE_ID,
-        reverse_weight: float = 0.0,
+        reverse_weight: float = 0.0, lsm_weight: float=0.1,
         decoder=None
     ):
         assert 0.0 <= ctc_weight <= 1.0, ctc_weight
@@ -40,8 +43,15 @@ class ASRModel(torch.nn.Module):
         self.encoder = encoder
         self.encoder.ctc = ctc
         self.ctc = ctc        
-
         self.decoder = decoder
+
+        # add label‐smoothing loss for AED
+        self.criterion_att = LabelSmoothingLoss(
+            size=vocab_size,
+            padding_idx=ignore_id,
+            smoothing=lsm_weight,
+            normalize_length=False
+        )
 
     def decode_aed(self, encoder_out: torch.Tensor, encoder_mask: torch.Tensor, maxlen: int = 100):
         """
@@ -81,3 +91,37 @@ class ASRModel(torch.nn.Module):
 
         # Trả về sequence bỏ sos + scores
         return ys[:, 1:], torch.stack(scores, dim=1)
+
+
+    def _calc_att_loss(
+        self,
+        encoder_out: torch.Tensor,    # [B, T_enc, D]
+        encoder_mask: torch.Tensor,   # [B, 1, T_enc]
+        ys_pad: torch.Tensor,         # [B, L] chứa <sos>…<eos>
+        ys_lens: torch.Tensor         # [B]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Compute AED loss w/ label smoothing + token‐level accuracy.
+        """
+        # 1) prepare ys_in, ys_out
+        ys_in  = ys_pad[:, :-1]    # drop <eos>
+        ys_out = ys_pad[:, 1:]     # drop <sos>
+        ys_in_lens = (ys_in != self.ignore_id).sum(1)
+
+        # 2) decoder forward
+        decoder_out, _, _ = self.decoder(
+            encoder_out, encoder_mask, ys_in, ys_in_lens, None, self.reverse_weight
+        )
+        # 3) log-probs
+        logp = F.log_softmax(decoder_out, dim=-1)  # [B, T, V]
+
+        # 4) AED loss
+        loss_att = self.criterion_att(logp, ys_out)
+
+        # 5) accuracy
+        # B, T, V = logp.size()
+        # pred_flat   = logp.reshape(-1, V)
+        # target_flat = ys_out.reshape(-1)
+        # acc_att     = th_accuracy(pred_flat, target_flat, ignore_label=self.ignore_id)
+
+        return loss_att, None
