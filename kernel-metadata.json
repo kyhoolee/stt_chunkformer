@@ -1,0 +1,15 @@
+{
+  "id": "kyhoolee/stt-chunkformer",
+  "title": "ChunkFormer STT",
+  "code_file": "notebook/run_finetune.ipynb",
+  "language": "Pick one of: {python,r,rmarkdown}",
+  "kernel_type": "Pick one of: {script,notebook}",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
