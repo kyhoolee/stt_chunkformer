@@ -1,0 +1,19 @@
+cache_dir: ./cache_train
+dataset_name: AILAB-VNUHCM/vivos
+dataset_split: train
+vocab_path: ../../../chunkformer-large-vie/vocab.txt
+splits:
+  train: 0.8
+  valid: 0.1
+  test: 0.1
+augment:
+  speed: [0.9, 1.0, 1.1]
+  freq_mask:
+    num_masks: 2
+    param: 15
+  noise_types: [telephony, vietnamese]
+fbank:
+  n_mels: 80
+  win_length: 400
+  hop_length: 160
+seed: 42

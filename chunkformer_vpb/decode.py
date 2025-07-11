@@ -114,33 +114,33 @@ def init(model_checkpoint, device):
 
 
 def load_audio(audio_path):
-    print(f"\n📥 Loading file: {audio_path}")
+    # print(f"\n📥 Loading file: {audio_path}")
 
     # === 1. Dùng pydub để decode
     audio = AudioSegment.from_file(audio_path)
-    print(f"🔍 [pydub] Raw frame_rate   : {audio.frame_rate}")
-    print(f"🔍 [pydub] Sample width     : {audio.sample_width} bytes ({audio.sample_width * 8} bits)")
-    print(f"🔍 [pydub] Channels         : {audio.channels}")
-    print(f"🔍 [pydub] Duration (ms)    : {len(audio)} ms")
+    # print(f"🔍 [pydub] Raw frame_rate   : {audio.frame_rate}")
+    # print(f"🔍 [pydub] Sample width     : {audio.sample_width} bytes ({audio.sample_width * 8} bits)")
+    # print(f"🔍 [pydub] Channels         : {audio.channels}")
+    # print(f"🔍 [pydub] Duration (ms)    : {len(audio)} ms")
 
     # === 2. Chuẩn hóa về định dạng chuẩn (mono, 16kHz, 16-bit PCM)
     audio = audio.set_frame_rate(16000).set_sample_width(2).set_channels(1)
 
     # === 3. Trích waveform
     raw_array = audio.get_array_of_samples()
-    print(f"🧪 [pydub] Type of array     : {type(raw_array)}, dtype: int{audio.sample_width * 8}")
-    print(f"🧪 [pydub] First 10 samples  : {raw_array[:10]}")
+    # print(f"🧪 [pydub] Type of array     : {type(raw_array)}, dtype: int{audio.sample_width * 8}")
+    # print(f"🧪 [pydub] First 10 samples  : {raw_array[:10]}")
 
     waveform = torch.as_tensor(raw_array, dtype=torch.float32).unsqueeze(0)  # Shape: (1, N)
-    print(f"✅ [pydub] Waveform shape    : {waveform.shape}")
-    print(f"📊 [pydub] Min: {waveform.min().item():.2f}, Max: {waveform.max().item():.2f}, Mean: {waveform.mean().item():.2f}")
+    # print(f"✅ [pydub] Waveform shape    : {waveform.shape}")
+    # print(f"📊 [pydub] Min: {waveform.min().item():.2f}, Max: {waveform.max().item():.2f}, Mean: {waveform.mean().item():.2f}")
 
     # === 4. So sánh với torchaudio (nếu cần)
-    print("\n🔁 [Compare] Loading with torchaudio.load()")
-    waveform_torch, sr_torch = torchaudio.load(audio_path)
-    print(f"✅ [torchaudio] shape        : {waveform_torch.shape}, sample_rate: {sr_torch}")
-    print(f"📊 [torchaudio] Min: {waveform_torch.min().item():.4f}, Max: {waveform_torch.max().item():.4f}, Mean: {waveform_torch.mean().item():.4f}")
-    print(f"📏 Diff (mean abs): {(waveform_torch * 32768.0 - waveform).abs().mean().item():.4f} (assuming torchaudio gives normalized)")
+    # print("\n🔁 [Compare] Loading with torchaudio.load()")
+    # waveform_torch, sr_torch = torchaudio.load(audio_path)
+    # print(f"✅ [torchaudio] shape        : {waveform_torch.shape}, sample_rate: {sr_torch}")
+    # print(f"📊 [torchaudio] Min: {waveform_torch.min().item():.4f}, Max: {waveform_torch.max().item():.4f}, Mean: {waveform_torch.mean().item():.4f}")
+    # print(f"📏 Diff (mean abs): {(waveform_torch * 32768.0 - waveform).abs().mean().item():.4f} (assuming torchaudio gives normalized)")
 
     return waveform
 

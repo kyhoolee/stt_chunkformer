@@ -37,17 +37,17 @@ def load_checkpoint(model: torch.nn.Module, path: str) -> dict:
     # Load với strict=False để cho phép thiếu head
     missing_keys, unexpected_keys = model.load_state_dict(checkpoint, strict=False)
 
-    print(f"✅ Loaded state_dict with:")
-    print(f"   🔺 Missing keys: {len(missing_keys)}")
-    for k in missing_keys[:10]:
-        print(f"     - {k}")
-    if len(missing_keys) > 10:
-        print("     ...")
+    # print(f"✅ Loaded state_dict with:")
+    # print(f"   🔺 Missing keys: {len(missing_keys)}")
+    # for k in missing_keys[:10]:
+    #     print(f"     - {k}")
+    # if len(missing_keys) > 10:
+    #     print("     ...")
 
-    print(f"   ⚠️ Unexpected keys in checkpoint: {len(unexpected_keys)}")
-    for k in unexpected_keys[:10]:
-        print(f"     - {k}")
-    if len(unexpected_keys) > 10:
-        print("     ...")
+    # print(f"   ⚠️ Unexpected keys in checkpoint: {len(unexpected_keys)}")
+    # for k in unexpected_keys[:10]:
+    #     print(f"     - {k}")
+    # if len(unexpected_keys) > 10:
+    #     print("     ...")
 
     return checkpoint

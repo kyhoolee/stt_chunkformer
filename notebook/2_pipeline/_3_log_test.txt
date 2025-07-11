@@ -1,0 +1,367 @@
+[2025-07-11 11:54:33] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+✅ Loaded state_dict with:
+   🔺 Missing keys: 2
+     - encoder.ctc.ctc_lo.weight
+     - encoder.ctc.ctc_lo.bias
+   ⚠️ Unexpected keys in checkpoint: 166
+     - decoder.left_decoder.embed.0.weight
+     - decoder.left_decoder.after_norm.weight
+     - decoder.left_decoder.after_norm.bias
+     - decoder.left_decoder.output_layer.weight
+     - decoder.left_decoder.output_layer.bias
+     - decoder.left_decoder.decoders.0.self_attn.linear_q.weight
+     - decoder.left_decoder.decoders.0.self_attn.linear_q.bias
+     - decoder.left_decoder.decoders.0.self_attn.linear_k.weight
+     - decoder.left_decoder.decoders.0.self_attn.linear_k.bias
+     - decoder.left_decoder.decoders.0.self_attn.linear_v.weight
+     ...
+
+=== Inspect utt_002968 ===
+WAV  : shape=(1, 211000), sr=16000, min=-0.70, max=0.67
+Feat : shape=(1317, 80), dtype=torch.float32, min=-0.6255, max=26.0976
+Recompute fbank diff mean: 20.792910
+
+📥 Loading file: cache_test/raw/utt_002968.wav
+🔍 [pydub] Raw frame_rate   : 16000
+🔍 [pydub] Sample width     : 2 bytes (16 bits)
+🔍 [pydub] Channels         : 1
+🔍 [pydub] Duration (ms)    : 13188 ms
+🧪 [pydub] Type of array     : <class 'array.array'>, dtype: int16
+🧪 [pydub] First 10 samples  : array('h', [0, 0, 0, -1, 1, -1, 9, 24, 28, 20])
+✅ [pydub] Waveform shape    : torch.Size([1, 211000])
+📊 [pydub] Min: -22931.00, Max: 21890.00, Mean: 0.01
+
+🔁 [Compare] Loading with torchaudio.load()
+✅ [torchaudio] shape        : torch.Size([1, 211000]), sample_rate: 16000
+📊 [torchaudio] Min: -0.6998, Max: 0.6680, Mean: 0.0000
+📏 Diff (mean abs): 0.0000 (assuming torchaudio gives normalized)
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 1317, 80]), xs_origin_lens: [1317]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=1317, padded_len=1543, pad_frames=226, n_chunks=3, offset=0
+
+🧱 Total chunked xs shape: torch.Size([3, 519, 80])
+📐 xs_lens (post chunk): torch.Size([3]), total_chunks: 3
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([3, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([3, 1, 320]), mask_pad shape: torch.Size([3, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [163]
+
+✅ [Encoder Output] xs: torch.Size([3, 64, 512]), xs_lens: [163], n_chunks: [3]
+====================================================================
+
+
+📊 Total full_framewise_ids shape: torch.Size([163])
+    Sample token IDs (first 20): [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+📝 Decoded segments (first 3):
+  → {'decode': ' một người lãnh đạo thành công là người phát hiện bồi dưỡng để đưa người thậm chí còn giỏi hơn mình vào vị trí thay mình', 'start': '00:00:02:000', 'end': '00:00:11:200'}
+
+✅ Final transcript:  một người lãnh đạo thành công là người phát hiện bồi dưỡng để đưa người thậm chí còn giỏi hơn mình vào vị trí thay mình
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 1317, 80]), xs_origin_lens: [1317]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=1317, padded_len=1543, pad_frames=226, n_chunks=3, offset=0
+
+🧱 Total chunked xs shape: torch.Size([3, 519, 80])
+📐 xs_lens (post chunk): torch.Size([3]), total_chunks: 3
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([3, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([3, 1, 320]), mask_pad shape: torch.Size([3, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [163]
+
+✅ [Encoder Output] xs: torch.Size([3, 64, 512]), xs_lens: [163], n_chunks: [3]
+====================================================================
+
+📣 AED RAW   : ▁một▁người▁lãnh▁đạo▁thành▁công▁là▁người▁phát▁triển<sos/eos>▁một▁người▁phát▁triển<sos/eos>▁một▁người▁lãnh▁đạo▁thành▁công▁là▁người▁phát▁triển<sos/eos>▁một▁người▁phát▁triển<sos/eos>▁một▁người▁lãnh▁đạo▁thành▁công▁là▁người▁phát▁triển<sos/eos>▁một▁người▁phát▁triển<sos/eos>▁một▁người▁lãnh▁đạo▁thành▁công▁là▁người▁phát▁triển<sos/eos>▁một▁người▁phát▁triển<sos/eos>▁một▁người▁phát▁triển<sos/eos>▁một▁người▁lãnh▁đạo▁thành▁công▁là▁người▁phát▁triển<sos/eos>▁một▁người▁phát▁triển<sos/eos>▁một▁người▁phát▁triển<sos/eos>▁một▁người▁lãnh▁đạo▁thành▁công▁là▁người▁phát▁triển
+📣 AED CLEAN : một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển
+CTC :  một người lãnh đạo thành công là người phát hiện bồi dưỡng để đưa người thậm chí còn giỏi hơn mình vào vị trí thay mình
+AED : một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển<sos/eos> một người phát triển<sos/eos> một người phát triển<sos/eos> một người lãnh đạo thành công là người phát triển
+GT  : MỘT NGƯỜI LÃNH ĐẠO THÀNH CÔNG LÀ NGƯỜI PHÁT HIỆN BỒI DƯỠNG ĐỂ ĐƯA NGƯỜI THẬM CHÍ CÒN GIỎI HƠN MÌNH VÀO VỊ TRÍ THAY MÌNH
+
+=== Inspect utt_002025 ===
+WAV  : shape=(1, 62990), sr=16000, min=-0.77, max=0.75
+Feat : shape=(392, 80), dtype=torch.float32, min=3.9617, max=25.7422
+Recompute fbank diff mean: 20.794363
+
+📥 Loading file: cache_test/raw/utt_002025.wav
+🔍 [pydub] Raw frame_rate   : 16000
+🔍 [pydub] Sample width     : 2 bytes (16 bits)
+🔍 [pydub] Channels         : 1
+🔍 [pydub] Duration (ms)    : 3937 ms
+🧪 [pydub] Type of array     : <class 'array.array'>, dtype: int16
+🧪 [pydub] First 10 samples  : array('h', [-402, -663, -322, 65, -19, 102, 114, 229, 365, 253])
+✅ [pydub] Waveform shape    : torch.Size([1, 62990])
+📊 [pydub] Min: -25127.00, Max: 24582.00, Mean: -0.22
+
+🔁 [Compare] Loading with torchaudio.load()
+✅ [torchaudio] shape        : torch.Size([1, 62990]), sample_rate: 16000
+📊 [torchaudio] Min: -0.7668, Max: 0.7502, Mean: -0.0000
+📏 Diff (mean abs): 0.0000 (assuming torchaudio gives normalized)
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 392, 80]), xs_origin_lens: [392]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=392, padded_len=519, pad_frames=127, n_chunks=1, offset=0
+
+🧱 Total chunked xs shape: torch.Size([1, 519, 80])
+📐 xs_lens (post chunk): torch.Size([1]), total_chunks: 1
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([1, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([1, 1, 320]), mask_pad shape: torch.Size([1, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [48]
+
+✅ [Encoder Output] xs: torch.Size([1, 64, 512]), xs_lens: [48], n_chunks: [1]
+====================================================================
+
+
+📊 Total full_framewise_ids shape: torch.Size([48])
+    Sample token IDs (first 20): [0, 0, 0, 0, 6285, 0, 0, 4217, 0, 4532, 0, 0, 3565, 0, 0, 6263, 0, 0, 0, 0]
+
+📝 Decoded segments (first 3):
+  → {'decode': ' và ngày nào làm việc không thiện con cho một hạt đậu đen', 'start': '00:00:00:000', 'end': '00:00:03:760'}
+
+✅ Final transcript:  và ngày nào làm việc không thiện con cho một hạt đậu đen
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 392, 80]), xs_origin_lens: [392]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=392, padded_len=519, pad_frames=127, n_chunks=1, offset=0
+
+🧱 Total chunked xs shape: torch.Size([1, 519, 80])
+📐 xs_lens (post chunk): torch.Size([1]), total_chunks: 1
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([1, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([1, 1, 320]), mask_pad shape: torch.Size([1, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [48]
+
+✅ [Encoder Output] xs: torch.Size([1, 64, 512]), xs_lens: [48], n_chunks: [1]
+====================================================================
+
+📣 AED RAW   : ▁và▁ngày▁nào▁làm▁việc▁không▁thiện▁con▁cho▁một▁hạt▁đậu▁đen<sos/eos>
+📣 AED CLEAN : và ngày nào làm việc không thiện con cho một hạt đậu đen<sos/eos>
+CTC :  và ngày nào làm việc không thiện con cho một hạt đậu đen
+AED : và ngày nào làm việc không thiện con cho một hạt đậu đen<sos/eos>
+GT  : VÀ NGÀY NÀO LÀM VIỆC KHÔNG THIỆN CON CHO MỘT HẠT ĐẬU ĐEN
+
+=== Inspect utt_009178 ===
+WAV  : shape=(1, 37000), sr=16000, min=-0.36, max=0.37
+Feat : shape=(229, 80), dtype=torch.float32, min=1.8229, max=24.9941
+Recompute fbank diff mean: 20.793457
+
+📥 Loading file: cache_test/raw/utt_009178.wav
+🔍 [pydub] Raw frame_rate   : 16000
+🔍 [pydub] Sample width     : 2 bytes (16 bits)
+🔍 [pydub] Channels         : 1
+🔍 [pydub] Duration (ms)    : 2312 ms
+🧪 [pydub] Type of array     : <class 'array.array'>, dtype: int16
+🧪 [pydub] First 10 samples  : array('h', [0, 0, -1, 0, 0, -1, 4, 15, 6, -4])
+✅ [pydub] Waveform shape    : torch.Size([1, 37000])
+📊 [pydub] Min: -11679.00, Max: 12195.00, Mean: -0.03
+
+🔁 [Compare] Loading with torchaudio.load()
+✅ [torchaudio] shape        : torch.Size([1, 37000]), sample_rate: 16000
+📊 [torchaudio] Min: -0.3564, Max: 0.3722, Mean: -0.0000
+📏 Diff (mean abs): 0.0000 (assuming torchaudio gives normalized)
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 229, 80]), xs_origin_lens: [229]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=229, padded_len=519, pad_frames=290, n_chunks=1, offset=0
+
+🧱 Total chunked xs shape: torch.Size([1, 519, 80])
+📐 xs_lens (post chunk): torch.Size([1]), total_chunks: 1
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([1, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([1, 1, 320]), mask_pad shape: torch.Size([1, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [27]
+
+✅ [Encoder Output] xs: torch.Size([1, 64, 512]), xs_lens: [27], n_chunks: [1]
+====================================================================
+
+
+📊 Total full_framewise_ids shape: torch.Size([27])
+    Sample token IDs (first 20): [0, 0, 0, 0, 0, 0, 0, 2137, 0, 0, 0, 4217, 0, 0, 0, 6969, 0, 0, 1576, 0]
+
+📝 Decoded segments (first 3):
+  → {'decode': ' cả ngày ở bên anh', 'start': '00:00:00:000', 'end': '00:00:02:080'}
+
+✅ Final transcript:  cả ngày ở bên anh
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 229, 80]), xs_origin_lens: [229]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=229, padded_len=519, pad_frames=290, n_chunks=1, offset=0
+
+🧱 Total chunked xs shape: torch.Size([1, 519, 80])
+📐 xs_lens (post chunk): torch.Size([1]), total_chunks: 1
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([1, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([1, 1, 320]), mask_pad shape: torch.Size([1, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [27]
+
+✅ [Encoder Output] xs: torch.Size([1, 64, 512]), xs_lens: [27], n_chunks: [1]
+====================================================================
+
+📣 AED RAW   : ▁cả▁ngày▁ở▁bên▁anh<sos/eos>
+📣 AED CLEAN : cả ngày ở bên anh<sos/eos>
+CTC :  cả ngày ở bên anh
+AED : cả ngày ở bên anh<sos/eos>
+GT  : CẢ NGÀY Ở BÊN ANH
+
+=== Inspect utt_003842 ===
+WAV  : shape=(1, 67000), sr=16000, min=-0.38, max=0.37
+Feat : shape=(417, 80), dtype=torch.float32, min=-0.2564, max=25.3876
+Recompute fbank diff mean: 20.793530
+
+📥 Loading file: cache_test/raw/utt_003842.wav
+🔍 [pydub] Raw frame_rate   : 16000
+🔍 [pydub] Sample width     : 2 bytes (16 bits)
+🔍 [pydub] Channels         : 1
+🔍 [pydub] Duration (ms)    : 4188 ms
+🧪 [pydub] Type of array     : <class 'array.array'>, dtype: int16
+🧪 [pydub] First 10 samples  : array('h', [0, 0, -1, 1, -4, 8, -52, -107, -86, -110])
+✅ [pydub] Waveform shape    : torch.Size([1, 67000])
+📊 [pydub] Min: -12448.00, Max: 12090.00, Mean: 0.01
+
+🔁 [Compare] Loading with torchaudio.load()
+✅ [torchaudio] shape        : torch.Size([1, 67000]), sample_rate: 16000
+📊 [torchaudio] Min: -0.3799, Max: 0.3690, Mean: 0.0000
+📏 Diff (mean abs): 0.0000 (assuming torchaudio gives normalized)
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 417, 80]), xs_origin_lens: [417]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=417, padded_len=519, pad_frames=102, n_chunks=1, offset=0
+
+🧱 Total chunked xs shape: torch.Size([1, 519, 80])
+📐 xs_lens (post chunk): torch.Size([1]), total_chunks: 1
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([1, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([1, 1, 320]), mask_pad shape: torch.Size([1, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [51]
+
+✅ [Encoder Output] xs: torch.Size([1, 64, 512]), xs_lens: [51], n_chunks: [1]
+====================================================================
+
+
+📊 Total full_framewise_ids shape: torch.Size([51])
+    Sample token IDs (first 20): [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2089, 0, 0, 0, 5605, 0]
+
+📝 Decoded segments (first 3):
+  → {'decode': ' có thâm ý nhơn sinh độc chiêu', 'start': '00:00:00:320', 'end': '00:00:04:000'}
+
+✅ Final transcript:  có thâm ý nhơn sinh độc chiêu
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 417, 80]), xs_origin_lens: [417]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=417, padded_len=519, pad_frames=102, n_chunks=1, offset=0
+
+🧱 Total chunked xs shape: torch.Size([1, 519, 80])
+📐 xs_lens (post chunk): torch.Size([1]), total_chunks: 1
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([1, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([1, 1, 320]), mask_pad shape: torch.Size([1, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [51]
+
+✅ [Encoder Output] xs: torch.Size([1, 64, 512]), xs_lens: [51], n_chunks: [1]
+====================================================================
+
+📣 AED RAW   : ▁có▁thâm▁ý▁nhân▁sinh▁độc▁chiêu<sos/eos>
+📣 AED CLEAN : có thâm ý nhân sinh độc chiêu<sos/eos>
+CTC :  có thâm ý nhơn sinh độc chiêu
+AED : có thâm ý nhân sinh độc chiêu<sos/eos>
+GT  : CÓ THÂM Ý NHƠN SINH ĐỘC CHIÊU
+
+=== Inspect utt_008670 ===
+WAV  : shape=(1, 98500), sr=16000, min=-0.99, max=1.00
+Feat : shape=(614, 80), dtype=torch.float32, min=3.9155, max=26.2756
+Recompute fbank diff mean: 20.794378
+
+📥 Loading file: cache_test/raw/utt_008670.wav
+🔍 [pydub] Raw frame_rate   : 16000
+🔍 [pydub] Sample width     : 2 bytes (16 bits)
+🔍 [pydub] Channels         : 1
+🔍 [pydub] Duration (ms)    : 6156 ms
+🧪 [pydub] Type of array     : <class 'array.array'>, dtype: int16
+🧪 [pydub] First 10 samples  : array('h', [-1, 0, -1, 1, -2, 3, -10, -1, -8, -27])
+✅ [pydub] Waveform shape    : torch.Size([1, 98500])
+📊 [pydub] Min: -32539.00, Max: 32767.00, Mean: -1.56
+
+🔁 [Compare] Loading with torchaudio.load()
+✅ [torchaudio] shape        : torch.Size([1, 98500]), sample_rate: 16000
+📊 [torchaudio] Min: -0.9930, Max: 1.0000, Mean: -0.0000
+📏 Diff (mean abs): 0.0000 (assuming torchaudio gives normalized)
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 614, 80]), xs_origin_lens: [614]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=614, padded_len=1031, pad_frames=417, n_chunks=2, offset=0
+
+🧱 Total chunked xs shape: torch.Size([2, 519, 80])
+📐 xs_lens (post chunk): torch.Size([2]), total_chunks: 2
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([2, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([2, 1, 320]), mask_pad shape: torch.Size([2, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [75]
+
+✅ [Encoder Output] xs: torch.Size([2, 64, 512]), xs_lens: [75], n_chunks: [2]
+====================================================================
+
+
+📊 Total full_framewise_ids shape: torch.Size([75])
+    Sample token IDs (first 20): [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2096, 0, 6263, 0, 0, 0, 2588, 0, 1821]
+
+📝 Decoded segments (first 3):
+  → {'decode': ' công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm về chất lượng', 'start': '00:00:00:080', 'end': '00:00:05:920'}
+
+✅ Final transcript:  công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm về chất lượng
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 614, 80]), xs_origin_lens: [614]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+🔹 Sample 0: original_len=614, padded_len=1031, pad_frames=417, n_chunks=2, offset=0
+
+🧱 Total chunked xs shape: torch.Size([2, 519, 80])
+📐 xs_lens (post chunk): torch.Size([2]), total_chunks: 2
+✅ Applied Global CMVN
+🎛️ Embedded xs shape: torch.Size([2, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([2, 1, 320]), mask_pad shape: torch.Size([2, 1, 78])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [75]
+
+✅ [Encoder Output] xs: torch.Size([2, 64, 512]), xs_lens: [75], n_chunks: [2]
+====================================================================
+
+📣 AED RAW   : ▁công▁việc▁giao▁cho▁họ▁không▁phải▁mất▁nhiều▁thời▁gian▁để▁kiểm▁tra▁lại▁và▁khá▁yên▁tâm<sos/eos>▁công▁việc▁giao▁cho▁họ▁không▁phải▁mất▁nhiều▁thời▁gian▁để▁kiểm▁tra▁lại▁và▁khá▁yên▁tâm<sos/eos>▁công▁việc▁giao▁cho▁họ▁không▁phải<sos/eos>▁công▁việc▁giao▁cho▁họ▁không▁phải▁mất▁nhiều▁thời▁gian▁để▁kiểm▁tra▁lại▁và▁khá▁yên▁tâm<sos/eos>▁công▁việc▁giao▁cho▁họ▁không▁phải<sos/eos>▁công▁việc▁giao▁cho▁họ▁không▁phải▁mất▁nhiều▁thời▁gian▁để▁kiểm▁tra▁lại▁và▁khá▁yên▁tâm<sos/eos>▁công▁việc▁giao▁cho
+📣 AED CLEAN : công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm<sos/eos> công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm<sos/eos> công việc giao cho họ không phải<sos/eos> công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm<sos/eos> công việc giao cho họ không phải<sos/eos> công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm<sos/eos> công việc giao cho
+CTC :  công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm về chất lượng
+AED : công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm<sos/eos> công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm<sos/eos> công việc giao cho họ không phải<sos/eos> công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm<sos/eos> công việc giao cho họ không phải<sos/eos> công việc giao cho họ không phải mất nhiều thời gian để kiểm tra lại và khá yên tâm<sos/eos> công việc giao cho
+GT  : CÔNG VIỆC GIAO CHO HỌ KHÔNG PHẢI MẤT NHIỀU THỜI GIAN ĐỂ KIỂM TRA LẠI VÀ KHÁ YÊN TÂM VỀ CHẤT LƯỢNG

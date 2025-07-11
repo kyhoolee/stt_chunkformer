@@ -381,8 +381,8 @@ def decode_long_form(xs, model, char_dict, args, device):
     → cat → full_framewise_ids: [total_T]
     '''
     full_framewise_ids = torch.cat(framewise_token_ids_chunks)
-    print(f"\n📊 Total full_framewise_ids shape: {full_framewise_ids.shape}")
-    print(f"    Sample token IDs (first 20): {full_framewise_ids.tolist()[:20]}")
+    # print(f"\n📊 Total full_framewise_ids shape: {full_framewise_ids.shape}")
+    # print(f"    Sample token IDs (first 20): {full_framewise_ids.tolist()[:20]}")
 
     # === Decode theo CTC: loại blank, duplicate, convert ID → char, gán timestamp ===
     '''
@@ -397,13 +397,13 @@ def decode_long_form(xs, model, char_dict, args, device):
         Add timestamps per chunk
     '''
     decoded_segments = get_output_with_timestamps([full_framewise_ids], char_dict)[0]
-    print("\n📝 Decoded segments (first 3):")
-    for seg in decoded_segments[:3]:
-        print(f"  → {seg}")
+    # print("\n📝 Decoded segments (first 3):")
+    # for seg in decoded_segments[:3]:
+    #     print(f"  → {seg}")
 
     # === Ghép tất cả lại thành câu hoàn chỉnh ===
     final_transcript = " ".join([item["decode"] for item in decoded_segments])
-    print(f"\n✅ Final transcript: {final_transcript}")
+    # print(f"\n✅ Final transcript: {final_transcript}")
     return final_transcript
 
 
