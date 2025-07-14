@@ -33,15 +33,20 @@ def train():
             tok_lens = tok_lens.to(device)
 
             # compute batch loss by summing over examples
-            batch_loss = 0.0
-            for i in range(feats.size(0)):
-                x       = feats[i].unsqueeze(0)       # [1, T, D]
-                x_lens  = feat_lens[i].unsqueeze(0)   # [1]
-                y       = toks[i].unsqueeze(0)        # [1, L]
-                y_lens  = tok_lens[i].unsqueeze(0)    # [1]
-                loss, _, _ = compute_loss_batch(model, x, x_lens, y, y_lens, cfg, device)
-                batch_loss += loss
-            batch_loss = batch_loss / feats.size(0)
+            # batch_loss = 0.0
+            # for i in range(feats.size(0)):
+            #     x       = feats[i].unsqueeze(0)       # [1, T, D]
+            #     x_lens  = feat_lens[i].unsqueeze(0)   # [1]
+            #     y       = toks[i].unsqueeze(0)        # [1, L]
+            #     y_lens  = tok_lens[i].unsqueeze(0)    # [1]
+            #     loss, _, _ = compute_loss(model, x, x_lens, y, y_lens, cfg, device)
+            #     batch_loss += loss
+            # batch_loss = batch_loss / feats.size(0)
+
+            batch_loss, loss_ctc, loss_att = compute_loss_batch(
+                        model, feats, feat_lens, toks, tok_lens, cfg, device
+            )
+
 
             optim.zero_grad()
             batch_loss.backward()

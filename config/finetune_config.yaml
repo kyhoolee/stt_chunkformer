@@ -32,6 +32,7 @@ training:
   max_grad_norm: 5.0
   log_steps: 50
   checkpoint_dir: checkpoints
+  shuffle: false          #  ← thêm dòng này
 
 # 5) Chunking parameters (cho forward chunked encoder)
 chunk:

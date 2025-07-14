@@ -9,9 +9,10 @@ from ..decode import init, load_audio
 from ..model.asr_model import ASRModel
 from ..model.utils.ctc_utils import get_output_with_timestamps
 from ..model.utils.mask import make_pad_mask
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 from typing import Tuple
-from .finetune_config import FinetuneConfig
+from typing import TYPE_CHECKING
+
 
 
 # ==================== ARG PARSE ====================
@@ -80,30 +81,90 @@ def prepare_input_file(audio_path, device):
 
 # ==================== TOKENIZER UTILS ====================
 
+# class GreedyTokenizer:
+#     def __init__(self, vocab_path: str):
+#         """
+#         vocab_path: đường dẫn tới file vocab.txt (mỗi dòng 1 token)
+#         """
+#         self.vocab = []
+#         with open(vocab_path, encoding="utf-8") as f:
+#             for line in f:
+#                 token = line.strip().split()[0]
+#                 self.vocab.append(token)
+#         self.token2id = {tok: idx for idx, tok in enumerate(self.vocab)}
+#         # sort decreasing độ dài để greedy match
+#         self.vocab_sorted = sorted(self.vocab, key=len, reverse=True)
+
+#     def tokenize(self, text: str) -> List[int]:
+#         """
+#         Greedy longest-match tokenization.
+#         - Thêm '▁' đầu câu, thay space bằng '▁'.
+#         - Mỗi bước match token dài nhất.
+#         """
+#         s = "▁" + text.strip().replace(" ", "▁")
+#         idx = 0
+#         L = len(s)
+#         ids = []
+#         while idx < L:
+#             for tok in self.vocab_sorted:
+#                 if s.startswith(tok, idx):
+#                     ids.append(self.token2id[tok])
+#                     idx += len(tok)
+#                     break
+#             else:
+#                 # fallback: <unk> nếu có, hoặc skip 1 char
+#                 unk = self.token2id.get("<unk>")
+#                 if unk is not None:
+#                     ids.append(unk)
+#                 idx += 1
+#         return ids
+
+#     def text2labels(self,
+#                     text: str,
+#                     sos_id: int,
+#                     eos_id: int) -> Tuple[torch.Tensor, torch.Tensor]:
+#         """
+#         Convert raw text → ys_pad, ys_lens tensors for loss calculation.
+#         """
+#         ids = self.tokenize(text)
+#         seq = [sos_id] + ids + [eos_id]
+#         ys_pad = torch.tensor(seq, dtype=torch.long).unsqueeze(0)  # [1, L]
+#         ys_lens = torch.tensor([len(seq)], dtype=torch.long)      # [1]
+#         return ys_pad, ys_lens
+    
 class GreedyTokenizer:
     def __init__(self, vocab_path: str):
         """
         vocab_path: đường dẫn tới file vocab.txt (mỗi dòng 1 token)
         """
+        # ---------- load vocab ----------
         self.vocab = []
         with open(vocab_path, encoding="utf-8") as f:
             for line in f:
                 token = line.strip().split()[0]
                 self.vocab.append(token)
-        self.token2id = {tok: idx for idx, tok in enumerate(self.vocab)}
-        # sort decreasing độ dài để greedy match
+
+        # ---------- basic map ----------
+        self.token2id: Dict[str, int] = {tok: idx for idx, tok in enumerate(self.vocab)}
+        self.id2token: List[str] = self.vocab
+        # sort decreasing độ dài để greedy match khi encode
         self.vocab_sorted = sorted(self.vocab, key=len, reverse=True)
 
+        # ---------- special IDs ----------
+        # giả định chuẩn Wenet: 0 = <blank> = pad, cuối vocab = <sos/eos>
+        self.blank_id = 0
+        self.pad_id   = 0                    # pad dùng cùng giá trị với blank
+        self.sos_id   = len(self.vocab) - 1  # eos = sos
+        self.eos_id   = self.sos_id
+
+    # ---------- ENCODE ----------
     def tokenize(self, text: str) -> List[int]:
         """
         Greedy longest-match tokenization.
         - Thêm '▁' đầu câu, thay space bằng '▁'.
-        - Mỗi bước match token dài nhất.
         """
         s = "▁" + text.strip().replace(" ", "▁")
-        idx = 0
-        L = len(s)
-        ids = []
+        idx, L, ids = 0, len(s), []
         while idx < L:
             for tok in self.vocab_sorted:
                 if s.startswith(tok, idx):
@@ -112,25 +173,33 @@ class GreedyTokenizer:
                     break
             else:
                 # fallback: <unk> nếu có, hoặc skip 1 char
-                unk = self.token2id.get("<unk>")
-                if unk is not None:
-                    ids.append(unk)
+                ids.append(self.token2id.get("<unk>", self.blank_id))
                 idx += 1
         return ids
 
-    def text2labels(self,
-                    text: str,
-                    sos_id: int,
-                    eos_id: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    # ---------- DECODE ----------
+    def decode_ids(self, ids: List[int]) -> str:
         """
-        Convert raw text → ys_pad, ys_lens tensors for loss calculation.
+        Convert list[int] → raw string, bỏ blank/pad/sos/eos.
+        """
+        tokens = [
+            self.id2token[i]
+            for i in ids
+            if i not in {self.blank_id, self.pad_id, self.sos_id, self.eos_id}
+        ]
+        text = "".join(tokens).replace("▁", " ").strip()
+        return text
+
+    # ---------- helper cho AED ----------
+    def text2labels(self, text: str) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Return ys_pad & ys_lens (đã thêm sos/eos) để dùng cho AED.
         """
         ids = self.tokenize(text)
-        seq = [sos_id] + ids + [eos_id]
-        ys_pad = torch.tensor(seq, dtype=torch.long).unsqueeze(0)  # [1, L]
-        ys_lens = torch.tensor([len(seq)], dtype=torch.long)      # [1]
+        seq = [self.sos_id] + ids + [self.eos_id]
+        ys_pad  = torch.tensor(seq, dtype=torch.long).unsqueeze(0)   # [1, L]
+        ys_lens = torch.tensor([len(seq)], dtype=torch.long)
         return ys_pad, ys_lens
-    
 
 
 
@@ -140,7 +209,7 @@ class GreedyTokenizer:
 @torch.no_grad()
 def _chunk_encoder_forward(xs: torch.Tensor,
                            model,
-                           args,
+                           chunk_cfg,
                            device) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Internal helper: chunk the input features xs through the encoder (CTC mode)
@@ -148,15 +217,15 @@ def _chunk_encoder_forward(xs: torch.Tensor,
       encoder_outs_full: [1, T_out, D]
       encoder_mask:     [1, 1, T_out]
     """
-    chunk_size = args.chunk_size
-    left_context = args.left_context_size
-    right_context = args.right_context_size
+    chunk_size = chunk_cfg.chunk_size
+    left_context = chunk_cfg.left_context_size
+    right_context = chunk_cfg.right_context_size
     subsample = model.encoder.embed.subsampling_factor
     conv_lorder = model.encoder.cnn_module_kernel // 2
     num_blocks = model.encoder.num_blocks
 
     # calculate truncated_context_size same as decode
-    max_len = int(args.total_batch_duration // 0.01) // 2
+    max_len = int(chunk_cfg.total_batch_duration // 0.01) // 2
     multiply_n = max_len // chunk_size // subsample
     truncated = chunk_size * multiply_n
     rel_right = (right_context + max(chunk_size, right_context)*(num_blocks-1))*subsample
@@ -263,7 +332,7 @@ def compute_loss_batch(
     feat_lens: torch.Tensor,  # [B]
     toks: torch.Tensor,       # [B, L_pad]   (không sos/eos)
     tok_lens: torch.Tensor,   # [B]
-    cfg: FinetuneConfig,
+    cfg,
     device: torch.device
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 

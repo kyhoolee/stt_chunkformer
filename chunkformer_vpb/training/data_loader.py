@@ -8,7 +8,37 @@ from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from typing import List
 from .finetune_config import FinetuneConfig
-from chunkformer_vpb.training.finetune_utils import compute_fbank, MetadataEntry
+from chunkformer_vpb.data.data import compute_fbank, MetadataEntry
+
+# modules/textnorm.py
+import re
+import unicodedata
+
+_VI_ACCENT_RE = re.compile(r"[̣̀́̉̃]")
+_PUNC_TABLE   = str.maketrans({
+    "–": "-", "—": "-", "“": "\"", "”": "\"", "‘": "'", "’": "'",
+})
+
+def normalize_vi(text: str) -> str:
+    """
+    • NFC -> NFD -> bỏ dấu phụ -> NFC  (tuỳ chọn)
+    • chuẩn hoá dấu câu và khoảng trắng
+    • hạ về lowercase
+    """
+    # 1) Unicode chuẩn
+    text = unicodedata.normalize("NFC", text)
+
+    # 2) Chuẩn hoá ký tự đặc biệt
+    text = text.translate(_PUNC_TABLE)
+
+    # 3) Hạ lowercase
+    text = text.lower()
+
+    # 4) Bỏ khoảng trắng dư
+    text = " ".join(text.split())
+
+    return text
+
 
 class VivosDataset(Dataset):
     def __init__(self, cfg: FinetuneConfig, split: str):
@@ -36,17 +66,19 @@ class VivosDataset(Dataset):
         if sr != self.cfg.data.sample_rate:
             wav = torchaudio.transforms.Resample(sr, self.cfg.data.sample_rate)(wav)
         # 2) Extract features
-        feats = compute_fbank(
+        # ---- compute fbank “kaldi” style ----
+        feats = torchaudio.compliance.kaldi.fbank(
             wav,
-            num_mel_bins=self.cfg.data.num_mel_bins,
-            frame_length=self.cfg.data.frame_length,
-            frame_shift=self.cfg.data.frame_shift,
-            dither=self.cfg.data.dither,
-            energy_floor=self.cfg.data.energy_floor,
-            sample_frequency=self.cfg.data.sample_rate
-        )  # [T, D]
+            num_mel_bins = self.cfg.data.num_mel_bins,
+            frame_length = self.cfg.data.frame_length,   # ms
+            frame_shift  = self.cfg.data.frame_shift,    # ms
+            dither       = self.cfg.data.dither,
+            energy_floor = self.cfg.data.energy_floor,
+            sample_frequency = self.cfg.data.sample_rate
+        )  # [T, 80]
         # 3) Tokenize text → ids
-        token_ids = self.tokenizer.tokenize(entry.text)
+        norm_text = normalize_vi(entry.text)
+        token_ids = self.tokenizer.tokenize(norm_text)
         return feats, feats.size(0), torch.LongTensor(token_ids), len(token_ids)
 
 def collate_fn(batch):
@@ -61,13 +93,20 @@ def collate_fn(batch):
 
 
 def get_dataloaders(cfg: FinetuneConfig):
-    """
-    Trả về train_loader và valid_loader.
-    cfg.training.batch_size được dùng làm batch_size.
-    """
     bs = cfg.training.batch_size
     train_ds = VivosDataset(cfg, "train")
     valid_ds = VivosDataset(cfg, "valid")
-    train_loader = DataLoader(train_ds, batch_size=bs, shuffle=True,  collate_fn=collate_fn)
-    valid_loader = DataLoader(valid_ds, batch_size=bs, shuffle=False, collate_fn=collate_fn)
+
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=bs,
+        shuffle=cfg.training.shuffle,      # dùng flag
+        collate_fn=collate_fn
+    )
+    valid_loader = DataLoader(
+        valid_ds,
+        batch_size=bs,
+        shuffle=False,
+        collate_fn=collate_fn
+    )
     return train_loader, valid_loader

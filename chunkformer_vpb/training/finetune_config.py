@@ -49,6 +49,7 @@ class TrainingConfigFT:
     max_grad_norm: float  = 5.0
     log_steps: int        = 50
     checkpoint_dir: str   = "checkpoints"
+    shuffle: bool = True          #  ← thêm dòng này
 
 @dataclass
 class ChunkConfigFT:
