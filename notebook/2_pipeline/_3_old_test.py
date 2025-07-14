@@ -44,7 +44,7 @@ if args.label_text:
 
 # %%
 import torch
-from chunkformer_vpb.finetune_utils import (
+from stt_chunkformer.chunkformer_vpb.training.finetune_utils import (
     get_default_args,
     prepare_input_file,
     load_model_only,

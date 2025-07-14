@@ -1,0 +1,15 @@
+[2025-07-14 11:53:58] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+Dataset: AILAB-VNUHCM/vivos, split: test
+Entries evaluated: 760
+Average WER : 0.048
+Min WER     : 0.000
+Max WER     : 1.000
+Median WER  : 0.000
+25th pctile : 0.000
+75th pctile : 0.077
+95th pctile : 0.250

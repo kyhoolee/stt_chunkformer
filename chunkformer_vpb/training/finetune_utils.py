@@ -5,12 +5,13 @@ import torch
 import argparse
 from torchaudio.compliance.kaldi import fbank
 from jiwer import wer
-from chunkformer_vpb.decode import init, load_audio
-from chunkformer_vpb.model.asr_model import ASRModel
-from chunkformer_vpb.model.utils.ctc_utils import get_output_with_timestamps
-from chunkformer_vpb.model.utils.mask import make_pad_mask
+from ..decode import init, load_audio
+from ..model.asr_model import ASRModel
+from ..model.utils.ctc_utils import get_output_with_timestamps
+from ..model.utils.mask import make_pad_mask
 from typing import List, Tuple
-import torch
+from typing import Tuple
+from .finetune_config import FinetuneConfig
 
 
 # ==================== ARG PARSE ====================
@@ -220,6 +221,10 @@ def compute_chunkformer_loss(model: ASRModel,
     ys_pad, ys_lens = tokenizer.text2labels(label_text, sos_id, eos_id)
     ys_pad = ys_pad.to(device)
     ys_lens = ys_lens.to(device).to(torch.long)
+    # @NOTE: 
+    # - Phần chèn sos và eos này chỉ dùng cho AED loss 
+    # - Không dùng cho CTC loss -> add thêm vào tăng giá trị không cần thiết của CTC loss
+    # - Dùng thì loss vẫn giảm dần -> nhưng không đúng với CTC loss
 
     # 3) CTC loss
     loss_ctc, _ = model.ctc(
@@ -248,3 +253,52 @@ def compute_chunkformer_loss(model: ASRModel,
             "loss_ctc": loss_ctc,
             "loss_att": loss_att}
 
+
+
+# ==================== LOSS COMPUTE UTILS ====================
+
+def compute_loss_batch(
+    model: ASRModel,
+    feats: torch.Tensor,      # [B, T, D]
+    feat_lens: torch.Tensor,  # [B]
+    toks: torch.Tensor,       # [B, L_pad]   (không sos/eos)
+    tok_lens: torch.Tensor,   # [B]
+    cfg: FinetuneConfig,
+    device: torch.device
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+
+    B = feats.size(0)
+    total_ctc, total_att = 0.0, 0.0
+    sos = model.sos
+    eos = model.eos
+    ignore = model.ignore_id
+
+    for i in range(B):
+        x       = feats[i].unsqueeze(0)      # [1, T, D]
+        y_raw   = toks[i, : tok_lens[i]].tolist()              # list[int]
+        x_len   = feat_lens[i].unsqueeze(0)
+        y_len   = tok_lens[i].unsqueeze(0)
+
+        # ---- 1) forward encoder (chunk) ----
+        enc_out, enc_mask = _chunk_encoder_forward(x, model, cfg.chunk, device)
+        enc_lens = enc_mask.squeeze(1).sum(1).to(torch.long)
+
+        # ---- 2) CTC loss (NO sos/eos) ----
+        y_pad_ctc = torch.LongTensor(y_raw).unsqueeze(0).to(device)   # [1, L]
+        loss_ctc, _ = model.ctc(enc_out, enc_lens, y_pad_ctc, y_len)
+        loss_ctc = loss_ctc.sum()
+
+        # ---- 3) AED loss (ADD sos/eos) ----
+        ys_pad = torch.LongTensor([sos] + y_raw + [eos]).unsqueeze(0).to(device)  # [1, L+2]
+        ys_len = torch.LongTensor([len(y_raw)+2]).to(device)
+        loss_att, _ = model._calc_att_loss(enc_out, enc_mask, ys_pad, ys_len)
+        loss_att = loss_att.sum()
+
+        total_ctc += loss_ctc
+        total_att += loss_att
+
+    avg_ctc = total_ctc / B
+    avg_att = total_att / B
+    w = cfg.model.ctc_weight
+    loss = w * avg_ctc + (1 - w) * avg_att
+    return loss, avg_ctc, avg_att
