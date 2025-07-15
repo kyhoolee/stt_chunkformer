@@ -8,6 +8,8 @@ import torch.nn.functional as F
 
 from wenet.transformer.label_smoothing_loss import LabelSmoothingLoss
 from torch.nn.utils.rnn import pad_sequence
+
+from .encoder import ChunkFormerEncoder
 from .ctc import CTC
 from .utils.common import (IGNORE_ID, add_sos_eos, log_add,
                                 remove_duplicates_and_blank, th_accuracy,
@@ -22,7 +24,7 @@ class ASRModel(torch.nn.Module):
     def __init__(
         self,
         vocab_size: int,
-        encoder,
+        encoder: ChunkFormerEncoder,
         ctc: CTC,
         ctc_weight: float = 0.5,
         ignore_id: int = IGNORE_ID,

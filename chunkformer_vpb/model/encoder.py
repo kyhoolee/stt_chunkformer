@@ -15,6 +15,7 @@
 # Modified from ESPnet(https://github.com/espnet/espnet)
 
 """Encoder definition."""
+import random
 from typing import Tuple, Optional
 
 import torch
@@ -474,3 +475,124 @@ class ChunkFormerEncoder(BaseEncoder):
                 aggregate=2 if ((i % 3 == 0) and  (i > 0)) else 1
             ) for i in range(num_blocks)
         ])
+
+    def limited_context_selection(self):
+        full_context_training = True
+        if (self.dynamic_chunk_sizes is not None
+            and self.dynamic_left_context_sizes is not None
+                and self.dynamic_right_context_sizes is not None):
+            chunk_size = random.choice(self.dynamic_chunk_sizes)
+            left_context_size = random.choice(self.dynamic_left_context_sizes)
+            right_context_size = random.choice(self.dynamic_right_context_sizes)
+            full_context_training = not (chunk_size > 0
+                                         and left_context_size > 0
+                                         and right_context_size > 0)
+
+        if full_context_training:
+            chunk_size, left_context_size, right_context_size = 0, 0, 0
+        return chunk_size, left_context_size, right_context_size
+
+    def forward_encoder(
+        self,
+        xs: torch.Tensor,
+        xs_lens: torch.Tensor,
+        chunk_size: int = 0,
+        left_context_size: int = 0,
+        right_context_size: int = 0,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Embed positions in tensor.
+
+        Args:
+            xs: padded input tensor (B, T, D)
+            xs_lens: input length (B)
+            chunk_size (int): Chunk size for limited chunk context
+            left_context_size (int): Left context size for limited chunk context
+            right_context_size (int): Right context size for limited chunk context
+        Returns:
+            encoder output tensor xs, and subsampled masks
+            xs: padded output tensor (B, T' ~= T/subsample_rate, D)
+            masks: torch.Tensor batch padding mask after subsample
+                (B, 1, T' ~= T/subsample_rate)
+        NOTE(xcsong):
+            We pass the `__call__` method of the modules instead of `forward` to the
+            checkpointing API because `__call__` attaches all the hooks of the module.
+            https://discuss.pytorch.org/t/any-different-between-model-input-and-model-forward-input/3690/2
+        """
+        T = xs.size(1)
+        masks = ~make_pad_mask(xs_lens, T).unsqueeze(1)  # (B, 1, T)
+        if self.global_cmvn is not None:
+            xs = self.global_cmvn(xs)
+
+        xs, pos_emb, masks = self.embed(
+            xs, masks,
+            chunk_size=chunk_size,
+            left_context_size=left_context_size,
+            right_context_size=right_context_size
+        )
+        mask_pad = masks  # (B, 1, T/subsample_rate)
+
+        xs = self.forward_layers(
+            xs, masks, pos_emb, mask_pad,
+            chunk_size=chunk_size,
+            left_context_size=left_context_size,
+            right_context_size=right_context_size,
+        )
+        if self.normalize_before and self.final_norm:
+            xs = self.after_norm(xs)
+        # Here we assume the mask is not changed in encoder layers, so just
+        # return the masks before encoder layers, and the masks will be used
+        # for cross attention with decoder later
+        return xs, masks
+
+    def forward_layers(self, xs: torch.Tensor, chunk_masks: torch.Tensor,
+                       pos_emb: torch.Tensor,
+                       mask_pad: torch.Tensor,
+                       chunk_size: int = 0,
+                       left_context_size: int = 0,
+                       right_context_size: int = 0) -> torch.Tensor:
+        for idx, layer in enumerate(self.encoders):
+            xs, chunk_masks, _, _ = layer(
+                xs, chunk_masks, pos_emb, mask_pad,
+                chunk_size=chunk_size,
+                left_context_size=left_context_size,
+                right_context_size=right_context_size,
+            )
+        return xs
+
+    def forward(self,
+                xs: torch.Tensor,
+                xs_lens: torch.Tensor,
+                decoding_chunk_size: int = 0,
+                num_decoding_left_chunks: int = -1,
+                **kwargs):
+        """
+        Main forward function that dispatches to either the standard
+        forward pass or the parallel chunk version based on the
+        model's training mode.
+        """
+        # for masked batch chunk context inference
+        # should add a better flag to trigger
+        if decoding_chunk_size > 0 and num_decoding_left_chunks > 0:
+            # If both decoding_chunk_size and num_decoding_left_chunks
+            # are set, use the parallel chunk decoding.
+            return self.forward_parallel_chunk(
+                xs=xs,
+                xs_origin_lens=xs_lens,
+                chunk_size=decoding_chunk_size,
+                left_context_size=num_decoding_left_chunks,
+                # we assume left and right context are the same
+                right_context_size=num_decoding_left_chunks,
+                **kwargs
+            )
+        else:
+            (chunk_size,
+                left_context_size,
+                right_context_size) = self.limited_context_selection()
+            return self.forward_encoder(
+                xs=xs,
+                xs_lens=xs_lens,
+                chunk_size=chunk_size,
+                left_context_size=left_context_size,
+                right_context_size=right_context_size,
+                **kwargs
+            )

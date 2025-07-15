@@ -344,7 +344,7 @@ def full_encoder_forward(
 
     # gọi encoder trực tiếp (signature: encoder(xs, xs_lens))
     # nhiều encoder trả 3 giá trị: out, mask, something
-    enc_out, enc_mask, *_ = model.encoder(feats, feat_lens)
+    enc_out, enc_mask, *_ = model.encoder.forward(feats, feat_lens)
 
     # nếu enc_mask là [B, T], biến thành [B,1,T]
     if enc_mask.dim() == 2:
