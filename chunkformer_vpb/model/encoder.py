@@ -138,6 +138,26 @@ class BaseEncoder(torch.nn.Module):
     def freeze_subsampling_layer(self):
         for param in self.embed.parameters():
             param.requires_grad = False
+
+    # def forward(self, xs: torch.Tensor, xs_lens: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    #     """
+    #     Full-sequence (offline) forward:
+    #       - xs: [B, T_in, D_in], xs_lens: [B]
+    #     Trả về:
+    #       - encoder_out: [B, T_out, D]
+    #       - encoder_mask: [B, 1, T_out]
+    #     """
+    #     # 1) subsample + pos-embed
+    #     xs, pos_emb, out_lens = self.embed(xs, xs_lens)
+    #     # 2) tạo mask pad
+    #     mask = ~make_pad_mask(out_lens, xs.size(1)).unsqueeze(1)  # [B,1,T_out]
+    #     # 3) forward qua tất cả các layer
+    #     for layer in self.encoders:
+    #         xs, _ = layer(xs, mask, pos_emb, None, None)
+    #     # 4) layer-norm sau cùng (nếu có)
+    #     if self.normalize_before:
+    #         xs = self.after_norm(xs)
+    #     return xs, mask
     
     def forward_parallel_chunk(
         self,
@@ -152,9 +172,9 @@ class BaseEncoder(torch.nn.Module):
         offset: torch.Tensor = torch.zeros(0),
     ) -> Tuple[torch.Tensor, torch.Tensor]:
 
-        # print("\n================= 🧩 [Encoder.forward_parallel_chunk] START =================")
-        # print(f"📥 Input shape: {xs.shape}, xs_origin_lens: {xs_origin_lens.tolist()}")
-        # print(f"⚙️ chunk_size={chunk_size}, left_context={left_context_size}, right_context={right_context_size}, truncated_context_size={truncated_context_size}")
+        print("\n================= 🧩 [Encoder.forward_parallel_chunk] START =================")
+        print(f"📥 Input shape: {xs.shape}, xs_origin_lens: {xs_origin_lens.tolist()}")
+        print(f"⚙️ chunk_size={chunk_size}, left_context={left_context_size}, right_context={right_context_size}, truncated_context_size={truncated_context_size}")
 
         assert offset.shape[0] == len(xs), f"{offset.shape[0]} != {len(xs)}"
 
@@ -166,7 +186,7 @@ class BaseEncoder(torch.nn.Module):
         device = xs_origin_lens.device
         conv_lorder = self.cnn_module_kernel // 2
 
-        # print(f"📏 Subsampling: {subsampling}, Chunk frame size: {size}, Step: {step}, Conv lorder: {conv_lorder}")
+        print(f"📏 Subsampling: {subsampling}, Chunk frame size: {size}, Step: {step}, Conv lorder: {conv_lorder}")
 
         upper_bounds, lower_bounds = [], []
         upper_bounds_conv, lower_bounds_conv = [], []
@@ -218,8 +238,8 @@ class BaseEncoder(torch.nn.Module):
         upper_bounds_conv = torch.cat(upper_bounds_conv).to(device)
         lower_bounds_conv = torch.cat(lower_bounds_conv).to(device)
 
-        # print(f"\n🧱 Total chunked xs shape: {xs.shape}")
-        # print(f"📐 xs_lens (post chunk): {xs_lens.shape}, total_chunks: {xs.shape[0]}")
+        print(f"\n🧱 Total chunked xs shape: {xs.shape}")
+        print(f"📐 xs_lens (post chunk): {xs_lens.shape}, total_chunks: {xs.shape[0]}")
 
         # --------- CMVN Normalization + Embedding ---------
         if self.global_cmvn is not None:
@@ -227,7 +247,7 @@ class BaseEncoder(torch.nn.Module):
             # print("✅ Applied Global CMVN")
 
         xs, pos_emb, xs_lens = self.embed(xs, xs_lens, offset=left_context_size, right_context_size=right_context_size)
-        # print(f"🎛️ Embedded xs shape: {xs.shape}, PosEmb shape: {pos_emb.shape}")
+        print(f"🎛️ Embedded xs shape: {xs.shape}, PosEmb shape: {pos_emb.shape}")
 
         # --------- Create attention masks ---------
         mask_pad_idx = torch.arange(0, conv_lorder + chunk_size + conv_lorder, device=device).unsqueeze(0).repeat(xs.size(0), 1)
@@ -238,7 +258,7 @@ class BaseEncoder(torch.nn.Module):
         att_mask = (lower_bounds <= att_mask_idx) & (att_mask_idx < upper_bounds)
         att_mask = att_mask.flip(-1).unsqueeze(1)
 
-        # print(f"🧮 att_mask shape: {att_mask.shape}, mask_pad shape: {mask_pad.shape}")
+        print(f"🧮 att_mask shape: {att_mask.shape}, mask_pad shape: {mask_pad.shape}")
 
         # --------- Forward through all encoder layers ---------
         r_att_cache, r_cnn_cache = [], []
@@ -254,23 +274,23 @@ class BaseEncoder(torch.nn.Module):
             )
             r_att_cache.append(new_att_cache)
             r_cnn_cache.append(new_cnn_cache)
-            # print(f"🧩 Layer {i}: xs shape after layer = {xs.shape}")
+            print(f"🧩 Layer {i}: xs shape after layer = {xs.shape}")
             # print(f"\t🧩 Layer {i}\n\t\t{layer}")
 
         # --------- Final normalization and output ---------
         if self.normalize_before:
             xs = self.after_norm(xs)
-            # print("📏 Applied LayerNorm after encoder")
+            print("📏 Applied LayerNorm after encoder")
 
         xs_lens = self.embed.calc_length(xs_origin_lens)
         offset += xs_lens
-        # print(f"📤 Final offset: {offset.tolist()}")
+        print(f"📤 Final offset: {offset.tolist()}")
 
         r_att_cache = torch.stack(r_att_cache, dim=0)
         r_cnn_cache = torch.stack(r_cnn_cache, dim=0)
 
-        # print(f"\n✅ [Encoder Output] xs: {xs.shape}, xs_lens: {xs_lens.tolist()}, n_chunks: {n_chunks}")
-        # print("====================================================================\n")
+        print(f"\n✅ [Encoder Output] xs: {xs.shape}, xs_lens: {xs_lens.tolist()}, n_chunks: {n_chunks}")
+        print("====================================================================\n")
         return xs, xs_lens, n_chunks, r_att_cache, r_cnn_cache, offset
 
     def ctc_forward(self, xs, xs_lens=None, n_chunks=None):

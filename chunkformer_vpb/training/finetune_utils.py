@@ -9,9 +9,11 @@ from ..decode import init, load_audio
 from ..model.asr_model import ASRModel
 from ..model.utils.ctc_utils import get_output_with_timestamps
 from ..model.utils.mask import make_pad_mask
+from torch.nn.utils.rnn import pad_sequence
 from typing import Dict, List, Tuple
 from typing import Tuple
 from typing import TYPE_CHECKING
+
 
 
 
@@ -81,57 +83,6 @@ def prepare_input_file(audio_path, device):
 
 # ==================== TOKENIZER UTILS ====================
 
-# class GreedyTokenizer:
-#     def __init__(self, vocab_path: str):
-#         """
-#         vocab_path: đường dẫn tới file vocab.txt (mỗi dòng 1 token)
-#         """
-#         self.vocab = []
-#         with open(vocab_path, encoding="utf-8") as f:
-#             for line in f:
-#                 token = line.strip().split()[0]
-#                 self.vocab.append(token)
-#         self.token2id = {tok: idx for idx, tok in enumerate(self.vocab)}
-#         # sort decreasing độ dài để greedy match
-#         self.vocab_sorted = sorted(self.vocab, key=len, reverse=True)
-
-#     def tokenize(self, text: str) -> List[int]:
-#         """
-#         Greedy longest-match tokenization.
-#         - Thêm '▁' đầu câu, thay space bằng '▁'.
-#         - Mỗi bước match token dài nhất.
-#         """
-#         s = "▁" + text.strip().replace(" ", "▁")
-#         idx = 0
-#         L = len(s)
-#         ids = []
-#         while idx < L:
-#             for tok in self.vocab_sorted:
-#                 if s.startswith(tok, idx):
-#                     ids.append(self.token2id[tok])
-#                     idx += len(tok)
-#                     break
-#             else:
-#                 # fallback: <unk> nếu có, hoặc skip 1 char
-#                 unk = self.token2id.get("<unk>")
-#                 if unk is not None:
-#                     ids.append(unk)
-#                 idx += 1
-#         return ids
-
-#     def text2labels(self,
-#                     text: str,
-#                     sos_id: int,
-#                     eos_id: int) -> Tuple[torch.Tensor, torch.Tensor]:
-#         """
-#         Convert raw text → ys_pad, ys_lens tensors for loss calculation.
-#         """
-#         ids = self.tokenize(text)
-#         seq = [sos_id] + ids + [eos_id]
-#         ys_pad = torch.tensor(seq, dtype=torch.long).unsqueeze(0)  # [1, L]
-#         ys_lens = torch.tensor([len(seq)], dtype=torch.long)      # [1]
-#         return ys_pad, ys_lens
-    
 class GreedyTokenizer:
     def __init__(self, vocab_path: str):
         """
@@ -202,9 +153,98 @@ class GreedyTokenizer:
         return ys_pad, ys_lens
 
 
+    def build_y_batch(
+        self,
+        toks: torch.Tensor,       # [B, L_pad] no sos/eos
+        tok_lens: torch.Tensor,   # [B]
+        sos_id: int,
+        eos_id: int
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Thêm sos/eos cho mỗi dòng, rồi pad về batch.
+        Trả về:
+          ys_pad:  [B, L_max+2]
+          ys_lens: [B]
+        """
+        seqs = []
+        lens = []
+        B = toks.size(0)
+        for i in range(B):
+            raw = toks[i, : tok_lens[i]].tolist()
+            seq = [sos_id] + raw + [eos_id]
+            seqs.append(torch.tensor(seq, dtype=torch.long))
+            lens.append(len(seq))
+        ys_pad = pad_sequence(seqs, batch_first=True, padding_value=self.token2id.get("<pad>", 0))
+        ys_lens = torch.tensor(lens, dtype=torch.long)
+        return ys_pad, ys_lens
+
+
 
 
 # ==================== Forward loss UTILS ====================
+
+# @torch.no_grad()
+# def _chunk_encoder_forward(xs: torch.Tensor,
+#                            model,
+#                            chunk_cfg,
+#                            device) -> Tuple[torch.Tensor, torch.Tensor]:
+#     """
+#     Internal helper: chunk the input features xs through the encoder (CTC mode)
+#     Returns:
+#       encoder_outs_full: [1, T_out, D]
+#       encoder_mask:     [1, 1, T_out]
+#     """
+#     chunk_size = chunk_cfg.chunk_size
+#     left_context = chunk_cfg.left_context_size
+#     right_context = chunk_cfg.right_context_size
+#     subsample = model.encoder.embed.subsampling_factor
+#     conv_lorder = model.encoder.cnn_module_kernel // 2
+#     num_blocks = model.encoder.num_blocks
+
+#     # calculate truncated_context_size same as decode
+#     max_len = int(chunk_cfg.total_batch_duration // 0.01) // 2
+#     multiply_n = max_len // chunk_size // subsample
+#     truncated = chunk_size * multiply_n
+#     rel_right = (right_context + max(chunk_size, right_context)*(num_blocks-1))*subsample
+
+#     # init caches
+#     offset = torch.zeros(1, dtype=torch.int, device=device)
+#     att_cache = torch.zeros((num_blocks, left_context,
+#                              model.encoder.attention_heads,
+#                              model.encoder._output_size*2//model.encoder.attention_heads),
+#                             device=device)
+#     cnn_cache = torch.zeros((num_blocks,
+#                              model.encoder._output_size,
+#                              conv_lorder), device=device)
+
+#     chunks = []
+#     for idx in range(0, xs.shape[1], truncated*subsample):
+#         start = truncated*subsample*idx
+#         end = min(start + truncated*subsample + 7, xs.shape[1])
+#         x = xs[:, start:end+rel_right]
+#         x_len = torch.tensor([x.shape[1]], device=device)
+#         out, out_len, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(
+#             xs=x,
+#             xs_origin_lens=x_len,
+#             chunk_size=chunk_size,
+#             left_context_size=left_context,
+#             right_context_size=right_context,
+#             att_cache=att_cache,
+#             cnn_cache=cnn_cache,
+#             truncated_context_size=truncated,
+#             offset=offset
+#         )
+#         chunks.append(out[:, :out_len])
+#         if start + rel_right >= xs.shape[1]:
+#             break
+
+#     encoder_outs_full = torch.cat(chunks, dim=1)
+#     encoder_mask = torch.ones(1, 1, encoder_outs_full.size(1), device=device)
+#     return encoder_outs_full, encoder_mask
+
+
+import os, torch
+DEBUG_CHUNK = bool(int(os.getenv("DEBUG_CHUNK", "1")))
 
 @torch.no_grad()
 def _chunk_encoder_forward(xs: torch.Tensor,
@@ -212,40 +252,45 @@ def _chunk_encoder_forward(xs: torch.Tensor,
                            chunk_cfg,
                            device) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Internal helper: chunk the input features xs through the encoder (CTC mode)
-    Returns:
-      encoder_outs_full: [1, T_out, D]
-      encoder_mask:     [1, 1, T_out]
+    Chạy encoder theo kiểu chunk + cache.
+    Trả về:
+        encoder_outs_full: [1, T_out, D]
+        encoder_mask     : [1, 1, T_out]
     """
-    chunk_size = chunk_cfg.chunk_size
+    chunk_size   = chunk_cfg.chunk_size
     left_context = chunk_cfg.left_context_size
-    right_context = chunk_cfg.right_context_size
-    subsample = model.encoder.embed.subsampling_factor
-    conv_lorder = model.encoder.cnn_module_kernel // 2
-    num_blocks = model.encoder.num_blocks
+    right_context= chunk_cfg.right_context_size
+    subsample    = model.encoder.embed.subsampling_factor
+    conv_lorder  = model.encoder.cnn_module_kernel // 2
+    num_blocks   = model.encoder.num_blocks
 
-    # calculate truncated_context_size same as decode
-    max_len = int(chunk_cfg.total_batch_duration // 0.01) // 2
+    # ─── Tính truncated + rel_right giống lúc decode ───
+    max_len   = int(chunk_cfg.total_batch_duration // 0.01) // 2
     multiply_n = max_len // chunk_size // subsample
-    truncated = chunk_size * multiply_n
-    rel_right = (right_context + max(chunk_size, right_context)*(num_blocks-1))*subsample
+    truncated   = chunk_size * multiply_n
+    rel_right   = (right_context + max(chunk_size, right_context)*(num_blocks-1)) * subsample
 
-    # init caches
-    offset = torch.zeros(1, dtype=torch.int, device=device)
+    # ─── Init cache ───
+    offset    = torch.zeros(1, dtype=torch.int, device=device)
     att_cache = torch.zeros((num_blocks, left_context,
                              model.encoder.attention_heads,
-                             model.encoder._output_size*2//model.encoder.attention_heads),
+                             model.encoder._output_size*2 // model.encoder.attention_heads),
                             device=device)
-    cnn_cache = torch.zeros((num_blocks,
-                             model.encoder._output_size,
-                             conv_lorder), device=device)
+    cnn_cache = torch.zeros((num_blocks, model.encoder._output_size, conv_lorder),
+                            device=device)
 
     chunks = []
-    for idx in range(0, xs.shape[1], truncated*subsample):
-        start = truncated*subsample*idx
-        end = min(start + truncated*subsample + 7, xs.shape[1])
-        x = xs[:, start:end+rel_right]
-        x_len = torch.tensor([x.shape[1]], device=device)
+    frame_idx = 0
+    while frame_idx < xs.size(1):
+        start = frame_idx
+        end   = min(start + truncated*subsample + 7, xs.size(1))
+        x     = xs[:, start:end + rel_right]     # lấy thêm right context
+        x_len = torch.tensor([x.size(1)], device=device)
+
+        if DEBUG_CHUNK:
+            print(f"[CHUNK] start={start:5d} end={end:5d} "
+                  f"x.shape={list(x.shape)} att_cache={list(att_cache.shape)}")
+
         out, out_len, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(
             xs=x,
             xs_origin_lens=x_len,
@@ -257,13 +302,55 @@ def _chunk_encoder_forward(xs: torch.Tensor,
             truncated_context_size=truncated,
             offset=offset
         )
-        chunks.append(out[:, :out_len])
-        if start + rel_right >= xs.shape[1]:
+
+        if DEBUG_CHUNK:
+            print(f"        → out.shape={list(out.shape)} out_len={out_len.item()} "
+                  f"offset={offset.item()}")
+
+        chunks.append(out[:, :out_len])          # cắt đúng độ dài real
+        frame_idx += truncated * subsample
+        if frame_idx + rel_right >= xs.size(1):
             break
 
-    encoder_outs_full = torch.cat(chunks, dim=1)
-    encoder_mask = torch.ones(1, 1, encoder_outs_full.size(1), device=device)
+    # trong _chunk_encoder_forward, trước khi cat:
+    if DEBUG_CHUNK:
+        for i, ch in enumerate(chunks):
+            print(f"[DEBUG] chunk#{i} shape = {ch.shape}")
+
+    encoder_outs_full = torch.cat(chunks, dim=1)           # [1, T_all, D]
+    encoder_mask      = torch.ones(1, 1, encoder_outs_full.size(1), device=device)
+
+    if DEBUG_CHUNK:
+        print(f"[CHUNK] final encoder_outs_full {list(encoder_outs_full.shape)}")
+
     return encoder_outs_full, encoder_mask
+
+
+def full_encoder_forward(
+    feats: torch.Tensor,        # [B, T_raw, D_feat]
+    feat_lens: torch.Tensor,    # [B]
+    model: ASRModel,
+    device: torch.device
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Offline full-forward của encoder (không chunk).
+    Trả về:
+      enc_out:  [B, T_enc, D_model]
+      enc_mask: [B, 1, T_enc]
+    """
+    # di chuyển device
+    feats = feats.to(device)
+    feat_lens = feat_lens.to(device)
+
+    # gọi encoder trực tiếp (signature: encoder(xs, xs_lens))
+    # nhiều encoder trả 3 giá trị: out, mask, something
+    enc_out, enc_mask, *_ = model.encoder(feats, feat_lens)
+
+    # nếu enc_mask là [B, T], biến thành [B,1,T]
+    if enc_mask.dim() == 2:
+        enc_mask = enc_mask.unsqueeze(1)
+
+    return enc_out, enc_mask
 
 
 def compute_chunkformer_loss(model: ASRModel,
@@ -323,51 +410,114 @@ def compute_chunkformer_loss(model: ASRModel,
             "loss_att": loss_att}
 
 
-
 # ==================== LOSS COMPUTE UTILS ====================
+import os 
+DEBUG_LOSS = bool(int(os.getenv("DEBUG_LOSS", "1")))   # 1 → in log
+
+# def compute_loss_batch(
+#     model: ASRModel,
+#     feats: torch.Tensor,      # [B, T, D]
+#     feat_lens: torch.Tensor,  # [B]
+#     toks: torch.Tensor,       # [B, L_pad]   (no sos/eos)
+#     tok_lens: torch.Tensor,   # [B]
+#     cfg,
+#     device: torch.device
+# ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+
+#     B = feats.size(0)
+#     total_ctc, total_att = 0.0, 0.0
+#     sos, eos = model.sos, model.eos
+
+#     for i in range(B):
+#         x       = feats[i].unsqueeze(0)           # [1, T, D]
+#         y_raw   = toks[i, : tok_lens[i]].tolist()
+#         y_len   = tok_lens[i].unsqueeze(0).to(device)
+
+#         # ---- 1) encoder ----
+#         enc_out, enc_mask = _chunk_encoder_forward(x, model, cfg.chunk, device)
+#         enc_lens = enc_mask.squeeze(1).sum(1).unsqueeze(0).to(torch.long)  # [1]
+
+#         # print shape 
+#         # print (f"[DBG] sample {i}: enc_out {enc_out.shape}, enc_lens {enc_lens.tolist()}, "
+#         #        f"y_len {y_len.tolist()}")
+
+#         # vector‐hóa cả batch, offline:
+#         # enc_out, enc_mask = full_encoder_forward(
+#         #     feats, feat_lens, model, cfg.chunk, device
+#         # )
+#         # # enc_out: [B, T_enc, D], enc_mask: [B,1,T_enc]
+#         # enc_lens = enc_mask.squeeze(1).sum(1).to(torch.long)  # [B]
+
+        
+        
+#         if DEBUG_LOSS:
+#             print(f"[DBG] sample {i}: enc_out {enc_out.shape}, enc_lens {enc_lens.tolist()}, "
+#                   f"y_len {y_len.tolist()}")
+
+#         # ---- 2) CTC (no sos/eos) ----
+#         y_pad_ctc = torch.tensor(y_raw, dtype=torch.long, device=device).unsqueeze(0)  # [1, L]
+#         loss_ctc, _ = model.ctc(enc_out, enc_lens, y_pad_ctc, y_len)
+#         loss_ctc = loss_ctc.sum()
+
+#         # ---- 3) AED (add sos/eos) ----
+#         ys_pad = torch.tensor([sos] + y_raw + [eos], dtype=torch.long, device=device).unsqueeze(0)
+#         ys_len = torch.tensor([len(y_raw)+2], dtype=torch.long, device=device)
+#         loss_att, _ = model._calc_att_loss(enc_out, enc_mask, ys_pad, ys_len)
+#         loss_att = loss_att.sum()
+
+#         total_ctc += loss_ctc
+#         total_att += loss_att
+
+#     avg_ctc = total_ctc / B
+#     avg_att = total_att / B
+    
+#     # 5) hybrid
+#     ctc_w = model.ctc_weight
+#     loss = ctc_w*avg_ctc + (1-ctc_w)*avg_att
+
+#     return loss, avg_ctc, avg_att
+
 
 def compute_loss_batch(
     model: ASRModel,
-    feats: torch.Tensor,      # [B, T, D]
+    feats: torch.Tensor,      # [B, T, D_feat]
     feat_lens: torch.Tensor,  # [B]
-    toks: torch.Tensor,       # [B, L_pad]   (không sos/eos)
+    toks: torch.Tensor,       # [B, L_pad]   (no sos/eos)
     tok_lens: torch.Tensor,   # [B]
     cfg,
     device: torch.device
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-
+    """
+    Tính loss CTC + AED trên toàn batch, offline.
+    """
     B = feats.size(0)
-    total_ctc, total_att = 0.0, 0.0
-    sos = model.sos
-    eos = model.eos
-    ignore = model.ignore_id
+    sos, eos = model.sos, model.eos
 
-    for i in range(B):
-        x       = feats[i].unsqueeze(0)      # [1, T, D]
-        y_raw   = toks[i, : tok_lens[i]].tolist()              # list[int]
-        x_len   = feat_lens[i].unsqueeze(0)
-        y_len   = tok_lens[i].unsqueeze(0)
+    # 1) full forward encoder
+    enc_out, enc_mask = full_encoder_forward(feats, feat_lens, model, device)
+    # enc_out: [B, T_enc, D], enc_mask: [B,1,T_enc]
+    enc_lens = enc_mask.squeeze(1).sum(1).to(torch.long)  # [B]
 
-        # ---- 1) forward encoder (chunk) ----
-        enc_out, enc_mask = _chunk_encoder_forward(x, model, cfg.chunk, device)
-        enc_lens = enc_mask.squeeze(1).sum(1).to(torch.long)
+    # 2) CTC loss (no sos/eos)
+    # expects: (hs, hs_lens, ys_pad, ys_lens)
+    loss_ctc, _ = model.ctc(enc_out, enc_lens, toks, tok_lens)
+    # CTCLoss returns mean over batch by default → khôi phục sum/avg theo batch
+    # nếu reduction='mean' thì loss_ctc = sum_i (ctc_i) / B
+    # ta tính avg_ctc = loss_ctc
+    avg_ctc = loss_ctc
 
-        # ---- 2) CTC loss (NO sos/eos) ----
-        y_pad_ctc = torch.LongTensor(y_raw).unsqueeze(0).to(device)   # [1, L]
-        loss_ctc, _ = model.ctc(enc_out, enc_lens, y_pad_ctc, y_len)
-        loss_ctc = loss_ctc.sum()
+    # 3) AED loss (add sos/eos)
+    tokenizer = cfg.tokenizer.tokenizer
+    ys_pad, ys_lens = tokenizer.build_y_batch(toks, tok_lens, sos_id=sos, eos_id=eos)
+    ys_pad, ys_lens = ys_pad.to(device), ys_lens.to(device)
 
-        # ---- 3) AED loss (ADD sos/eos) ----
-        ys_pad = torch.LongTensor([sos] + y_raw + [eos]).unsqueeze(0).to(device)  # [1, L+2]
-        ys_len = torch.LongTensor([len(y_raw)+2]).to(device)
-        loss_att, _ = model._calc_att_loss(enc_out, enc_mask, ys_pad, ys_len)
-        loss_att = loss_att.sum()
+    loss_att, _ = model._calc_att_loss(enc_out, enc_mask, ys_pad, ys_lens)
+    # LabelSmoothingLoss returns sum over tokens if normalize_length=False,
+    # or mean if normalize_length=True. Giả sử ta dùng sum, ta normalize:
+    avg_att = loss_att / B
 
-        total_ctc += loss_ctc
-        total_att += loss_att
-
-    avg_ctc = total_ctc / B
-    avg_att = total_att / B
+    # 4) hybrid
     w = cfg.model.ctc_weight
     loss = w * avg_ctc + (1 - w) * avg_att
+
     return loss, avg_ctc, avg_att

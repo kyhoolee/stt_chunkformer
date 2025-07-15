@@ -5,6 +5,12 @@ from .data_loader   import get_dataloaders
 from .optimizer     import build_model_and_optimizer
 from .finetune_utils import compute_loss_batch, _chunk_encoder_forward
 
+# ───── DEBUG FLAG ─────
+torch.autograd.set_detect_anomaly(True)           # bắt NaN trong backward
+DEBUG_STEPS = int(os.getenv("DEBUG_STEPS", 50))   # 0 ⇒ tắt debug # 50 debug 50 step dau tiên
+PRINT_EVERY = 1                                   # in log mỗi bước
+# ──────────────────────
+
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--config", required=True, help="Path to finetune_config.yaml")
@@ -26,37 +32,46 @@ def train():
     global_step = 0
     for epoch in range(1, cfg.training.epochs + 1):
         model.train()
-        for feats, feat_lens, toks, tok_lens in train_loader:
-            feats    = feats.to(device)
-            feat_lens= feat_lens.to(device)
-            toks     = toks.to(device)
-            tok_lens = tok_lens.to(device)
-
-            # compute batch loss by summing over examples
-            # batch_loss = 0.0
-            # for i in range(feats.size(0)):
-            #     x       = feats[i].unsqueeze(0)       # [1, T, D]
-            #     x_lens  = feat_lens[i].unsqueeze(0)   # [1]
-            #     y       = toks[i].unsqueeze(0)        # [1, L]
-            #     y_lens  = tok_lens[i].unsqueeze(0)    # [1]
-            #     loss, _, _ = compute_loss(model, x, x_lens, y, y_lens, cfg, device)
-            #     batch_loss += loss
-            # batch_loss = batch_loss / feats.size(0)
+                
+        for step, (feats, feat_lens, toks, tok_lens) in enumerate(train_loader, 1):
+            feats, feat_lens = feats.to(device), feat_lens.to(device)
+            toks,  tok_lens  = toks.to(device),  tok_lens.to(device)
 
             batch_loss, loss_ctc, loss_att = compute_loss_batch(
-                        model, feats, feat_lens, toks, tok_lens, cfg, device
+                model, feats, feat_lens, toks, tok_lens, cfg, device
             )
-
 
             optim.zero_grad()
             batch_loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.training.max_grad_norm)
-            optim.step()
-            sched.step()
 
+            grad_norm = torch.nn.utils.clip_grad_norm_(
+                model.parameters(), cfg.training.max_grad_norm
+            )
+
+            optim.step(); sched.step()
             global_step += 1
+
+            # ---------- DEBUG PRINT ----------
+            if DEBUG_STEPS and step <= DEBUG_STEPS and step % PRINT_EVERY == 0:
+                B, Tm, _ = feats.shape
+                Lm = toks.shape[1]
+                lr_now = sched.get_last_lr()[0]
+                print(f"[DBG] ep={epoch} st={step:3d}  B={B} T={Tm} L={Lm} "
+                    f"loss={batch_loss:.3f} (ctc={loss_ctc:.3f}, att={loss_att:.3f}) "
+                    f"grad={grad_norm:.2f} lr={lr_now:.2e}")
+                if torch.isnan(batch_loss):
+                    raise ValueError("❌ NaN loss!")
+
             if global_step % cfg.training.log_steps == 0:
                 print(f"[Epoch {epoch} Step {global_step}] loss={batch_loss.item():.4f}")
+
+            # Thoát sớm khi smoke-test
+            if DEBUG_STEPS and step >= DEBUG_STEPS:
+                print("===== SMOKE-EVAL =====")
+                evaluate(model, tokenizer, valid_loader, cfg, device)
+                return
+
+
 
         # checkpoint per epoch
         ckpt_dir = cfg.training.checkpoint_dir
