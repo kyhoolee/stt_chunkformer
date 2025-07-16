@@ -3,7 +3,7 @@
 import yaml
 from dataclasses import dataclass, field
 from typing import Dict, Any
-from .finetune_utils import GreedyTokenizer
+from .tokenizer import GreedyTokenizer
 
 @dataclass
 class DataConfigFT:

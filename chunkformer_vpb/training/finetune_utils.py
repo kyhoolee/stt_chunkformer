@@ -5,6 +5,8 @@ import torch
 import argparse
 from torchaudio.compliance.kaldi import fbank
 from jiwer import wer
+
+from .data_loader import normalize_vi
 from ..decode import init, load_audio
 from ..model.asr_model import ASRModel
 from ..model.utils.ctc_utils import get_output_with_timestamps
@@ -13,7 +15,7 @@ from torch.nn.utils.rnn import pad_sequence
 from typing import Dict, List, Tuple
 from typing import Tuple
 from typing import TYPE_CHECKING
-
+from .tokenizer import GreedyTokenizer
 
 
 
@@ -78,108 +80,6 @@ def prepare_input_file(audio_path, device):
         sample_frequency=16000
     ).unsqueeze(0).to(device)
     return feats
-
-
-
-# ==================== TOKENIZER UTILS ====================
-
-class GreedyTokenizer:
-    def __init__(self, vocab_path: str):
-        """
-        vocab_path: đường dẫn tới file vocab.txt (mỗi dòng 1 token)
-        """
-        # ---------- load vocab ----------
-        self.vocab = []
-        with open(vocab_path, encoding="utf-8") as f:
-            for line in f:
-                token = line.strip().split()[0]
-                self.vocab.append(token)
-
-        # ---------- basic map ----------
-        self.token2id: Dict[str, int] = {tok: idx for idx, tok in enumerate(self.vocab)}
-        self.id2token: List[str] = self.vocab
-        # sort decreasing độ dài để greedy match khi encode
-        self.vocab_sorted = sorted(self.vocab, key=len, reverse=True)
-
-        # ---------- special IDs ----------
-        # giả định chuẩn Wenet: 0 = <blank> = pad, cuối vocab = <sos/eos>
-        self.blank_id = 0
-        self.pad_id   = 0                    # pad dùng cùng giá trị với blank
-        self.sos_id   = len(self.vocab) - 1  # eos = sos
-        self.eos_id   = self.sos_id
-
-    # ---------- ENCODE ----------
-    def tokenize(self, text: str) -> List[int]:
-        """
-        Greedy longest-match tokenization.
-        - Thêm '▁' đầu câu, thay space bằng '▁'.
-        """
-        s = "▁" + text.strip().replace(" ", "▁")
-        idx, L, ids = 0, len(s), []
-        while idx < L:
-            for tok in self.vocab_sorted:
-                if s.startswith(tok, idx):
-                    ids.append(self.token2id[tok])
-                    idx += len(tok)
-                    break
-            else:
-                # fallback: <unk> nếu có, hoặc skip 1 char
-                ids.append(self.token2id.get("<unk>", self.blank_id))
-                idx += 1
-        return ids
-
-    # ---------- DECODE ----------
-    def decode_ids(self, ids: List[int]) -> str:
-        """
-        Convert list[int] → raw string, bỏ blank/pad/sos/eos.
-        """
-        tokens = [
-            self.id2token[i]
-            for i in ids
-            if i not in {self.blank_id, self.pad_id, self.sos_id, self.eos_id}
-        ]
-        text = "".join(tokens).replace("▁", " ").strip()
-        return text
-
-    # ---------- helper cho AED ----------
-    def text2labels(self, text: str) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Return ys_pad & ys_lens (đã thêm sos/eos) để dùng cho AED.
-        """
-        ids = self.tokenize(text)
-        seq = [self.sos_id] + ids + [self.eos_id]
-        ys_pad  = torch.tensor(seq, dtype=torch.long).unsqueeze(0)   # [1, L]
-        ys_lens = torch.tensor([len(seq)], dtype=torch.long)
-        return ys_pad, ys_lens
-
-
-    def build_y_batch(
-        self,
-        toks: torch.Tensor,       # [B, L_pad] no sos/eos
-        tok_lens: torch.Tensor,   # [B]
-        sos_id: int,
-        eos_id: int
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Thêm sos/eos cho mỗi dòng, rồi pad về batch.
-        Trả về:
-          ys_pad:  [B, L_max+2]
-          ys_lens: [B]
-        """
-        seqs = []
-        lens = []
-        B = toks.size(0)
-        for i in range(B):
-            raw = toks[i, : tok_lens[i]].tolist()
-            seq = [sos_id] + raw + [eos_id]
-            seqs.append(torch.tensor(seq, dtype=torch.long))
-            lens.append(len(seq))
-        ys_pad = pad_sequence(seqs, batch_first=True, padding_value=self.token2id.get("<pad>", 0))
-        ys_lens = torch.tensor(lens, dtype=torch.long)
-        return ys_pad, ys_lens
-
-
-
 
 # ==================== Forward loss UTILS ====================
 
@@ -359,7 +259,6 @@ def full_encoder_forward(
 
     return enc_out, enc_mask
 
-
 def compute_chunkformer_loss(model: ASRModel,
                              tokenizer: GreedyTokenizer,
                              xs: torch.Tensor,
@@ -367,33 +266,37 @@ def compute_chunkformer_loss(model: ASRModel,
                              label_text: str,
                              device) -> dict:
     """
-    xs: [1, T_raw, 80] input features
-    args: arg namespace with chunk_size, left_context_size, right_context_size, total_batch_duration
-    label_text: ground-truth string
-    Returns: dict {loss, loss_ctc, loss_att}
+    Tính loss cho 1 sample:
+    - xs: [1, T_raw, 80] input features
+    - args: arg namespace với các trường chunk_size, left_context_size, ...
+    - label_text: ground-truth dạng string
+    Returns: dict với loss, loss_ctc, loss_att
     """
-    # 1) forward chunk-encoder
+    # 1) Forward encoder
     encoder_outs_full, encoder_mask = _chunk_encoder_forward(xs, model, args, device)
-    # encoder_lens = encoder_mask.squeeze(1).sum(2)  # [1]
-    # encoder_mask: [1, 1, T] → squeeze → [1, T], sum over time dim → [1]
-    encoder_lens = encoder_mask.squeeze(1).sum(1).to(torch.long)
+    encoder_lens = encoder_mask.squeeze(1).sum(1).to(torch.long)  # [1]
 
-    # 2) text -> labels
-    ys_pad, ys_lens = tokenizer.text2labels(label_text)
-    ys_pad = ys_pad.to(device)
-    ys_lens = ys_lens.to(device).to(torch.long)
-    # @NOTE: 
-    # - Phần chèn sos và eos này chỉ dùng cho AED loss 
-    # - Không dùng cho CTC loss -> add thêm vào tăng giá trị không cần thiết của CTC loss
-    # - Dùng thì loss vẫn giảm dần -> nhưng không đúng với CTC loss
+    # 2) Tokenize raw text → list of IDs (không có sos/eos)
+    norm_text = normalize_vi(label_text)
+    token_ids = tokenizer.tokenize(norm_text)  # List[int]
+
+    # CTC labels (no sos/eos)
+    toks = torch.tensor(token_ids, dtype=torch.long, device=device).unsqueeze(0)  # [1, L]
+    tok_lens = torch.tensor([len(token_ids)], dtype=torch.long, device=device)    # [1]
+
+    # AED labels (có sos/eos)
+    seq = [model.sos] + token_ids + [model.eos]
+    ys_pad = torch.tensor(seq, dtype=torch.long, device=device).unsqueeze(0)      # [1, L+2]
+    ys_lens = torch.tensor([len(seq)], dtype=torch.long, device=device)           # [1]
 
     # 3) CTC loss
     loss_ctc, _ = model.ctc(
         encoder_outs_full,
         encoder_lens,
-        ys_pad,
-        ys_lens
+        toks,
+        tok_lens
     )
+
     # 4) AED loss
     loss_att, _ = model._calc_att_loss(
         encoder_outs_full,
@@ -402,26 +305,91 @@ def compute_chunkformer_loss(model: ASRModel,
         ys_lens
     )
 
-    # sum if needed
-    loss_ctc = loss_ctc.sum() if loss_ctc.dim()>0 else loss_ctc
-    loss_att = loss_att.sum() if loss_att.dim()>0 else loss_att
+    # 5) Sum & combine
+    loss_ctc = loss_ctc.sum() if loss_ctc.dim() > 0 else loss_ctc
+    loss_att = loss_att.sum() if loss_att.dim() > 0 else loss_att
 
-    # 5) hybrid
     ctc_w = model.ctc_weight
-    loss = ctc_w*loss_ctc + (1-ctc_w)*loss_att
+    loss = ctc_w * loss_ctc + (1 - ctc_w) * loss_att
 
-    return {"loss": loss,
-            "loss_ctc": loss_ctc,
-            "loss_att": loss_att}
-
+    return {
+        "loss": loss,
+        "loss_ctc": loss_ctc,
+        "loss_att": loss_att
+    }
 
 # ==================== LOSS COMPUTE UTILS ====================
-import os 
+
+import os
+import torch
+import torch.nn.functional as F
+from typing import Tuple
+
 DEBUG_LOSS = bool(int(os.getenv("DEBUG_LOSS", "1")))   # 1 → in log
 
-def compute_loss_batch(
+def encode_offline_batch_debug(
+    feats: torch.Tensor,       # [B, T_raw, D]
+    feat_lens: torch.Tensor,   # [B]
+    model,
+    chunk_cfg,
+    device: torch.device
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Như encode_offline_batch nhưng chèn debug prints:
+      - In shape đầu vào
+      - In shape sau mỗi sample
+      - In pad time và mask pad (chỉ khi B > 1)
+      - In shape cuối của enc_outs và enc_masks
+    """
+    B, T_raw, D = feats.shape
+    print(f"[ENC_OFFLINE] start: B={B}, T_raw_max={T_raw}, D={D}")
+
+    outs, masks, lengths = [], [], []
+    for i in range(B):
+        x_i = feats[i : i+1].to(device)       # [1, T_raw, D]
+        l_i = feat_lens[i].item()
+        print(f"  [sample {i}] raw_feat.shape = {x_i.shape}, raw_len = {l_i}")
+
+        out_i, m_i = _chunk_encoder_forward(x_i, model, chunk_cfg, device)
+        # out_i: [1, T_i, D], m_i: [1,1,T_i]
+        T_i = out_i.size(1)
+        print(f"    → after chunk-fwd: out_i.shape = {out_i.shape}, mask_i.shape = {m_i.shape}")
+
+        outs .append(out_i)
+        masks.append(m_i)
+        lengths.append(T_i)
+
+    # Nếu chỉ có 1 sample, không pad thêm
+    if B == 1:
+        print("[ENC_OFFLINE] B=1, skip pad → return single sample as is")
+        enc_outs = outs[0]       # [1, T_0, D]
+        enc_masks= masks[0]      # [1, 1, T_0]
+        print(f"[ENC_OFFLINE] final enc_outs.shape = {enc_outs.shape}, enc_masks.shape = {enc_masks.shape}")
+        return enc_outs, enc_masks
+
+    # Ngược lại, pad time dim để nối batch
+    T_max = max(lengths)
+    print(f"[ENC_OFFLINE] pad to T_max = {T_max}")
+
+    padded_outs, padded_masks = [], []
+    for i, (out_i, m_i, L) in enumerate(zip(outs, masks, lengths)):
+        pad_t = T_max - L
+        out_pad  = F.pad(out_i, (0, 0, 0, pad_t))       # pad time ở chiều thứ 1
+        mask_pad = F.pad(m_i,  (0, pad_t), value=0)     # pad mask ở cuối time
+        print(f"  [sample {i}] pad_t={pad_t}, out_pad.shape={out_pad.shape}, mask_pad.shape={mask_pad.shape}")
+        padded_outs .append(out_pad)
+        padded_masks.append(mask_pad)
+
+    enc_outs  = torch.cat(padded_outs,  dim=0)         # [B, T_max, D]
+    enc_masks = torch.cat(padded_masks, dim=0)         # [B, 1, T_max]
+    print(f"[ENC_OFFLINE] final enc_outs.shape = {enc_outs.shape}, enc_masks.shape = {enc_masks.shape}")
+
+    return enc_outs, enc_masks
+
+
+def compute_loss_batch_v1(
     model: ASRModel,
-    feats: torch.Tensor,      # [B, T, D]
+    feats: torch.Tensor,      # [B, T_raw, D]
     feat_lens: torch.Tensor,  # [B]
     toks: torch.Tensor,       # [B, L_pad]   (no sos/eos)
     tok_lens: torch.Tensor,   # [B]
@@ -429,61 +397,48 @@ def compute_loss_batch(
     device: torch.device
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 
-    B = feats.size(0)
-    total_ctc, total_att = 0.0, 0.0
-    sos, eos = model.sos, model.eos
+    # 1) Offline‐encode cả batch
+    enc_outs, enc_masks = encode_offline_batch_debug(feats, feat_lens, model, cfg.chunk, device)
+    # enc_outs: [B, T_enc, D], enc_masks: [B,1,T_enc]
+    enc_lens = enc_masks.squeeze(1).sum(1).to(torch.long)  # [B]
 
-    for i in range(B):
-        x       = feats[i].unsqueeze(0)           # [1, T, D]
-        y_raw   = toks[i, : tok_lens[i]].tolist()
-        y_len   = tok_lens[i].unsqueeze(0).to(device)
+    if DEBUG_LOSS:
+        print(f"[DBG] enc_outs {enc_outs.shape}, enc_lens {enc_lens.tolist()}")
 
-        # ---- 1) encoder ----
-        enc_out, enc_mask = _chunk_encoder_forward(x, model, cfg.chunk, device)
-        enc_lens = enc_mask.squeeze(1).sum(1).unsqueeze(0).to(torch.long)  # [1]
+    # 2) CTC loss (không sos/eos)
+    #   model.ctc expects: (logp, input_lengths, targets, target_lengths)
+    loss_ctc, _ = model.ctc(
+        enc_outs, enc_lens,
+        toks.to(device), tok_lens.to(device)
+    )
+    # sum across batch
+    loss_ctc = loss_ctc.sum()
 
-        # print shape 
-        # print (f"[DBG] sample {i}: enc_out {enc_out.shape}, enc_lens {enc_lens.tolist()}, "
-        #        f"y_len {y_len.tolist()}")
+    # 3) AED loss (cần sos/eos)
+    # build ys_pad, ys_lens cho batch
+    sos_id, eos_id = model.sos, model.eos
+    # create [B, L+2] and lengths [B]
+    ys_pad = []
+    ys_lens = []
+    for i in range(feats.size(0)):
+        raw = toks[i, : tok_lens[i]].tolist()
+        seq = [sos_id] + raw + [eos_id]
+        ys_pad.append(torch.tensor(seq, dtype=torch.long, device=device))
+        ys_lens.append(len(seq))
+    ys_pad = torch.nn.utils.rnn.pad_sequence(ys_pad, batch_first=True, padding_value=model.ignore_id)  # [B, L_max+2]
+    ys_lens = torch.tensor(ys_lens, dtype=torch.long, device=device)                                 # [B]
 
-        # vector‐hóa cả batch, offline:
-        # enc_out, enc_mask = full_encoder_forward(
-        #     feats, feat_lens, model, cfg.chunk, device
-        # )
-        # # enc_out: [B, T_enc, D], enc_mask: [B,1,T_enc]
-        # enc_lens = enc_mask.squeeze(1).sum(1).to(torch.long)  # [B]
+    loss_att, _ = model._calc_att_loss(enc_outs, enc_masks, ys_pad, ys_lens)
+    loss_att = loss_att.sum()
 
-        
-        
-        if DEBUG_LOSS:
-            print(f"[DBG] sample {i}: enc_out {enc_out.shape}, enc_lens {enc_lens.tolist()}, "
-                  f"y_len {y_len.tolist()}")
+    # 4) Hybrid
+    ctc_w = cfg.model.ctc_weight
+    loss = ctc_w * (loss_ctc / feats.size(0)) + (1 - ctc_w) * (loss_att / feats.size(0))
 
-        # ---- 2) CTC (no sos/eos) ----
-        y_pad_ctc = torch.tensor(y_raw, dtype=torch.long, device=device).unsqueeze(0)  # [1, L]
-        loss_ctc, _ = model.ctc(enc_out, enc_lens, y_pad_ctc, y_len)
-        loss_ctc = loss_ctc.sum()
-
-        # ---- 3) AED (add sos/eos) ----
-        ys_pad = torch.tensor([sos] + y_raw + [eos], dtype=torch.long, device=device).unsqueeze(0)
-        ys_len = torch.tensor([len(y_raw)+2], dtype=torch.long, device=device)
-        loss_att, _ = model._calc_att_loss(enc_out, enc_mask, ys_pad, ys_len)
-        loss_att = loss_att.sum()
-
-        total_ctc += loss_ctc
-        total_att += loss_att
-
-    avg_ctc = total_ctc / B
-    avg_att = total_att / B
-    
-    # 5) hybrid
-    ctc_w = model.ctc_weight
-    loss = ctc_w*avg_ctc + (1-ctc_w)*avg_att
-
-    return loss, avg_ctc, avg_att
+    return loss, (loss_ctc / feats.size(0)), (loss_att / feats.size(0))
 
 
-def compute_loss_batch(
+def compute_loss_batch_v2(
     model: ASRModel,
     feats: torch.Tensor,      # [B, T, D_feat]
     feat_lens: torch.Tensor,  # [B]
