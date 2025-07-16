@@ -183,114 +183,46 @@ class GreedyTokenizer:
 
 # ==================== Forward loss UTILS ====================
 
-# @torch.no_grad()
-# def _chunk_encoder_forward(xs: torch.Tensor,
-#                            model,
-#                            chunk_cfg,
-#                            device) -> Tuple[torch.Tensor, torch.Tensor]:
-#     """
-#     Internal helper: chunk the input features xs through the encoder (CTC mode)
-#     Returns:
-#       encoder_outs_full: [1, T_out, D]
-#       encoder_mask:     [1, 1, T_out]
-#     """
-#     chunk_size = chunk_cfg.chunk_size
-#     left_context = chunk_cfg.left_context_size
-#     right_context = chunk_cfg.right_context_size
-#     subsample = model.encoder.embed.subsampling_factor
-#     conv_lorder = model.encoder.cnn_module_kernel // 2
-#     num_blocks = model.encoder.num_blocks
-
-#     # calculate truncated_context_size same as decode
-#     max_len = int(chunk_cfg.total_batch_duration // 0.01) // 2
-#     multiply_n = max_len // chunk_size // subsample
-#     truncated = chunk_size * multiply_n
-#     rel_right = (right_context + max(chunk_size, right_context)*(num_blocks-1))*subsample
-
-#     # init caches
-#     offset = torch.zeros(1, dtype=torch.int, device=device)
-#     att_cache = torch.zeros((num_blocks, left_context,
-#                              model.encoder.attention_heads,
-#                              model.encoder._output_size*2//model.encoder.attention_heads),
-#                             device=device)
-#     cnn_cache = torch.zeros((num_blocks,
-#                              model.encoder._output_size,
-#                              conv_lorder), device=device)
-
-#     chunks = []
-#     for idx in range(0, xs.shape[1], truncated*subsample):
-#         start = truncated*subsample*idx
-#         end = min(start + truncated*subsample + 7, xs.shape[1])
-#         x = xs[:, start:end+rel_right]
-#         x_len = torch.tensor([x.shape[1]], device=device)
-#         out, out_len, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(
-#             xs=x,
-#             xs_origin_lens=x_len,
-#             chunk_size=chunk_size,
-#             left_context_size=left_context,
-#             right_context_size=right_context,
-#             att_cache=att_cache,
-#             cnn_cache=cnn_cache,
-#             truncated_context_size=truncated,
-#             offset=offset
-#         )
-#         chunks.append(out[:, :out_len])
-#         if start + rel_right >= xs.shape[1]:
-#             break
-
-#     encoder_outs_full = torch.cat(chunks, dim=1)
-#     encoder_mask = torch.ones(1, 1, encoder_outs_full.size(1), device=device)
-#     return encoder_outs_full, encoder_mask
-
-
-import os, torch
-DEBUG_CHUNK = bool(int(os.getenv("DEBUG_CHUNK", "1")))
-
 @torch.no_grad()
 def _chunk_encoder_forward(xs: torch.Tensor,
                            model,
                            chunk_cfg,
                            device) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Chạy encoder theo kiểu chunk + cache.
-    Trả về:
-        encoder_outs_full: [1, T_out, D]
-        encoder_mask     : [1, 1, T_out]
+    Internal helper: chunk the input features xs through the encoder (CTC mode)
+    Returns:
+      encoder_outs_full: [1, T_out, D]
+      encoder_mask:     [1, 1, T_out]
     """
-    chunk_size   = chunk_cfg.chunk_size
+    chunk_size = chunk_cfg.chunk_size
     left_context = chunk_cfg.left_context_size
-    right_context= chunk_cfg.right_context_size
-    subsample    = model.encoder.embed.subsampling_factor
-    conv_lorder  = model.encoder.cnn_module_kernel // 2
-    num_blocks   = model.encoder.num_blocks
+    right_context = chunk_cfg.right_context_size
+    subsample = model.encoder.embed.subsampling_factor
+    conv_lorder = model.encoder.cnn_module_kernel // 2
+    num_blocks = model.encoder.num_blocks
 
-    # ─── Tính truncated + rel_right giống lúc decode ───
-    max_len   = int(chunk_cfg.total_batch_duration // 0.01) // 2
+    # calculate truncated_context_size same as decode
+    max_len = int(chunk_cfg.total_batch_duration // 0.01) // 2
     multiply_n = max_len // chunk_size // subsample
-    truncated   = chunk_size * multiply_n
-    rel_right   = (right_context + max(chunk_size, right_context)*(num_blocks-1)) * subsample
+    truncated = chunk_size * multiply_n
+    rel_right = (right_context + max(chunk_size, right_context)*(num_blocks-1))*subsample
 
-    # ─── Init cache ───
-    offset    = torch.zeros(1, dtype=torch.int, device=device)
+    # init caches
+    offset = torch.zeros(1, dtype=torch.int, device=device)
     att_cache = torch.zeros((num_blocks, left_context,
                              model.encoder.attention_heads,
-                             model.encoder._output_size*2 // model.encoder.attention_heads),
+                             model.encoder._output_size*2//model.encoder.attention_heads),
                             device=device)
-    cnn_cache = torch.zeros((num_blocks, model.encoder._output_size, conv_lorder),
-                            device=device)
+    cnn_cache = torch.zeros((num_blocks,
+                             model.encoder._output_size,
+                             conv_lorder), device=device)
 
     chunks = []
-    frame_idx = 0
-    while frame_idx < xs.size(1):
-        start = frame_idx
-        end   = min(start + truncated*subsample + 7, xs.size(1))
-        x     = xs[:, start:end + rel_right]     # lấy thêm right context
-        x_len = torch.tensor([x.size(1)], device=device)
-
-        if DEBUG_CHUNK:
-            print(f"[CHUNK] start={start:5d} end={end:5d} "
-                  f"x.shape={list(x.shape)} att_cache={list(att_cache.shape)}")
-
+    for idx in range(0, xs.shape[1], truncated*subsample):
+        start = truncated*subsample*idx
+        end = min(start + truncated*subsample + 7, xs.shape[1])
+        x = xs[:, start:end+rel_right]
+        x_len = torch.tensor([x.shape[1]], device=device)
         out, out_len, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(
             xs=x,
             xs_origin_lens=x_len,
@@ -302,28 +234,96 @@ def _chunk_encoder_forward(xs: torch.Tensor,
             truncated_context_size=truncated,
             offset=offset
         )
-
-        if DEBUG_CHUNK:
-            print(f"        → out.shape={list(out.shape)} out_len={out_len.item()} "
-                  f"offset={offset.item()}")
-
-        chunks.append(out[:, :out_len])          # cắt đúng độ dài real
-        frame_idx += truncated * subsample
-        if frame_idx + rel_right >= xs.size(1):
+        chunks.append(out[:, :out_len])
+        if start + rel_right >= xs.shape[1]:
             break
 
-    # trong _chunk_encoder_forward, trước khi cat:
-    if DEBUG_CHUNK:
-        for i, ch in enumerate(chunks):
-            print(f"[DEBUG] chunk#{i} shape = {ch.shape}")
-
-    encoder_outs_full = torch.cat(chunks, dim=1)           # [1, T_all, D]
-    encoder_mask      = torch.ones(1, 1, encoder_outs_full.size(1), device=device)
-
-    if DEBUG_CHUNK:
-        print(f"[CHUNK] final encoder_outs_full {list(encoder_outs_full.shape)}")
-
+    encoder_outs_full = torch.cat(chunks, dim=1)
+    encoder_mask = torch.ones(1, 1, encoder_outs_full.size(1), device=device)
     return encoder_outs_full, encoder_mask
+
+
+# import os, torch
+# DEBUG_CHUNK = bool(int(os.getenv("DEBUG_CHUNK", "1")))
+
+# @torch.no_grad()
+# def _chunk_encoder_forward(xs: torch.Tensor,
+#                            model,
+#                            chunk_cfg,
+#                            device) -> Tuple[torch.Tensor, torch.Tensor]:
+#     """
+#     Chạy encoder theo kiểu chunk + cache.
+#     Trả về:
+#         encoder_outs_full: [1, T_out, D]
+#         encoder_mask     : [1, 1, T_out]
+#     """
+#     chunk_size   = chunk_cfg.chunk_size
+#     left_context = chunk_cfg.left_context_size
+#     right_context= chunk_cfg.right_context_size
+#     subsample    = model.encoder.embed.subsampling_factor
+#     conv_lorder  = model.encoder.cnn_module_kernel // 2
+#     num_blocks   = model.encoder.num_blocks
+
+#     # ─── Tính truncated + rel_right giống lúc decode ───
+#     max_len   = int(chunk_cfg.total_batch_duration // 0.01) // 2
+#     multiply_n = max_len // chunk_size // subsample
+#     truncated   = chunk_size * multiply_n
+#     rel_right   = (right_context + max(chunk_size, right_context)*(num_blocks-1)) * subsample
+
+#     # ─── Init cache ───
+#     offset    = torch.zeros(1, dtype=torch.int, device=device)
+#     att_cache = torch.zeros((num_blocks, left_context,
+#                              model.encoder.attention_heads,
+#                              model.encoder._output_size*2 // model.encoder.attention_heads),
+#                             device=device)
+#     cnn_cache = torch.zeros((num_blocks, model.encoder._output_size, conv_lorder),
+#                             device=device)
+
+#     chunks = []
+#     frame_idx = 0
+#     while frame_idx < xs.size(1):
+#         start = frame_idx
+#         end   = min(start + truncated*subsample + 7, xs.size(1))
+#         x     = xs[:, start:end + rel_right]     # lấy thêm right context
+#         x_len = torch.tensor([x.size(1)], device=device)
+
+#         if DEBUG_CHUNK:
+#             print(f"[CHUNK] start={start:5d} end={end:5d} "
+#                   f"x.shape={list(x.shape)} att_cache={list(att_cache.shape)}")
+
+#         out, out_len, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(
+#             xs=x,
+#             xs_origin_lens=x_len,
+#             chunk_size=chunk_size,
+#             left_context_size=left_context,
+#             right_context_size=right_context,
+#             att_cache=att_cache,
+#             cnn_cache=cnn_cache,
+#             truncated_context_size=truncated,
+#             offset=offset
+#         )
+
+#         if DEBUG_CHUNK:
+#             print(f"        → out.shape={list(out.shape)} out_len={out_len.item()} "
+#                   f"offset={offset.item()}")
+
+#         chunks.append(out[:, :out_len])          # cắt đúng độ dài real
+#         frame_idx += truncated * subsample
+#         if frame_idx + rel_right >= xs.size(1):
+#             break
+
+#     # trong _chunk_encoder_forward, trước khi cat:
+#     if DEBUG_CHUNK:
+#         for i, ch in enumerate(chunks):
+#             print(f"[DEBUG] chunk#{i} shape = {ch.shape}")
+
+#     encoder_outs_full = torch.cat(chunks, dim=1)           # [1, T_all, D]
+#     encoder_mask      = torch.ones(1, 1, encoder_outs_full.size(1), device=device)
+
+#     if DEBUG_CHUNK:
+#         print(f"[CHUNK] final encoder_outs_full {list(encoder_outs_full.shape)}")
+
+#     return encoder_outs_full, encoder_mask
 
 
 def full_encoder_forward(
@@ -379,9 +379,7 @@ def compute_chunkformer_loss(model: ASRModel,
     encoder_lens = encoder_mask.squeeze(1).sum(1).to(torch.long)
 
     # 2) text -> labels
-    sos_id = model.sos
-    eos_id = model.eos
-    ys_pad, ys_lens = tokenizer.text2labels(label_text, sos_id, eos_id)
+    ys_pad, ys_lens = tokenizer.text2labels(label_text)
     ys_pad = ys_pad.to(device)
     ys_lens = ys_lens.to(device).to(torch.long)
     # @NOTE: 
@@ -421,68 +419,68 @@ def compute_chunkformer_loss(model: ASRModel,
 import os 
 DEBUG_LOSS = bool(int(os.getenv("DEBUG_LOSS", "1")))   # 1 → in log
 
-# def compute_loss_batch(
-#     model: ASRModel,
-#     feats: torch.Tensor,      # [B, T, D]
-#     feat_lens: torch.Tensor,  # [B]
-#     toks: torch.Tensor,       # [B, L_pad]   (no sos/eos)
-#     tok_lens: torch.Tensor,   # [B]
-#     cfg,
-#     device: torch.device
-# ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def compute_loss_batch(
+    model: ASRModel,
+    feats: torch.Tensor,      # [B, T, D]
+    feat_lens: torch.Tensor,  # [B]
+    toks: torch.Tensor,       # [B, L_pad]   (no sos/eos)
+    tok_lens: torch.Tensor,   # [B]
+    cfg,
+    device: torch.device
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 
-#     B = feats.size(0)
-#     total_ctc, total_att = 0.0, 0.0
-#     sos, eos = model.sos, model.eos
+    B = feats.size(0)
+    total_ctc, total_att = 0.0, 0.0
+    sos, eos = model.sos, model.eos
 
-#     for i in range(B):
-#         x       = feats[i].unsqueeze(0)           # [1, T, D]
-#         y_raw   = toks[i, : tok_lens[i]].tolist()
-#         y_len   = tok_lens[i].unsqueeze(0).to(device)
+    for i in range(B):
+        x       = feats[i].unsqueeze(0)           # [1, T, D]
+        y_raw   = toks[i, : tok_lens[i]].tolist()
+        y_len   = tok_lens[i].unsqueeze(0).to(device)
 
-#         # ---- 1) encoder ----
-#         enc_out, enc_mask = _chunk_encoder_forward(x, model, cfg.chunk, device)
-#         enc_lens = enc_mask.squeeze(1).sum(1).unsqueeze(0).to(torch.long)  # [1]
+        # ---- 1) encoder ----
+        enc_out, enc_mask = _chunk_encoder_forward(x, model, cfg.chunk, device)
+        enc_lens = enc_mask.squeeze(1).sum(1).unsqueeze(0).to(torch.long)  # [1]
 
-#         # print shape 
-#         # print (f"[DBG] sample {i}: enc_out {enc_out.shape}, enc_lens {enc_lens.tolist()}, "
-#         #        f"y_len {y_len.tolist()}")
+        # print shape 
+        # print (f"[DBG] sample {i}: enc_out {enc_out.shape}, enc_lens {enc_lens.tolist()}, "
+        #        f"y_len {y_len.tolist()}")
 
-#         # vector‐hóa cả batch, offline:
-#         # enc_out, enc_mask = full_encoder_forward(
-#         #     feats, feat_lens, model, cfg.chunk, device
-#         # )
-#         # # enc_out: [B, T_enc, D], enc_mask: [B,1,T_enc]
-#         # enc_lens = enc_mask.squeeze(1).sum(1).to(torch.long)  # [B]
+        # vector‐hóa cả batch, offline:
+        # enc_out, enc_mask = full_encoder_forward(
+        #     feats, feat_lens, model, cfg.chunk, device
+        # )
+        # # enc_out: [B, T_enc, D], enc_mask: [B,1,T_enc]
+        # enc_lens = enc_mask.squeeze(1).sum(1).to(torch.long)  # [B]
 
         
         
-#         if DEBUG_LOSS:
-#             print(f"[DBG] sample {i}: enc_out {enc_out.shape}, enc_lens {enc_lens.tolist()}, "
-#                   f"y_len {y_len.tolist()}")
+        if DEBUG_LOSS:
+            print(f"[DBG] sample {i}: enc_out {enc_out.shape}, enc_lens {enc_lens.tolist()}, "
+                  f"y_len {y_len.tolist()}")
 
-#         # ---- 2) CTC (no sos/eos) ----
-#         y_pad_ctc = torch.tensor(y_raw, dtype=torch.long, device=device).unsqueeze(0)  # [1, L]
-#         loss_ctc, _ = model.ctc(enc_out, enc_lens, y_pad_ctc, y_len)
-#         loss_ctc = loss_ctc.sum()
+        # ---- 2) CTC (no sos/eos) ----
+        y_pad_ctc = torch.tensor(y_raw, dtype=torch.long, device=device).unsqueeze(0)  # [1, L]
+        loss_ctc, _ = model.ctc(enc_out, enc_lens, y_pad_ctc, y_len)
+        loss_ctc = loss_ctc.sum()
 
-#         # ---- 3) AED (add sos/eos) ----
-#         ys_pad = torch.tensor([sos] + y_raw + [eos], dtype=torch.long, device=device).unsqueeze(0)
-#         ys_len = torch.tensor([len(y_raw)+2], dtype=torch.long, device=device)
-#         loss_att, _ = model._calc_att_loss(enc_out, enc_mask, ys_pad, ys_len)
-#         loss_att = loss_att.sum()
+        # ---- 3) AED (add sos/eos) ----
+        ys_pad = torch.tensor([sos] + y_raw + [eos], dtype=torch.long, device=device).unsqueeze(0)
+        ys_len = torch.tensor([len(y_raw)+2], dtype=torch.long, device=device)
+        loss_att, _ = model._calc_att_loss(enc_out, enc_mask, ys_pad, ys_len)
+        loss_att = loss_att.sum()
 
-#         total_ctc += loss_ctc
-#         total_att += loss_att
+        total_ctc += loss_ctc
+        total_att += loss_att
 
-#     avg_ctc = total_ctc / B
-#     avg_att = total_att / B
+    avg_ctc = total_ctc / B
+    avg_att = total_att / B
     
-#     # 5) hybrid
-#     ctc_w = model.ctc_weight
-#     loss = ctc_w*avg_ctc + (1-ctc_w)*avg_att
+    # 5) hybrid
+    ctc_w = model.ctc_weight
+    loss = ctc_w*avg_ctc + (1-ctc_w)*avg_att
 
-#     return loss, avg_ctc, avg_att
+    return loss, avg_ctc, avg_att
 
 
 def compute_loss_batch(

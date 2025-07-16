@@ -95,8 +95,13 @@ class BaseEncoder(torch.nn.Module):
         self.final_norm = True
 
 
-        pos_enc_class = RelPositionalEncodingWithRightContext # StreamingRelPositionalEncoding
-        subsampling_class = TrainDepthwiseConvSubsampling # DepthwiseConvSubsampling
+        # Train - with forward logic 
+        # pos_enc_class = RelPositionalEncodingWithRightContext # StreamingRelPositionalEncoding
+        # subsampling_class = TrainDepthwiseConvSubsampling # DepthwiseConvSubsampling
+
+        # Streaming - with forward_parallel_chunk logic
+        pos_enc_class = StreamingRelPositionalEncoding
+        subsampling_class = DepthwiseConvSubsampling
 
         self.global_cmvn = global_cmvn
         if subsampling_class == DepthwiseConvSubsampling:
