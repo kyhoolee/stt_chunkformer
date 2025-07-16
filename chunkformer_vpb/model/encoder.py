@@ -22,13 +22,13 @@ import torch
 import math
 
 
-from .attention import MultiHeadedAttention
+from .attention import ChunkAttentionWithRelativeRightContext, MultiHeadedAttention
 from .attention import StreamingRelPositionMultiHeadedAttention
 from .convolution import ConvolutionModule
-from .embedding import StreamingRelPositionalEncoding
+from .embedding import StreamingRelPositionalEncoding, RelPositionalEncodingWithRightContext
 from .encoder_layer import ChunkFormerEncoderLayer
 from .positionwise_feed_forward import PositionwiseFeedForward
-from .subsampling import DepthwiseConvSubsampling
+from .subsampling import DepthwiseConvSubsampling, TrainDepthwiseConvSubsampling
 from .utils.common import get_activation
 from .utils.mask import make_pad_mask
 
@@ -92,9 +92,11 @@ class BaseEncoder(torch.nn.Module):
         self.attention_heads = attention_heads
         self.input_layer = input_layer
 
+        self.final_norm = True
 
-        pos_enc_class = StreamingRelPositionalEncoding
-        subsampling_class = DepthwiseConvSubsampling
+
+        pos_enc_class = RelPositionalEncodingWithRightContext # StreamingRelPositionalEncoding
+        subsampling_class = TrainDepthwiseConvSubsampling # DepthwiseConvSubsampling
 
         self.global_cmvn = global_cmvn
         if subsampling_class == DepthwiseConvSubsampling:
@@ -109,7 +111,20 @@ class BaseEncoder(torch.nn.Module):
                 activation=torch.nn.ReLU(),
                 is_causal=False,
             )
+        elif subsampling_class == TrainDepthwiseConvSubsampling:
+            self.embed = TrainDepthwiseConvSubsampling(
+                subsampling=input_layer,
+                subsampling_rate=8,
+                feat_in=input_size,
+                feat_out=output_size,
+                conv_channels=output_size,
+                pos_enc_class=RelPositionalEncodingWithRightContext(
+                    output_size, positional_dropout_rate),
+                subsampling_conv_chunking_factor=1,
+                activation=torch.nn.ReLU(),
+            )
         else:
+
             self.embed = subsampling_class(
                 input_size,
                 output_size,
@@ -247,7 +262,10 @@ class BaseEncoder(torch.nn.Module):
             xs = self.global_cmvn(xs)
             # print("✅ Applied Global CMVN")
 
-        xs, pos_emb, xs_lens = self.embed(xs, xs_lens, offset=left_context_size, right_context_size=right_context_size)
+        xs, pos_emb, xs_lens = self.embed(
+            xs, xs_lens, 
+            offset=left_context_size, right_context_size=right_context_size
+            )
         print(f"🎛️ Embedded xs shape: {xs.shape}, PosEmb shape: {pos_emb.shape}")
 
         # --------- Create attention masks ---------
@@ -435,13 +453,15 @@ class ChunkFormerEncoder(BaseEncoder):
         self.attention_heads = attention_heads
 
         # self-attention module definition
-        if pos_enc_layer_type == "abs_pos":
-            encoder_selfattn_layer = MultiHeadedAttention
-        elif pos_enc_layer_type == "rel_pos":
-            encoder_selfattn_layer = RelPositionMultiHeadedAttention
-        elif pos_enc_layer_type == "stream_rel_pos":
-            encoder_selfattn_layer = StreamingRelPositionMultiHeadedAttention
+        # if pos_enc_layer_type == "abs_pos":
+        #     encoder_selfattn_layer = MultiHeadedAttention
+        # elif pos_enc_layer_type == "rel_pos":
+        #     encoder_selfattn_layer = RelPositionMultiHeadedAttention
+        # elif pos_enc_layer_type == "stream_rel_pos":
+        #     encoder_selfattn_layer = StreamingRelPositionMultiHeadedAttention
         
+        encoder_selfattn_layer = ChunkAttentionWithRelativeRightContext
+
         encoder_selfattn_layer_args = (
             attention_heads,
             output_size,
@@ -476,21 +496,21 @@ class ChunkFormerEncoder(BaseEncoder):
             ) for i in range(num_blocks)
         ])
 
-    def limited_context_selection(self):
-        full_context_training = True
-        if (self.dynamic_chunk_sizes is not None
-            and self.dynamic_left_context_sizes is not None
-                and self.dynamic_right_context_sizes is not None):
-            chunk_size = random.choice(self.dynamic_chunk_sizes)
-            left_context_size = random.choice(self.dynamic_left_context_sizes)
-            right_context_size = random.choice(self.dynamic_right_context_sizes)
-            full_context_training = not (chunk_size > 0
-                                         and left_context_size > 0
-                                         and right_context_size > 0)
+    # def limited_context_selection(self):
+    #     full_context_training = True
+    #     if (self.dynamic_chunk_sizes is not None
+    #         and self.dynamic_left_context_sizes is not None
+    #             and self.dynamic_right_context_sizes is not None):
+    #         chunk_size = random.choice(self.dynamic_chunk_sizes)
+    #         left_context_size = random.choice(self.dynamic_left_context_sizes)
+    #         right_context_size = random.choice(self.dynamic_right_context_sizes)
+    #         full_context_training = not (chunk_size > 0
+    #                                      and left_context_size > 0
+    #                                      and right_context_size > 0)
 
-        if full_context_training:
-            chunk_size, left_context_size, right_context_size = 0, 0, 0
-        return chunk_size, left_context_size, right_context_size
+    #     if full_context_training:
+    #         chunk_size, left_context_size, right_context_size = 0, 0, 0
+    #     return chunk_size, left_context_size, right_context_size
 
     def forward_encoder(
         self,
@@ -529,6 +549,20 @@ class ChunkFormerEncoder(BaseEncoder):
             left_context_size=left_context_size,
             right_context_size=right_context_size
         )
+
+        # xs, pos_emb, xs_lens = self.embed(
+        #     xs, xs_lens, 
+        #     offset=left_context_size, right_context_size=right_context_size
+        #     )
+
+        # forward(
+        #     self, 
+        #     x, 
+        #     lengths, 
+        #     offset: Union[int, torch.Tensor] = 0, 
+        #     right_context_size: int = 0
+        #     )
+
         mask_pad = masks  # (B, 1, T/subsample_rate)
 
         xs = self.forward_layers(
@@ -551,6 +585,9 @@ class ChunkFormerEncoder(BaseEncoder):
                        left_context_size: int = 0,
                        right_context_size: int = 0) -> torch.Tensor:
         for idx, layer in enumerate(self.encoders):
+            print(f"🧩 Forwarding layer {idx + 1}/{len(self.encoders)}")
+            print(f"Input xs shape: {xs.shape}, chunk_masks shape: {chunk_masks.shape}, pos_emb shape: {pos_emb.shape}, mask_pad shape: {mask_pad.shape}")
+            print(f"Layer:: {layer}")
             xs, chunk_masks, _, _ = layer(
                 xs, chunk_masks, pos_emb, mask_pad,
                 chunk_size=chunk_size,
@@ -564,6 +601,7 @@ class ChunkFormerEncoder(BaseEncoder):
                 xs_lens: torch.Tensor,
                 decoding_chunk_size: int = 0,
                 num_decoding_left_chunks: int = -1,
+                limited_context_selection: Tuple[int, int, int] = (0, 0, 0),
                 **kwargs):
         """
         Main forward function that dispatches to either the standard
@@ -587,7 +625,7 @@ class ChunkFormerEncoder(BaseEncoder):
         else:
             (chunk_size,
                 left_context_size,
-                right_context_size) = self.limited_context_selection()
+                right_context_size) = limited_context_selection
             return self.forward_encoder(
                 xs=xs,
                 xs_lens=xs_lens,

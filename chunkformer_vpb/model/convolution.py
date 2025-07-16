@@ -39,6 +39,7 @@ class ConvolutionModule(nn.Module):
         """
         super().__init__()
         self.use_dynamic_conv = use_dynamic_conv
+        self.dynamic_conv = use_dynamic_conv and (kernel_size > 1)
         self.channels = channels
         self.kernel_size = kernel_size
         self.pointwise_conv1 = nn.Conv1d(
@@ -91,6 +92,103 @@ class ConvolutionModule(nn.Module):
             bias=bias,
         )
         self.activation = activation
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        mask_pad: torch.Tensor = torch.ones((0, 0, 0), dtype=torch.bool),
+        cache: torch.Tensor = torch.zeros((0, 0, 0)),
+        chunk_size: int = 0,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Compute convolution module.
+        Args:
+            x (torch.Tensor): Input tensor (#batch, time, channels).
+            mask_pad (torch.Tensor): used for batch padding (#batch, 1, time),
+                (0, 0, 0) means fake mask.
+            cache (torch.Tensor): left context cache, it is only
+                used in causal convolution (#batch, channels, cache_t),
+                (0, 0, 0) meas fake cache.
+            chunk_size (int): Chunk size for dynamic chunk convolution.
+        Returns:
+            torch.Tensor: Output tensor (#batch, time, channels).
+        """
+        # exchange the temporal dimension and the feature dimension
+        x = x.transpose(1, 2)  # (#batch, channels, time)
+
+        if self.dynamic_conv and chunk_size <= 0:
+            chunk_size = x.size(2)
+        # mask batch padding
+        if mask_pad.size(2) > 0:  # time > 0
+            x.masked_fill_(~mask_pad.to(torch.bool), 0.0)
+
+        # GLU mechanism
+        x = self.pointwise_conv1(x)  # (batch, 2*channel, dim)
+        x = nn.functional.glu(x, dim=1)  # (batch, channel, dim)
+
+        if self.lorder > 0:
+            if cache.size(2) == 0:  # cache_t == 0
+                x = nn.functional.pad(x, (self.lorder, 0), 'constant', 0.0)
+            else:
+                assert cache.size(0) == x.size(0)  # equal batch
+                assert cache.size(1) == x.size(1)  # equal channel
+                x = torch.cat((cache, x), dim=2)
+            assert (x.size(2) > self.lorder)
+            new_cache = x
+        else:
+            # It's better we just return None if no cache is required,
+            # However, for JIT export, here we just fake one tensor instead of
+            # None.
+            new_cache = torch.zeros((0, 0, 0), dtype=x.dtype, device=x.device)
+
+        n_frames_pad = -1
+        n_chunks = -1
+        if self.dynamic_conv:
+            size = self.lorder + chunk_size
+            step = chunk_size
+
+            n_frames_pad = (step - ((x.size(2) - size) % step)) % step
+            # (batch, 2*channel, dim + n_frames_pad)
+            x = torch.nn.functional.pad(x, (0, n_frames_pad))
+
+            n_chunks = ((x.size(2) - size) // step) + 1
+            # [B, C, n_chunks, size]
+            x = x.unfold(-1, size=size, step=step)
+            # [B, n_chunks, C, size]
+            x = x.transpose(1, 2)
+            # [B * n_chunks, C, size]
+            x = x.reshape(-1, x.size(2), x.size(3))
+
+            # pad right for dynamic conv
+            x = nn.functional.pad(x, (0, self.lorder), 'constant', 0.0)
+
+
+        # 1D Depthwise Conv
+        x = self.depthwise_conv(x)
+
+        if self.dynamic_conv:
+            # [B, n_chunk, C, chunk_size]
+            x = x.reshape(-1, n_chunks, x.size(1), x.size(2))
+            # [B, C, n_chunks, chunk_size]
+            x = x.transpose(1, 2)
+            # [B, C, n_chunks * chunk_size]
+            x = x.reshape(x.size(0), x.size(1), -1)
+            # remove padding
+            x = x[..., :x.size(2) - n_frames_pad]
+
+        if self.use_layer_norm:
+            x = x.transpose(1, 2)
+        x = self.activation(self.norm(x))
+        if self.use_layer_norm:
+            x = x.transpose(1, 2)
+        x = self.pointwise_conv2(x)
+
+        # mask batch padding
+        if mask_pad.size(2) > 0:  # time > 0
+            x.masked_fill_(~mask_pad.to(torch.bool), 0.0)
+        return x.transpose(1, 2), new_cache
+
+
+
         
     def forward_parallel_chunk(
         self,

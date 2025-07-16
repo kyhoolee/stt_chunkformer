@@ -330,6 +330,7 @@ def full_encoder_forward(
     feats: torch.Tensor,        # [B, T_raw, D_feat]
     feat_lens: torch.Tensor,    # [B]
     model: ASRModel,
+    cfg,
     device: torch.device
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
@@ -344,7 +345,13 @@ def full_encoder_forward(
 
     # gọi encoder trực tiếp (signature: encoder(xs, xs_lens))
     # nhiều encoder trả 3 giá trị: out, mask, something
-    enc_out, enc_mask, *_ = model.encoder.forward(feats, feat_lens)
+    enc_out, enc_mask, *_ = model.encoder.forward(
+        feats, 
+        feat_lens, 
+        limited_context_selection=[cfg.chunk.chunk_size,
+                                   cfg.chunk.left_context_size,
+                                   cfg.chunk.right_context_size]
+    )
 
     # nếu enc_mask là [B, T], biến thành [B,1,T]
     if enc_mask.dim() == 2:
@@ -494,7 +501,7 @@ def compute_loss_batch(
     sos, eos = model.sos, model.eos
 
     # 1) full forward encoder
-    enc_out, enc_mask = full_encoder_forward(feats, feat_lens, model, device)
+    enc_out, enc_mask = full_encoder_forward(feats, feat_lens, model, cfg, device)
     # enc_out: [B, T_enc, D], enc_mask: [B,1,T_enc]
     enc_lens = enc_mask.squeeze(1).sum(1).to(torch.long)  # [B]
 
