@@ -32,8 +32,24 @@ class VivosDataset(Dataset):
         entry = self.meta[idx]
         # 1) Load waveform
         wav, sr = torchaudio.load(entry.audio_path)
+
+        
+        print(f"✅ [loader] Audio path       : {entry.audio_path}")
+        print(f"📏 [loader] Sample rate      : {sr}")
+        print(f"   [loader] wav.shape: {wav.shape}, sample_rate: {sr}")
         if sr != self.cfg.data.sample_rate:
             wav = torchaudio.transforms.Resample(sr, self.cfg.data.sample_rate)(wav)
+
+        if wav.dim() == 1:
+            wav = wav.unsqueeze(0)
+        if wav.abs().max() <= 1.0:
+            wav = wav * 32768.0
+        wav = wav.clamp(-32768, 32767)
+
+        print(f"✅ [loader] Waveform shape    : {wav.shape}")
+        print(f"📊 [loader] Min: {wav.min().item():.8f}, Max: {wav.max().item():.8f}, Mean: {wav.mean().item():.8f}")
+
+
         # 2) FBANK
         feats = torchaudio.compliance.kaldi.fbank(
             wav,

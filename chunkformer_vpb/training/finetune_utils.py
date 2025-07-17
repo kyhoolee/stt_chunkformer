@@ -64,6 +64,7 @@ def dump_module_structure(module: torch.nn.Module, output_path: str, title: str 
 # ==================== PREPROCESS ====================
 def prepare_input_file(audio_path, device):
     waveform = load_audio(audio_path)
+    
     if waveform.dim() == 1:
         waveform = waveform.unsqueeze(0)
     if waveform.abs().max() <= 1.0:
