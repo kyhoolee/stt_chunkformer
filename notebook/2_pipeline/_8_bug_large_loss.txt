@@ -1,0 +1,508 @@
+/home/kylh/.local/share/mamba/envs/stt310/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+[2025-07-16 17:50:25] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+[collate] sample 0: utt_id=utt_000694, audio=cache_train/raw/utt_000694.wav
+
+─── Batch 1 ─────────────────────────
+feats shape    : torch.Size([1, 626, 80])
+feat_lens      : [626]
+toks shape     : torch.Size([1, 15])
+tok_lens       : [15]
+[ENC_OFFLINE] start: B=1, T_raw_max=626, D=80
+  [sample 0] raw_feat.shape = torch.Size([1, 626, 80]), raw_len = 626
+    → after chunk-fwd: out_i.shape = torch.Size([2, 64, 512]), mask_i.shape = torch.Size([1, 1, 64])
+[ENC_OFFLINE] pad to T_max = 128
+[ENC_OFFLINE] final enc_outs.shape = torch.Size([1, 128, 512]), enc_masks.shape = torch.Size([1, 1, 128])
+[DBG] toks.shape=torch.Size([1, 15]), tok_lens=[15]
+[DBG] sample 0: toks[:15] = [5915, 2913, 2302, 5738, 6285, 3596, 5644, 3532, 6858, 2089, 4108, 3558, 5398, 1549, 1999]
+[DBG] loss_ctc = 9.1561
+[DBG] ys_pad.shape=torch.Size([1, 17]), ys_lens=[17]
+>>>>>>>>>>>>>>>>>>>  ys_out shape: torch.Size([1, 16]), logp shape: torch.Size([1, 16, 6992])
+[DBG] loss_att = 77.6721
+[DBG] final loss = 57.1173
+[1/1] loss=57.117 (ctc=9.156, att=77.672)  grad=42.95  lr=1.00e-06
+[collate] sample 0: utt_id=utt_007129, audio=cache_train/raw/utt_007129.wav
+✅ Smoke-train hoàn tất!
+
+
+----------------------
+
+
+/home/kylh/.local/share/mamba/envs/stt310/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+[2025-07-16 17:56:08] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+>>> Text pipeline debug <<<
+  Original text : một giọng nói du dương không thể lẫn với ai khác cất lên
+  Normalized   : một giọng nói du dương không thể lẫn với ai khác cất lên
+  Token IDs    : [4104, 2648, 4564, 2300, 2356, 3305, 5697, 3688, 6411, 1333, 3277, 2146, 3597]
+  Decoded      : một giọng nói du dương không thể lẫn với ai khác cất lên
+
+>>> Single‐sample loss <<<
+>>>>>>>>>>>>>>>>>>>  ys_out shape: torch.Size([1, 14]), logp shape: torch.Size([1, 14, 6992])
+Single: loss=0.430,  ctc=0.001, att=0.614
+
+>>> Batch‐of‐1 loss <<<
+[ENC_OFFLINE] start: B=1, T_raw_max=423, D=80
+  [sample 0] raw_feat.shape = torch.Size([1, 423, 80]), raw_len = 423
+    → after chunk-fwd: out_i.shape = torch.Size([1, 52, 512]), mask_i.shape = torch.Size([1, 1, 52])
+[ENC_OFFLINE] pad to T_max = 52
+[ENC_OFFLINE] final enc_outs.shape = torch.Size([1, 52, 512]), enc_masks.shape = torch.Size([1, 1, 52])
+[DBG] toks.shape=torch.Size([1, 13]), tok_lens=[13]
+[DBG] sample 0: toks[:13] = [4104, 2648, 4564, 2300, 2356, 3305, 5697, 3688, 6411, 1333, 3277, 2146, 3597]
+[DBG] loss_ctc = 0.0010
+[DBG] ys_pad.shape=torch.Size([1, 15]), ys_lens=[15]
+>>>>>>>>>>>>>>>>>>>  ys_out shape: torch.Size([1, 14]), logp shape: torch.Size([1, 14, 6992])
+[DBG] loss_att = 0.6143
+[DBG] final loss = 0.4303
+Batch1: loss=0.430,  ctc=0.001, att=0.614
+
+
+-----------------------
+
+
+
+#!/usr/bin/env python3
+"""
+quick_train_debug.py  –  Smoke-test vòng training
+
+• Đọc finetune_config.yaml
+• Lấy đúng N mini-batch đầu
+• Tính loss, backward, một bước optimizer
+• In loss_ctc, loss_att, grad_norm, LR
+"""
+
+import os, math, torch
+from chunkformer_vpb.training.finetune_config import FinetuneConfig
+from chunkformer_vpb.training.data_loader     import get_dataloaders
+from chunkformer_vpb.training.optimizer       import build_model_and_optimizer
+from chunkformer_vpb.training.finetune_utils  import compute_loss_batch_v1, compute_loss_batch_v2
+
+CFG_PATH   = "../../config/finetune_config.yaml"
+DEBUG_STEPS = 1          # số batch muốn test
+DEVICE      = "cpu" # "cuda" if torch.cuda.is_available() else "cpu"
+
+def main():
+    cfg = FinetuneConfig.from_yaml(CFG_PATH)
+
+    # để nhanh: batch nhỏ & shuffle false
+    cfg.training.batch_size = 1
+    cfg.training.shuffle    = False
+
+    train_loader, _ = get_dataloaders(cfg)
+
+    # total_steps = DEBUG_STEPS (đủ cho scheduler)
+    model, _, optim, sched = build_model_and_optimizer(
+        cfg, torch.device(DEVICE), total_steps=DEBUG_STEPS
+    )
+    model.to(DEVICE).train()
+
+    for step, (feats, feat_lens, toks, tok_lens) in enumerate(train_loader, 1):
+        if step > DEBUG_STEPS:
+            break
+
+        # ---------- LOG INPUT SHAPES ----------
+        print(f"\n─── Batch {step} ─────────────────────────")
+        print(f"feats shape    : {feats.shape}")          # [B, T_max, 80]
+        print(f"feat_lens      : {feat_lens.tolist()}")   # list[B]
+        print(f"toks shape     : {toks.shape}")           # [B, L_max]
+        print(f"tok_lens       : {tok_lens.tolist()}")    # list[B]
+
+        feats, feat_lens = feats.to(DEVICE), feat_lens.to(DEVICE)
+        toks,  tok_lens  = toks.to(DEVICE),  tok_lens.to(DEVICE)
+
+        # ---------- CALL LOSS  ----------
+        loss, loss_ctc, loss_att = compute_loss_batch_v1(
+            model, feats, feat_lens, toks, tok_lens, cfg, torch.device(DEVICE)
+        )
+
+        # ---------- BACKWARD & OPT ----------
+        optim.zero_grad()
+        loss.backward()
+        grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(),
+                                                cfg.training.max_grad_norm)
+        optim.step(); sched.step()
+        lr_now = sched.get_last_lr()[0]
+
+        # ---------- SUMMARY ----------
+        print(f"[{step}/{DEBUG_STEPS}] "
+            f"loss={loss.item():.3f} (ctc={loss_ctc.item():.3f}, "
+            f"att={loss_att.item():.3f})  grad={grad_norm:.2f}  lr={lr_now:.2e}")
+
+        if torch.isnan(loss):
+            raise ValueError("❌ NaN loss phát hiện!")
+
+
+    print("✅ Smoke-train hoàn tất!")
+
+if __name__ == "__main__":
+    main()
+
+
+-------------------
+
+
+import torch
+from chunkformer_vpb.training.finetune_utils import (
+    get_default_args,
+    prepare_input_file,
+    load_model_only,
+    compute_chunkformer_loss,
+)
+from chunkformer_vpb.training.tokenizer import normalize_vi, GreedyTokenizer
+
+import os, math, torch
+from chunkformer_vpb.training.finetune_config import FinetuneConfig
+from chunkformer_vpb.training.data_loader     import get_dataloaders
+from chunkformer_vpb.training.optimizer       import build_model_and_optimizer
+from chunkformer_vpb.training.finetune_utils  import compute_loss_batch_v1, compute_loss_batch_v2
+
+
+CFG_PATH   = "../../config/finetune_config.yaml"
+
+def debug_text_pipeline(label_text: str, tokenizer: GreedyTokenizer):
+    print(">>> Text pipeline debug <<<")
+    print("  Original text :", label_text)
+    norm = normalize_vi(label_text)
+    print("  Normalized   :", norm)
+    ids = tokenizer.tokenize(norm)
+    print("  Token IDs    :", ids)
+    try:
+        dec = tokenizer.decode_ids(ids)
+    except AttributeError:
+        # nếu chưa có decode_ids
+        dec = "".join(tokenizer.vocab[id] for id in ids)
+    print("  Decoded      :", dec)
+    print()
+
+def main():
+    # 1) chuẩn bị args + device
+    args = get_default_args()
+    args.model_checkpoint = "../../../chunkformer-large-vie"
+    args.audio_path       = "./cache_train/raw/utt_000664.wav"
+    args.label_text       = "một giọng nói du dương không thể lẫn với ai khác cất lên"
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # 2) load model + tokenizer
+    model, _ = load_model_only(args.model_checkpoint, device)
+    model.ctc_weight = 0.3
+    tokenizer = GreedyTokenizer(vocab_path=f"{args.model_checkpoint}/vocab.txt")
+
+    # 3) debug text pipeline (single)
+    debug_text_pipeline(args.label_text, tokenizer)
+
+    # 4) prepare single‐sample features + loss
+    xs = prepare_input_file(args.audio_path, device)  # [1, T_raw, 80]
+    print(">>> Single‐sample loss <<<")
+    loss_s = compute_chunkformer_loss(
+        model=model,
+        tokenizer=tokenizer,
+        xs=xs,
+        args=args,
+        label_text=args.label_text,
+        device=device
+    )
+    print(f"Single: loss={loss_s['loss']:.3f},  ctc={loss_s['loss_ctc']:.3f}, att={loss_s['loss_att']:.3f}\n")
+
+    # 5) now wrap into a batch of size 1 and run batch version
+    #    (giả sử bạn có hàm compute_loss_batch_v1 cho batch)
+    from chunkformer_vpb.training.finetune_utils import compute_loss_batch_v1
+    feats = xs
+    feat_lens = torch.tensor([xs.shape[1]], device=device)
+    # build toks/tok_lens exactly như in DataLoader
+    norm = normalize_vi(args.label_text)
+    ids = tokenizer.tokenize(norm)
+    toks = torch.LongTensor([ids]).to(device)
+    tok_lens = torch.tensor([len(ids)], device=device)
+
+
+    cfg = FinetuneConfig.from_yaml(CFG_PATH)
+
+    # để nhanh: batch nhỏ & shuffle false
+    cfg.training.batch_size = 1
+    cfg.training.shuffle    = False
+
+    print(">>> Batch‐of‐1 loss <<<")
+    loss_b, loss_b_ctc, loss_b_att = compute_loss_batch_v1(
+        model, feats, feat_lens, toks, tok_lens, cfg, device
+    )
+    print(f"Batch1: loss={loss_b:.3f},  ctc={loss_b_ctc:.3f}, att={loss_b_att:.3f}")
+
+if __name__ == "__main__":
+    main()
+
+
+----------------------------
+
+# modules/data_loader.py
+
+import os
+import json
+import torchaudio
+import torch
+from torch.utils.data import Dataset, DataLoader
+from torch.nn.utils.rnn import pad_sequence
+from typing import List
+from .finetune_config import FinetuneConfig
+from ..data.data import compute_fbank, MetadataEntry
+from .tokenizer import normalize_vi
+
+
+# BẬT/TẮT DEBUG IN INFO TRONG COLLATE
+DEBUG_COLLATE = True
+
+class VivosDataset(Dataset):
+    def __init__(self, cfg: FinetuneConfig, split: str):
+        self.cfg = cfg
+        manifest_file = os.path.join(cfg.data.manifest_dir, f"{split}_meta.json")
+        with open(manifest_file, 'r', encoding='utf-8') as f:
+            entries = json.load(f)
+        # dict → MetadataEntry
+        self.meta: List[MetadataEntry] = [MetadataEntry(**e) for e in entries]
+        self.tokenizer = cfg.tokenizer.tokenizer
+
+    def __len__(self):
+        return len(self.meta)
+
+    def __getitem__(self, idx):
+        entry = self.meta[idx]
+        # 1) Load waveform
+        wav, sr = torchaudio.load(entry.audio_path)
+        if sr != self.cfg.data.sample_rate:
+            wav = torchaudio.transforms.Resample(sr, self.cfg.data.sample_rate)(wav)
+        # 2) FBANK
+        feats = torchaudio.compliance.kaldi.fbank(
+            wav,
+            num_mel_bins = self.cfg.data.num_mel_bins,
+            frame_length = self.cfg.data.frame_length,
+            frame_shift  = self.cfg.data.frame_shift,
+            dither       = self.cfg.data.dither,
+            energy_floor = self.cfg.data.energy_floor,
+            sample_frequency = self.cfg.data.sample_rate
+        )  # [T, D]
+        # 3) Tokenize text
+        norm_text = normalize_vi(entry.text)
+        token_ids = self.tokenizer.tokenize(norm_text)
+        toks = torch.LongTensor(token_ids)
+        return feats, feats.size(0), toks, len(token_ids), entry
+
+def collate_fn(batch):
+    """
+    batch: list of tuples (feats, feat_len, toks, tok_len, entry)
+    """
+    feats, feat_lens, toks, tok_lens, entries = zip(*batch)
+
+    if DEBUG_COLLATE:
+        for i, e in enumerate(entries):
+            print(f"[collate] sample {i}: utt_id={e.utt_id}, audio={e.audio_path}")
+
+    feats     = pad_sequence(feats, batch_first=True)                   # [B, T_max, D]
+    feat_lens = torch.LongTensor(feat_lens)                             # [B]
+    toks      = pad_sequence(toks, batch_first=True, padding_value=0)    # [B, L_max]
+    tok_lens  = torch.LongTensor(tok_lens)                               # [B]
+
+    return feats, feat_lens, toks, tok_lens
+
+def get_dataloaders(cfg: FinetuneConfig):
+    bs = cfg.training.batch_size
+    train_ds = VivosDataset(cfg, "train")
+    valid_ds = VivosDataset(cfg, "valid")
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=bs,
+        shuffle=cfg.training.shuffle,
+        collate_fn=collate_fn
+    )
+    valid_loader = DataLoader(
+        valid_ds,
+        batch_size=bs,
+        shuffle=False,
+        collate_fn=collate_fn
+    )
+    return train_loader, valid_loader
+
+
+----------------------
+
+
+# ==================== LOSS COMPUTE UTILS ====================
+
+import os
+import torch
+import torch.nn.functional as F
+from typing import Tuple
+
+DEBUG_LOSS = bool(int(os.getenv("DEBUG_LOSS", "0")))   # 1 → in log
+
+import torch
+import torch.nn.functional as F
+from typing import Tuple
+from torch.nn.utils.rnn import pad_sequence
+
+
+def make_pad_mask(lengths: torch.Tensor, max_len: int = None) -> torch.Tensor:
+    """
+    Tạo mask từ vector length. Return shape: [B, 1, T]  #NOTE_PAD
+    """
+    B = lengths.size(0)
+    max_len = max_len or lengths.max().item()
+    ids = torch.arange(0, max_len, device=lengths.device).unsqueeze(0).expand(B, -1)
+    mask = (ids < lengths.unsqueeze(1)).unsqueeze(1)  # [B, 1, T]
+    return mask
+
+def merge_chunks_by_sample(
+    enc_outs: torch.Tensor,     # [total_chunks, chunk_len, D]
+    batch_ids: torch.Tensor,    # [total_chunks], int64, giá trị từ 0 → B-1
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Gộp các chunk lại theo từng sample trong batch.
+    Trả về: padded_outs: [B, T_max, D], lens: [B]
+    """
+    B = batch_ids.max().item() + 1
+    D = enc_outs.shape[2]
+    grouped_outs, lens = [], []
+
+    for i in range(B):
+        idxs = (batch_ids == i).nonzero().squeeze(1)
+        out_i = enc_outs[idxs]      # [n_chunks_i, chunk_len, D]
+        out_i = out_i.reshape(-1, D)
+        grouped_outs.append(out_i)
+        lens.append(out_i.shape[0])
+
+    padded_outs = pad_sequence(grouped_outs, batch_first=True)  # [B, T_max, D]
+    return padded_outs, torch.tensor(lens, dtype=torch.long, device=enc_outs.device)
+
+def encode_offline_batch_debug(
+    feats: torch.Tensor,       # [B, T_raw, D]
+    feat_lens: torch.Tensor,   # [B]
+    model,
+    chunk_cfg,
+    device: torch.device
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Như encode_offline_batch nhưng chèn debug prints:
+      - In shape đầu vào
+      - In shape sau mỗi sample
+      - In pad time và mask pad (chỉ khi B > 1)
+      - In shape cuối của enc_outs và enc_masks
+    """
+    B, T_raw, D = feats.shape
+    print(f"[ENC_OFFLINE] start: B={B}, T_raw_max={T_raw}, D={D}")
+
+    all_chunks, all_masks, batch_ids = [], [], []
+
+    for i in range(B):
+        x_i = feats[i : i+1].to(device)       # [1, T_raw, D]
+        l_i = feat_lens[i].item()
+        print(f"  [sample {i}] raw_feat.shape = {x_i.shape}, raw_len = {l_i}")
+
+        out_i, m_i = _chunk_encoder_forward(x_i, model, chunk_cfg, device)
+        # out_i: [N_chunk_i, chunk_len, D], m_i: [1, 1, T_chunk]
+        print(f"    → after chunk-fwd: out_i.shape = {out_i.shape}, mask_i.shape = {m_i.shape}")
+
+        all_chunks.append(out_i)                        # [N_chunk_i, chunk_len, D]
+        all_masks.append(m_i)                           # m_i ở dạng [1, 1, T]
+        batch_ids += [i] * out_i.shape[0]               # mỗi chunk đánh dấu thuộc sample nào
+
+    enc_outs_cat = torch.cat(all_chunks, dim=0)         # [N_total_chunks, chunk_len, D]
+    batch_ids = torch.tensor(batch_ids, device=device)  # [N_total_chunks]
+
+
+
+    # Nếu batch > 1 → gộp chunk từng sample, pad đều
+    enc_outs, enc_lens = merge_chunks_by_sample(enc_outs_cat, batch_ids)  # [B, T_max, D], [B]
+    T_max = enc_outs.shape[1]
+    print(f"[ENC_OFFLINE] pad to T_max = {T_max}")
+
+    # Tạo lại mask theo lens
+    # enc_masks = torch.zeros(B, 1, T_max, device=device)
+    enc_masks = make_pad_mask(enc_lens, T_max)          #NOTE_PAD
+    # for i in range(B):
+    #     enc_masks[i, 0, :enc_lens[i]] = 1
+
+    print(f"[ENC_OFFLINE] final enc_outs.shape = {enc_outs.shape}, enc_masks.shape = {enc_masks.shape}")
+    return enc_outs, enc_masks
+
+
+def compute_loss_batch_v1(
+    model: ASRModel,
+    feats: torch.Tensor,      # [B, T_raw, D]
+    feat_lens: torch.Tensor,  # [B]
+    toks: torch.Tensor,       # [B, L_pad]   (no sos/eos)
+    tok_lens: torch.Tensor,   # [B]
+    cfg,
+    device: torch.device
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+
+    # 1) Offline‐encode cả batch
+    enc_outs, enc_masks = encode_offline_batch_debug(feats, feat_lens, model, cfg.chunk, device)
+    # enc_outs: [B, T_enc, D], enc_masks: [B,1,T_enc]
+    enc_lens = enc_masks.squeeze(1).sum(1).to(torch.long)  # [B]
+
+    if DEBUG_LOSS:
+        print(f"[DBG] enc_outs {enc_outs.shape}, enc_lens {enc_lens.tolist()}")
+
+    # Token debug
+    print(f"[DBG] toks.shape={toks.shape}, tok_lens={tok_lens.tolist()}")
+    for i in range(toks.size(0)):
+        raw = toks[i, : tok_lens[i]].tolist()
+        print(f"[DBG] sample {i}: toks[:{tok_lens[i]}] = {raw}")
+
+
+    # 2) CTC loss (không sos/eos)
+    #   model.ctc expects: (logp, input_lengths, targets, target_lengths)
+    loss_ctc, _ = model.ctc(
+        enc_outs, enc_lens,
+        toks.to(device), tok_lens.to(device)
+    )
+    # sum across batch
+    loss_ctc = loss_ctc.sum()
+
+    print(f"[DBG] loss_ctc = {loss_ctc.item():.4f}")
+
+    # 3) AED loss (cần sos/eos)
+    # build ys_pad, ys_lens cho batch
+    sos_id, eos_id = model.sos, model.eos
+    # create [B, L+2] and lengths [B]
+    ys_pad = []
+    ys_lens = []
+    for i in range(feats.size(0)):
+        raw = toks[i, : tok_lens[i]].tolist()
+        seq = [sos_id] + raw + [eos_id]
+        ys_pad.append(torch.tensor(seq, dtype=torch.long, device=device))
+        ys_lens.append(len(seq))
+    ys_pad = torch.nn.utils.rnn.pad_sequence(ys_pad, batch_first=True, padding_value=model.ignore_id)  # [B, L_max+2]
+    ys_lens = torch.tensor(ys_lens, dtype=torch.long, device=device)                                 # [B]
+
+    print(f"[DBG] ys_pad.shape={ys_pad.shape}, ys_lens={ys_lens.tolist()}")
+
+
+    loss_att, _ = model._calc_att_loss(enc_outs, enc_masks, ys_pad, ys_lens)
+    loss_att = loss_att.sum()
+    print(f"[DBG] loss_att = {loss_att.item():.4f}")
+
+    # 4) Hybrid
+    ctc_w = cfg.model.ctc_weight
+    loss = ctc_w * (loss_ctc / feats.size(0)) + (1 - ctc_w) * (loss_att / feats.size(0))
+
+
+    print(f"[DBG] final loss = {loss.item():.4f}")
+    return loss, (loss_ctc / feats.size(0)), (loss_att / feats.size(0))
+
+
+------------------------
+
+theo bạn issue là gì ? 
+mà dùng 2 cách load data khác là kết quả khác nhau rất nhiều về giá trị loss 
+- 1 kiểu là lấy single element lên tính 
+- 1 kiểu là bọc vào data loader với padding 

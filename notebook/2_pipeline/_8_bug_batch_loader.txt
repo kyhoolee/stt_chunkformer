@@ -1,0 +1,322 @@
+#!/usr/bin/env python3
+"""
+quick_train_debug.py  –  Smoke-test vòng training
+
+• Đọc finetune_config.yaml
+• Lấy đúng N mini-batch đầu
+• Tính loss, backward, một bước optimizer
+• In loss_ctc, loss_att, grad_norm, LR
+"""
+
+import os, math, torch
+from chunkformer_vpb.training.finetune_config import FinetuneConfig
+from chunkformer_vpb.training.data_loader     import get_dataloaders
+from chunkformer_vpb.training.optimizer       import build_model_and_optimizer
+from chunkformer_vpb.training.finetune_utils  import compute_loss_batch_v1, compute_loss_batch_v2
+
+CFG_PATH   = "../../config/finetune_config.yaml"
+DEBUG_STEPS = 5          # số batch muốn test
+DEVICE      = "cuda" if torch.cuda.is_available() else "cpu"
+
+def main():
+    cfg = FinetuneConfig.from_yaml(CFG_PATH)
+
+    # để nhanh: batch nhỏ & shuffle false
+    cfg.training.batch_size = 1
+    cfg.training.shuffle    = False
+
+    train_loader, _ = get_dataloaders(cfg)
+
+    # total_steps = DEBUG_STEPS (đủ cho scheduler)
+    model, _, optim, sched = build_model_and_optimizer(
+        cfg, torch.device(DEVICE), total_steps=DEBUG_STEPS
+    )
+    model.to(DEVICE).train()
+
+    for step, (feats, feat_lens, toks, tok_lens) in enumerate(train_loader, 1):
+        if step > DEBUG_STEPS:
+            break
+
+        # ---------- LOG INPUT SHAPES ----------
+        print(f"\n─── Batch {step} ─────────────────────────")
+        print(f"feats shape    : {feats.shape}")          # [B, T_max, 80]
+        print(f"feat_lens      : {feat_lens.tolist()}")   # list[B]
+        print(f"toks shape     : {toks.shape}")           # [B, L_max]
+        print(f"tok_lens       : {tok_lens.tolist()}")    # list[B]
+
+        feats, feat_lens = feats.to(DEVICE), feat_lens.to(DEVICE)
+        toks,  tok_lens  = toks.to(DEVICE),  tok_lens.to(DEVICE)
+
+        # ---------- CALL LOSS  ----------
+        loss, loss_ctc, loss_att = compute_loss_batch_v1(
+            model, feats, feat_lens, toks, tok_lens, cfg, torch.device(DEVICE)
+        )
+
+        # ---------- BACKWARD & OPT ----------
+        optim.zero_grad()
+        loss.backward()
+        grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(),
+                                                cfg.training.max_grad_norm)
+        optim.step(); sched.step()
+        lr_now = sched.get_last_lr()[0]
+
+        # ---------- SUMMARY ----------
+        print(f"[{step}/{DEBUG_STEPS}] "
+            f"loss={loss.item():.3f} (ctc={loss_ctc.item():.3f}, "
+            f"att={loss_att.item():.3f})  grad={grad_norm:.2f}  lr={lr_now:.2e}")
+
+        if torch.isnan(loss):
+            raise ValueError("❌ NaN loss phát hiện!")
+
+
+    print("✅ Smoke-train hoàn tất!")
+
+if __name__ == "__main__":
+    main()
+
+
+----------------
+
+/home/kylh/.local/share/mamba/envs/stt310/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+[2025-07-16 16:28:32] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+[collate] sample 0: utt_id=utt_000694, audio=cache_train/raw/utt_000694.wav
+
+─── Batch 1 ─────────────────────────
+feats shape    : torch.Size([1, 626, 80])
+feat_lens      : [626]
+toks shape     : torch.Size([1, 15])
+tok_lens       : [15]
+[ENC_OFFLINE] start: B=1, T_raw_max=626, D=80
+  [sample 0] raw_feat.shape = torch.Size([1, 626, 80]), raw_len = 626
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 626, 80]), xs_origin_lens: [626]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+
+🧱 Total chunked xs shape: torch.Size([2, 519, 80])
+📐 xs_lens (post chunk): torch.Size([2]), total_chunks: 2
+🎛️ Embedded xs shape: torch.Size([2, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([2, 1, 320]), mask_pad shape: torch.Size([2, 1, 78])
+🧩 Layer 0: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 1: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 2: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 3: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 4: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 5: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 6: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 7: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 8: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 9: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 10: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 11: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 12: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 13: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 14: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 15: xs shape after layer = torch.Size([2, 64, 512])
+🧩 Layer 16: xs shape after layer = torch.Size([2, 64, 512])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [77]
+
+✅ [Encoder Output] xs: torch.Size([2, 64, 512]), xs_lens: [77], n_chunks: [2]
+====================================================================
+
+    → after chunk-fwd: out_i.shape = torch.Size([2, 64, 512]), mask_i.shape = torch.Size([1, 1, 64])
+[ENC_OFFLINE] B=1, skip pad → return single sample as is
+[ENC_OFFLINE] final enc_outs.shape = torch.Size([2, 64, 512]), enc_masks.shape = torch.Size([1, 1, 64])
+[DBG] enc_outs torch.Size([2, 64, 512]), enc_lens [64]
+
+--------------------
+
+import torch
+from chunkformer_vpb.training.finetune_utils import (
+    get_default_args,
+    prepare_input_file,
+    load_model_only,
+    compute_chunkformer_loss,
+)
+from chunkformer_vpb.training.tokenizer import normalize_vi, GreedyTokenizer
+
+import os, math, torch
+from chunkformer_vpb.training.finetune_config import FinetuneConfig
+from chunkformer_vpb.training.data_loader     import get_dataloaders
+from chunkformer_vpb.training.optimizer       import build_model_and_optimizer
+from chunkformer_vpb.training.finetune_utils  import compute_loss_batch_v1, compute_loss_batch_v2
+
+
+CFG_PATH   = "../../config/finetune_config.yaml"
+
+def debug_text_pipeline(label_text: str, tokenizer: GreedyTokenizer):
+    print(">>> Text pipeline debug <<<")
+    print("  Original text :", label_text)
+    norm = normalize_vi(label_text)
+    print("  Normalized   :", norm)
+    ids = tokenizer.tokenize(norm)
+    print("  Token IDs    :", ids)
+    try:
+        dec = tokenizer.decode_ids(ids)
+    except AttributeError:
+        # nếu chưa có decode_ids
+        dec = "".join(tokenizer.vocab[id] for id in ids)
+    print("  Decoded      :", dec)
+    print()
+
+def main():
+    # 1) chuẩn bị args + device
+    args = get_default_args()
+    args.model_checkpoint = "../../../chunkformer-large-vie"
+    args.audio_path       = "../../../debug_wavs/utt_000664.wav"
+    args.label_text       = "một giọng nói du dương không thể lẫn với ai khác cất lên"
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # 2) load model + tokenizer
+    model, _ = load_model_only(args.model_checkpoint, device)
+    model.ctc_weight = 0.3
+    tokenizer = GreedyTokenizer(vocab_path=f"{args.model_checkpoint}/vocab.txt")
+
+    # 3) debug text pipeline (single)
+    debug_text_pipeline(args.label_text, tokenizer)
+
+    # 4) prepare single‐sample features + loss
+    xs = prepare_input_file(args.audio_path, device)  # [1, T_raw, 80]
+    print(">>> Single‐sample loss <<<")
+    loss_s = compute_chunkformer_loss(
+        model=model,
+        tokenizer=tokenizer,
+        xs=xs,
+        args=args,
+        label_text=args.label_text,
+        device=device
+    )
+    print(f"Single: loss={loss_s['loss']:.3f},  ctc={loss_s['loss_ctc']:.3f}, att={loss_s['loss_att']:.3f}\n")
+
+    # 5) now wrap into a batch of size 1 and run batch version
+    #    (giả sử bạn có hàm compute_loss_batch_v1 cho batch)
+    from chunkformer_vpb.training.finetune_utils import compute_loss_batch_v1
+    feats = xs
+    feat_lens = torch.tensor([xs.shape[1]], device=device)
+    # build toks/tok_lens exactly như in DataLoader
+    norm = normalize_vi(args.label_text)
+    ids = tokenizer.tokenize(norm)
+    toks = torch.LongTensor([ids]).to(device)
+    tok_lens = torch.tensor([len(ids)], device=device)
+
+
+    cfg = FinetuneConfig.from_yaml(CFG_PATH)
+
+    # để nhanh: batch nhỏ & shuffle false
+    cfg.training.batch_size = 1
+    cfg.training.shuffle    = False
+
+    print(">>> Batch‐of‐1 loss <<<")
+    loss_b, loss_b_ctc, loss_b_att = compute_loss_batch_v1(
+        model, feats, feat_lens, toks, tok_lens, cfg, device
+    )
+    print(f"Batch1: loss={loss_b:.3f},  ctc={loss_b_ctc:.3f}, att={loss_b_att:.3f}")
+
+if __name__ == "__main__":
+    main()
+
+
+-------------
+
+/home/kylh/.local/share/mamba/envs/stt310/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+[2025-07-16 16:24:41] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+>>> Text pipeline debug <<<
+  Original text : một giọng nói du dương không thể lẫn với ai khác cất lên
+  Normalized   : một giọng nói du dương không thể lẫn với ai khác cất lên
+  Token IDs    : [4104, 2648, 4564, 2300, 2356, 3305, 5697, 3688, 6411, 1333, 3277, 2146, 3597]
+  Decoded      : một giọng nói du dương không thể lẫn với ai khác cất lên
+
+>>> Single‐sample loss <<<
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 423, 80]), xs_origin_lens: [423]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+
+🧱 Total chunked xs shape: torch.Size([1, 519, 80])
+📐 xs_lens (post chunk): torch.Size([1]), total_chunks: 1
+🎛️ Embedded xs shape: torch.Size([1, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([1, 1, 320]), mask_pad shape: torch.Size([1, 1, 78])
+🧩 Layer 0: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 1: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 2: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 3: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 4: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 5: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 6: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 7: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 8: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 9: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 10: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 11: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 12: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 13: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 14: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 15: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 16: xs shape after layer = torch.Size([1, 64, 512])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [52]
+
+✅ [Encoder Output] xs: torch.Size([1, 64, 512]), xs_lens: [52], n_chunks: [1]
+====================================================================
+
+>>>>>>>>>>>>>>>>>>>  ys_out shape: torch.Size([1, 14]), logp shape: torch.Size([1, 14, 6992])
+Single: loss=0.430,  ctc=0.001, att=0.614
+
+>>> Batch‐of‐1 loss <<<
+[ENC_OFFLINE] start: B=1, T_raw_max=423, D=80
+  [sample 0] raw_feat.shape = torch.Size([1, 423, 80]), raw_len = 423
+
+================= 🧩 [Encoder.forward_parallel_chunk] START =================
+📥 Input shape: torch.Size([1, 423, 80]), xs_origin_lens: [423]
+⚙️ chunk_size=64, left_context=128, right_context=128, truncated_context_size=11200
+📏 Subsampling: 8, Chunk frame size: 519, Step: 512, Conv lorder: 7
+
+🧱 Total chunked xs shape: torch.Size([1, 519, 80])
+📐 xs_lens (post chunk): torch.Size([1]), total_chunks: 1
+🎛️ Embedded xs shape: torch.Size([1, 64, 512]), PosEmb shape: torch.Size([1, 383, 512])
+🧮 att_mask shape: torch.Size([1, 1, 320]), mask_pad shape: torch.Size([1, 1, 78])
+🧩 Layer 0: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 1: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 2: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 3: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 4: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 5: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 6: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 7: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 8: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 9: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 10: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 11: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 12: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 13: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 14: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 15: xs shape after layer = torch.Size([1, 64, 512])
+🧩 Layer 16: xs shape after layer = torch.Size([1, 64, 512])
+📏 Applied LayerNorm after encoder
+📤 Final offset: [52]
+
+✅ [Encoder Output] xs: torch.Size([1, 64, 512]), xs_lens: [52], n_chunks: [1]
+====================================================================
+
+    → after chunk-fwd: out_i.shape = torch.Size([1, 52, 512]), mask_i.shape = torch.Size([1, 1, 52])
+[ENC_OFFLINE] B=1, skip pad → return single sample as is
+[ENC_OFFLINE] final enc_outs.shape = torch.Size([1, 52, 512]), enc_masks.shape = torch.Size([1, 1, 52])
+[DBG] enc_outs torch.Size([1, 52, 512]), enc_lens [52]
+>>>>>>>>>>>>>>>>>>>  ys_out shape: torch.Size([1, 14]), logp shape: torch.Size([1, 14, 6992])
+Batch1: loss=0.430,  ctc=0.001, att=0.614

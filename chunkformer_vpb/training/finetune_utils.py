@@ -325,7 +325,45 @@ import torch
 import torch.nn.functional as F
 from typing import Tuple
 
-DEBUG_LOSS = bool(int(os.getenv("DEBUG_LOSS", "1")))   # 1 → in log
+DEBUG_LOSS = bool(int(os.getenv("DEBUG_LOSS", "0")))   # 1 → in log
+
+import torch
+import torch.nn.functional as F
+from typing import Tuple
+from torch.nn.utils.rnn import pad_sequence
+
+
+def make_pad_mask(lengths: torch.Tensor, max_len: int = None) -> torch.Tensor:
+    """
+    Tạo mask từ vector length. Return shape: [B, 1, T]  #NOTE_PAD
+    """
+    B = lengths.size(0)
+    max_len = max_len or lengths.max().item()
+    ids = torch.arange(0, max_len, device=lengths.device).unsqueeze(0).expand(B, -1)
+    mask = (ids < lengths.unsqueeze(1)).unsqueeze(1)  # [B, 1, T]
+    return mask
+
+def merge_chunks_by_sample(
+    enc_outs: torch.Tensor,     # [total_chunks, chunk_len, D]
+    batch_ids: torch.Tensor,    # [total_chunks], int64, giá trị từ 0 → B-1
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Gộp các chunk lại theo từng sample trong batch.
+    Trả về: padded_outs: [B, T_max, D], lens: [B]
+    """
+    B = batch_ids.max().item() + 1
+    D = enc_outs.shape[2]
+    grouped_outs, lens = [], []
+
+    for i in range(B):
+        idxs = (batch_ids == i).nonzero().squeeze(1)
+        out_i = enc_outs[idxs]      # [n_chunks_i, chunk_len, D]
+        out_i = out_i.reshape(-1, D)
+        grouped_outs.append(out_i)
+        lens.append(out_i.shape[0])
+
+    padded_outs = pad_sequence(grouped_outs, batch_first=True)  # [B, T_max, D]
+    return padded_outs, torch.tensor(lens, dtype=torch.long, device=enc_outs.device)
 
 def encode_offline_batch_debug(
     feats: torch.Tensor,       # [B, T_raw, D]
@@ -344,46 +382,38 @@ def encode_offline_batch_debug(
     B, T_raw, D = feats.shape
     print(f"[ENC_OFFLINE] start: B={B}, T_raw_max={T_raw}, D={D}")
 
-    outs, masks, lengths = [], [], []
+    all_chunks, all_masks, batch_ids = [], [], []
+
     for i in range(B):
         x_i = feats[i : i+1].to(device)       # [1, T_raw, D]
         l_i = feat_lens[i].item()
         print(f"  [sample {i}] raw_feat.shape = {x_i.shape}, raw_len = {l_i}")
 
         out_i, m_i = _chunk_encoder_forward(x_i, model, chunk_cfg, device)
-        # out_i: [1, T_i, D], m_i: [1,1,T_i]
-        T_i = out_i.size(1)
+        # out_i: [N_chunk_i, chunk_len, D], m_i: [1, 1, T_chunk]
         print(f"    → after chunk-fwd: out_i.shape = {out_i.shape}, mask_i.shape = {m_i.shape}")
 
-        outs .append(out_i)
-        masks.append(m_i)
-        lengths.append(T_i)
+        all_chunks.append(out_i)                        # [N_chunk_i, chunk_len, D]
+        all_masks.append(m_i)                           # m_i ở dạng [1, 1, T]
+        batch_ids += [i] * out_i.shape[0]               # mỗi chunk đánh dấu thuộc sample nào
 
-    # Nếu chỉ có 1 sample, không pad thêm
-    if B == 1:
-        print("[ENC_OFFLINE] B=1, skip pad → return single sample as is")
-        enc_outs = outs[0]       # [1, T_0, D]
-        enc_masks= masks[0]      # [1, 1, T_0]
-        print(f"[ENC_OFFLINE] final enc_outs.shape = {enc_outs.shape}, enc_masks.shape = {enc_masks.shape}")
-        return enc_outs, enc_masks
+    enc_outs_cat = torch.cat(all_chunks, dim=0)         # [N_total_chunks, chunk_len, D]
+    batch_ids = torch.tensor(batch_ids, device=device)  # [N_total_chunks]
 
-    # Ngược lại, pad time dim để nối batch
-    T_max = max(lengths)
+
+
+    # Nếu batch > 1 → gộp chunk từng sample, pad đều
+    enc_outs, enc_lens = merge_chunks_by_sample(enc_outs_cat, batch_ids)  # [B, T_max, D], [B]
+    T_max = enc_outs.shape[1]
     print(f"[ENC_OFFLINE] pad to T_max = {T_max}")
 
-    padded_outs, padded_masks = [], []
-    for i, (out_i, m_i, L) in enumerate(zip(outs, masks, lengths)):
-        pad_t = T_max - L
-        out_pad  = F.pad(out_i, (0, 0, 0, pad_t))       # pad time ở chiều thứ 1
-        mask_pad = F.pad(m_i,  (0, pad_t), value=0)     # pad mask ở cuối time
-        print(f"  [sample {i}] pad_t={pad_t}, out_pad.shape={out_pad.shape}, mask_pad.shape={mask_pad.shape}")
-        padded_outs .append(out_pad)
-        padded_masks.append(mask_pad)
+    # Tạo lại mask theo lens
+    # enc_masks = torch.zeros(B, 1, T_max, device=device)
+    enc_masks = make_pad_mask(enc_lens, T_max)          #NOTE_PAD
+    # for i in range(B):
+    #     enc_masks[i, 0, :enc_lens[i]] = 1
 
-    enc_outs  = torch.cat(padded_outs,  dim=0)         # [B, T_max, D]
-    enc_masks = torch.cat(padded_masks, dim=0)         # [B, 1, T_max]
     print(f"[ENC_OFFLINE] final enc_outs.shape = {enc_outs.shape}, enc_masks.shape = {enc_masks.shape}")
-
     return enc_outs, enc_masks
 
 
@@ -405,6 +435,13 @@ def compute_loss_batch_v1(
     if DEBUG_LOSS:
         print(f"[DBG] enc_outs {enc_outs.shape}, enc_lens {enc_lens.tolist()}")
 
+    # Token debug
+    print(f"[DBG] toks.shape={toks.shape}, tok_lens={tok_lens.tolist()}")
+    for i in range(toks.size(0)):
+        raw = toks[i, : tok_lens[i]].tolist()
+        print(f"[DBG] sample {i}: toks[:{tok_lens[i]}] = {raw}")
+
+
     # 2) CTC loss (không sos/eos)
     #   model.ctc expects: (logp, input_lengths, targets, target_lengths)
     loss_ctc, _ = model.ctc(
@@ -413,6 +450,8 @@ def compute_loss_batch_v1(
     )
     # sum across batch
     loss_ctc = loss_ctc.sum()
+
+    print(f"[DBG] loss_ctc = {loss_ctc.item():.4f}")
 
     # 3) AED loss (cần sos/eos)
     # build ys_pad, ys_lens cho batch
@@ -428,15 +467,24 @@ def compute_loss_batch_v1(
     ys_pad = torch.nn.utils.rnn.pad_sequence(ys_pad, batch_first=True, padding_value=model.ignore_id)  # [B, L_max+2]
     ys_lens = torch.tensor(ys_lens, dtype=torch.long, device=device)                                 # [B]
 
+    print(f"[DBG] ys_pad.shape={ys_pad.shape}, ys_lens={ys_lens.tolist()}")
+
+
     loss_att, _ = model._calc_att_loss(enc_outs, enc_masks, ys_pad, ys_lens)
     loss_att = loss_att.sum()
+    print(f"[DBG] loss_att = {loss_att.item():.4f}")
 
     # 4) Hybrid
     ctc_w = cfg.model.ctc_weight
     loss = ctc_w * (loss_ctc / feats.size(0)) + (1 - ctc_w) * (loss_att / feats.size(0))
 
+
+    print(f"[DBG] final loss = {loss.item():.4f}")
     return loss, (loss_ctc / feats.size(0)), (loss_att / feats.size(0))
 
+
+
+# ======================================================================================================================
 
 def compute_loss_batch_v2(
     model: ASRModel,
