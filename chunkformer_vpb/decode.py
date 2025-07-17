@@ -44,6 +44,7 @@ def init(model_checkpoint, device):
     # 4. Add decoder (AED) if exists in checkpoint
     if any(k.startswith("decoder.left_decoder") for k in ckpt):
         vocab_size = ckpt["decoder.left_decoder.embed.0.weight"].size(0)
+        print(f"!!!Vocab size: {vocab_size}")
         d_model = ckpt["decoder.left_decoder.after_norm.weight"].size(0)
         block_ids = {int(k.split('.')[3]) for k in ckpt if k.startswith("decoder.left_decoder.decoders.")}
         num_blocks = max(block_ids) + 1

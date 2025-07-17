@@ -6,7 +6,7 @@ import logging
 import torch.nn.functional as F
 
 
-from wenet.transformer.label_smoothing_loss import LabelSmoothingLoss
+from .loss import LabelSmoothingLoss
 from torch.nn.utils.rnn import pad_sequence
 
 from .encoder import ChunkFormerEncoder
@@ -50,7 +50,7 @@ class ASRModel(torch.nn.Module):
         # add label‐smoothing loss for AED
         self.criterion_att = LabelSmoothingLoss(
             size=vocab_size,
-            padding_idx=ignore_id,
+            padding_idx=0,  # padding id -> tạm thời ko dùng IGNORE_ID do bị lỗi index out of range
             smoothing=lsm_weight,
             normalize_length=False
         )
@@ -108,7 +108,7 @@ class ASRModel(torch.nn.Module):
         # 1) prepare ys_in, ys_out
         ys_in  = ys_pad[:, :-1]    # drop <eos>
         ys_out = ys_pad[:, 1:]     # drop <sos>
-        ys_in_lens = (ys_in != self.ignore_id).sum(1)
+        ys_in_lens = (ys_in != 0).sum(1) # sử dụng ignore bằng padding id thay vì ignore_id
 
         # 2) decoder forward
         decoder_out, _, _ = self.decoder(

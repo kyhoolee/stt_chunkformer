@@ -7,6 +7,8 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from typing import List
+
+from ..model.utils.common import IGNORE_ID
 from .finetune_config import FinetuneConfig
 from ..data.data import compute_fbank, MetadataEntry
 from .tokenizer import normalize_vi
@@ -34,9 +36,9 @@ class VivosDataset(Dataset):
         wav, sr = torchaudio.load(entry.audio_path)
 
         
-        print(f"✅ [loader] Audio path       : {entry.audio_path}")
-        print(f"📏 [loader] Sample rate      : {sr}")
-        print(f"   [loader] wav.shape: {wav.shape}, sample_rate: {sr}")
+        # print(f"✅ [loader] Audio path       : {entry.audio_path}")
+        # print(f"📏 [loader] Sample rate      : {sr}")
+        # print(f"   [loader] wav.shape: {wav.shape}, sample_rate: {sr}")
         if sr != self.cfg.data.sample_rate:
             wav = torchaudio.transforms.Resample(sr, self.cfg.data.sample_rate)(wav)
 
@@ -46,8 +48,8 @@ class VivosDataset(Dataset):
             wav = wav * 32768.0
         wav = wav.clamp(-32768, 32767)
 
-        print(f"✅ [loader] Waveform shape    : {wav.shape}")
-        print(f"📊 [loader] Min: {wav.min().item():.8f}, Max: {wav.max().item():.8f}, Mean: {wav.mean().item():.8f}")
+        # print(f"✅ [loader] Waveform shape    : {wav.shape}")
+        # print(f"📊 [loader] Min: {wav.min().item():.8f}, Max: {wav.max().item():.8f}, Mean: {wav.mean().item():.8f}")
 
 
         # 2) FBANK
@@ -72,11 +74,11 @@ def collate_fn(batch):
     """
     feats, feat_lens, toks, tok_lens, entries = zip(*batch)
 
-    if DEBUG_COLLATE:
-        for i, e in enumerate(entries):
-            print(f"[collate] sample {i}: utt_id={e.utt_id}, audio={e.audio_path}")
+    # if DEBUG_COLLATE:
+    #     for i, e in enumerate(entries):
+    #         print(f"[collate] sample {i}: utt_id={e.utt_id}, audio={e.audio_path}")
 
-    feats     = pad_sequence(feats, batch_first=True)                   # [B, T_max, D]
+    feats     = pad_sequence(feats, batch_first=True, padding_value=0)                   # [B, T_max, D]
     feat_lens = torch.LongTensor(feat_lens)                             # [B]
     toks      = pad_sequence(toks, batch_first=True, padding_value=0)    # [B, L_max]
     tok_lens  = torch.LongTensor(tok_lens)                               # [B]

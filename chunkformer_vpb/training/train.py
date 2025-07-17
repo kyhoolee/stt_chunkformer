@@ -3,7 +3,7 @@ from jiwer import wer
 from .finetune_config import FinetuneConfig
 from .data_loader   import get_dataloaders
 from .optimizer     import build_model_and_optimizer
-from .finetune_utils import compute_loss_batch, _chunk_encoder_forward
+from .finetune_utils import compute_loss_batch_v1, _chunk_encoder_forward
 
 # ───── DEBUG FLAG ─────
 torch.autograd.set_detect_anomaly(True)           # bắt NaN trong backward
@@ -37,7 +37,7 @@ def train():
             feats, feat_lens = feats.to(device), feat_lens.to(device)
             toks,  tok_lens  = toks.to(device),  tok_lens.to(device)
 
-            batch_loss, loss_ctc, loss_att = compute_loss_batch(
+            batch_loss, loss_ctc, loss_att = compute_loss_batch_v1(
                 model, feats, feat_lens, toks, tok_lens, cfg, device
             )
 
