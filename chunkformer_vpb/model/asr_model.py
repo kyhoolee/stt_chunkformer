@@ -118,7 +118,7 @@ class ASRModel(torch.nn.Module):
         logp = F.log_softmax(decoder_out, dim=-1)  # [B, T, V]
 
         # 4) AED loss
-        print(f">>>>>>>>>>>>>>>>>>>  ys_out shape: {ys_out.shape}, logp shape: {logp.shape}")
+        # print(f">>>>>>>>>>>>>>>>>>>  ys_out shape: {ys_out.shape}, logp shape: {logp.shape}")
         # logp: [B, T, V], ys_out: [B, T
         loss_att = self.criterion_att(logp, ys_out)
 

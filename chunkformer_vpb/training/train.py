@@ -8,6 +8,7 @@ fine_tune_main.py – Pipeline huấn luyện đầy đủ:
 """
 
 import os, argparse, torch, yaml
+import time
 from jiwer import wer
 
 from .finetune_config import FinetuneConfig
@@ -22,27 +23,29 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, help="Path to finetune_config.yaml")
     parser.add_argument("--smoke", action="store_true", help="Dùng subset nhỏ để debug nhanh")
-
+    parser.add_argument("--smoke-ratio", type=float, default=0.01, help="Tỷ lệ data dùng cho smoke test (mặc định 0.01)")
     return parser.parse_args()
+
 
 # ======== TRAIN LOOP ========
 
 def train():
     args = parse_args()
-    cfg = FinetuneConfig.from_yaml(args.config)
+    cfg_path = args.config
     smoke = args.smoke
-    run_train(cfg, smoke)
+    smoke_ratio = args.smoke_ratio
+    run_train(cfg_path, smoke=smoke, smoke_ratio=smoke_ratio)
 
 
-def run_train(cfg, smoke=False):
+def run_train(cfg_path, smoke=False, smoke_ratio=0.01):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # train_loader, dev_loader = get_dataloaders(cfg)
-    # train_loader, dev_loader = get_dataloaders_smoke(cfg, ratio=0.01)
+    cfg = FinetuneConfig.from_yaml(cfg_path)
+
     if smoke:
-        train_loader, dev_loader = get_dataloaders_smoke(cfg, ratio=0.01)
+        print(f"⚙️  Running in smoke mode with ratio={smoke_ratio}")
+        train_loader, dev_loader = get_dataloaders_smoke(cfg, ratio=smoke_ratio)
     else:
         train_loader, dev_loader = get_dataloaders(cfg)
-
 
     total_steps = len(train_loader) * cfg.training.epochs
     model, tokenizer, optimizer, scheduler = build_model_and_optimizer(cfg, device, total_steps)
@@ -53,11 +56,17 @@ def run_train(cfg, smoke=False):
     evaluate(model, tokenizer, dev_loader, cfg, device)
 
     global_step = 0
+    num_steps_per_epoch = len(train_loader)
+
     for epoch in range(1, cfg.training.epochs + 1):
         model.train()
         print(f"\n🌀 Epoch {epoch} bắt đầu...")
+        epoch_start_time = time.time()  # ⏱️ bắt đầu đo thời gian epoch
+
 
         for step, (feats, feat_lens, toks, tok_lens) in enumerate(train_loader, 1):
+            step_start_time = time.time()  # ⏱️ bắt đầu đo thời gian step
+
             feats, feat_lens = feats.to(device), feat_lens.to(device)
             toks,  tok_lens  = toks.to(device),  tok_lens.to(device)
 
@@ -71,14 +80,24 @@ def run_train(cfg, smoke=False):
                 model.parameters(), cfg.training.max_grad_norm
             )
             optimizer.step(); scheduler.step()
-            global_step += 1
+
+            # ---- Timing ----
+            step_time = time.time() - step_start_time
+            remaining_steps = num_steps_per_epoch - step
+            eta_epoch = remaining_steps * step_time
+            eta_min, eta_sec = divmod(int(eta_epoch), 60)
 
             # ---- Logging ----
-            if global_step % cfg.training.log_steps == 0:
-                lr_now = scheduler.get_last_lr()[0]
-                print(f"[Epoch {epoch} | Step {global_step}] "
-                      f"loss={loss.item():.4f} (ctc={loss_ctc.item():.4f}, att={loss_att.item():.4f}) "
-                      f"grad={grad_norm:.2f}  lr={lr_now:.2e}")
+            lr_now = scheduler.get_last_lr()[0]
+            print(f"[Epoch {epoch} Step {step}/{num_steps_per_epoch} | "
+                f"Global-Step {global_step}] "
+                f"loss={loss.item():.4f} (ctc={loss_ctc.item():.4f}, att={loss_att.item():.4f}) "
+                f"grad={grad_norm:.2f}  lr={lr_now:.2e} "
+                f"| ⏱️ {step_time:.2f}s/step - ETA: {eta_min}m{eta_sec}s")
+
+        epoch_duration = time.time() - epoch_start_time
+        ep_m, ep_s = divmod(int(epoch_duration), 60)
+        print(f"✅ Epoch {epoch} hoàn tất trong {ep_m}m{ep_s}s")
 
         # Save checkpoint mỗi epoch
         ckpt_dir = cfg.training.checkpoint_dir
@@ -92,9 +111,22 @@ def run_train(cfg, smoke=False):
 
 
 # ======== EVALUATE ========
-def evaluate(model, tokenizer, loader, cfg, device):
+from jiwer import wer
+from chunkformer_vpb.model_utils import decode_long_form, decode_aed_long_form, get_default_args
+
+def evaluate(model, tokenizer, loader, cfg, device, mode="ctc"):
+    """
+    mode: "ctc" hoặc "aed"
+    """
     model.eval()
-    tot_wer, count = 0.0, 0
+    total_wer, count = 0.0, 0
+    args = get_default_args()
+    args.chunk_size = cfg.chunk.chunk_size
+    args.left_context_size = cfg.chunk.left_context_size
+    args.right_context_size = cfg.chunk.right_context_size
+    args.total_batch_duration = cfg.chunk.total_batch_duration
+
+    char_dict = tokenizer.vocab
 
     with torch.no_grad():
         for feats, feat_lens, toks, tok_lens in loader:
@@ -103,34 +135,30 @@ def evaluate(model, tokenizer, loader, cfg, device):
 
             for i in range(feats.size(0)):
                 x = feats[i].unsqueeze(0)
-                x_lens = feat_lens[i].unsqueeze(0)
                 y = toks[i].unsqueeze(0)
-                y_lens = tok_lens[i].unsqueeze(0)
+                y_lens = tok_lens[i].item()
 
-                # encoder forward
-                enc_out, enc_mask = _chunk_encoder_forward(x, model, cfg.chunk, device)
-                enc_len = enc_mask.squeeze(1).sum(1).long()
-
-                logp = model.ctc.log_softmax(enc_out)  # [1, T, V]
-                pred_ids = logp.argmax(dim=-1)[0].tolist()
-
-                # decode: remove blanks & dups
-                pred_seq, prev = [], None
-                for pid in pred_ids:
-                    if pid != model.blank and pid != prev:
-                        pred_seq.append(pid)
-                    prev = pid
-                pred_text = tokenizer.decode_ids(pred_seq)
-
-                # ground truth
-                ref_ids = y[0, :y_lens.item()].tolist()
+                # chuẩn hóa ref text
+                ref_ids = y[0, :y_lens].tolist()
                 ref_text = tokenizer.decode_ids(ref_ids)
 
-                tot_wer += wer(ref_text, pred_text)
+                # CTC hoặc AED
+                if mode == "ctc":
+                    pred_text = decode_long_form(x, model, char_dict, args, device)
+                elif mode == "aed":
+                    _, pred_text = decode_aed_long_form(x, model, char_dict, args, device)
+                else:
+                    raise ValueError(f"Unknown mode: {mode}")
+                
+                # print(f"Ref: {ref_text}\nPred: {pred_text}")
+
+                # tính WER
+                total_wer += wer(ref_text.lower(), pred_text.lower())
                 count += 1
 
-    print(f"🎯 Dev WER: {tot_wer / count:.2%}")
+    print(f"🎯 Dev WER ({mode.upper()}): {total_wer / count:.2%}")
     model.train()
+
 
 # ======== MAIN ========
 if __name__ == "__main__":

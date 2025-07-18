@@ -336,11 +336,11 @@ def compute_loss_batch_v1(
         enc_outs, enc_lens,
         toks.to(device), tok_lens.to(device)
     )
-    print(f"Origin loss_ctc shape = {loss_ctc.shape}, sum={loss_ctc.sum().item()}, mean={loss_ctc.mean().item()}")
+    # print(f"Origin loss_ctc shape = {loss_ctc.shape}, sum={loss_ctc.sum().item()}, mean={loss_ctc.mean().item()}")
     # sum across batch
     loss_ctc = loss_ctc.sum()
 
-    print(f"[DBG] loss_ctc = {loss_ctc.item():.4f}")
+    # print(f"[DBG] loss_ctc = {loss_ctc.item():.4f}")
 
     # 3) AED loss (cần sos/eos)
     # build ys_pad, ys_lens cho batch
@@ -360,17 +360,17 @@ def compute_loss_batch_v1(
 
 
     loss_att, _ = model._calc_att_loss(enc_outs, enc_masks, ys_pad, ys_lens)
-    print(f"Origin loss_att {loss_att.shape}, sum={loss_att.sum().item()}, mean={loss_att.mean().item()}")
+    # print(f"Origin loss_att {loss_att.shape}, sum={loss_att.sum().item()}, mean={loss_att.mean().item()}")
     
     loss_att = loss_att.sum()
-    print(f"[DBG] loss_att = {loss_att.item():.4f}")
+    # print(f"[DBG] loss_att = {loss_att.item():.4f}")
 
     # 4) Hybrid
     ctc_w = cfg.model.ctc_weight
     loss = ctc_w * (loss_ctc / feats.size(0)) + (1 - ctc_w) * (loss_att / feats.size(0))
 
 
-    print(f"[DBG] final loss = {loss.item():.4f}")
+    # print(f"[DBG] final loss = {loss.item():.4f}")
     return loss, (loss_ctc / feats.size(0)), (loss_att / feats.size(0))
 
 

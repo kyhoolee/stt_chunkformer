@@ -33,7 +33,8 @@ class VivosDataset(Dataset):
     def __getitem__(self, idx):
         entry = self.meta[idx]
         # 1) Load waveform
-        wav, sr = torchaudio.load(entry.audio_path)
+        abs_path = self.cfg.data.manifest_dir + os.sep + entry.audio_path
+        wav, sr = torchaudio.load(abs_path)
 
         
         # print(f"✅ [loader] Audio path       : {entry.audio_path}")

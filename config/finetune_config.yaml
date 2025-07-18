@@ -3,7 +3,7 @@
 # 1) Dữ liệu & feature
 data:
   # Thư mục chứa các file manifest JSON do DataConfig yêu cầu
-  manifest_dir: ./cache_train
+  manifest_dir: ../0_data/vivos/cache_train
   sample_rate: 16000
   num_mel_bins: 80
   frame_length: 25      # in ms
@@ -24,7 +24,7 @@ model:
 
 # 4) Training hyper-params
 training:
-  batch_size: 4
+  batch_size: 16
   lr: 1e-4
   weight_decay: 0.01
   warmup_steps: 1000
@@ -32,7 +32,7 @@ training:
   max_grad_norm: 5.0
   log_steps: 50
   checkpoint_dir: checkpoints
-  shuffle: false          #  ← thêm dòng này
+  shuffle: true          #  ← thêm dòng này
 
 # 5) Chunking parameters (cho forward chunked encoder)
 chunk:
