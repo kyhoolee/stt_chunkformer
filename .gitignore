@@ -10,3 +10,4 @@ data/4397800.wav
 benchmark_duration.py
 
 notebook/2_pipeline/cache*
+notebook/0_data/*/cache*

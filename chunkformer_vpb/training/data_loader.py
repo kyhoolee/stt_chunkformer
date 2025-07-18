@@ -102,3 +102,40 @@ def get_dataloaders(cfg: FinetuneConfig):
         collate_fn=collate_fn
     )
     return train_loader, valid_loader
+
+
+def get_dataloaders_smoke(cfg: FinetuneConfig, ratio: float = 0.01):
+    """
+    Trả về dataloader chỉ lấy subset nhỏ của dữ liệu (ví dụ 1%) để debug nhanh.
+    """
+    from torch.utils.data import Subset
+
+    bs = cfg.training.batch_size
+
+    train_ds = VivosDataset(cfg, "train")
+    valid_ds = VivosDataset(cfg, "valid")
+
+    num_train = len(train_ds)
+    num_valid = len(valid_ds)
+
+    # Tính số lượng cần lấy
+    train_subset_size = max(1, int(num_train * ratio))
+    valid_subset_size = max(1, int(num_valid * ratio))
+
+    train_subset = Subset(train_ds, list(range(train_subset_size)))
+    valid_subset = Subset(valid_ds, list(range(valid_subset_size)))
+
+    train_loader = DataLoader(
+        train_subset,
+        batch_size=bs,
+        shuffle=cfg.training.shuffle,
+        collate_fn=collate_fn,
+    )
+    valid_loader = DataLoader(
+        valid_subset,
+        batch_size=bs,
+        shuffle=False,
+        collate_fn=collate_fn,
+    )
+
+    return train_loader, valid_loader

@@ -158,7 +158,7 @@ def compute_chunkformer_loss(model: ASRModel,
 
 # ==================== Forward loss UTILS ====================
 
-
+# @torch.no_grad()
 def _chunk_encoder_forward(xs: torch.Tensor,
                            model,
                            chunk_cfg,

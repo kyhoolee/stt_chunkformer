@@ -1,131 +1,137 @@
-import argparse, os, yaml, torch
+#!/usr/bin/env python3
+"""
+fine_tune_main.py – Pipeline huấn luyện đầy đủ:
+• Load config và mô hình
+• Chạy training theo số epoch
+• Lưu checkpoint mỗi epoch
+• Tính WER trên dev set sau mỗi epoch
+"""
+
+import os, argparse, torch, yaml
 from jiwer import wer
+
 from .finetune_config import FinetuneConfig
-from .data_loader   import get_dataloaders
-from .optimizer     import build_model_and_optimizer
-from .finetune_utils import compute_loss_batch_v1, _chunk_encoder_forward
+from .data_loader     import get_dataloaders, get_dataloaders_smoke
+from .optimizer       import build_model_and_optimizer
+from .finetune_utils  import compute_loss_batch_v1, _chunk_encoder_forward
 
-# ───── DEBUG FLAG ─────
-torch.autograd.set_detect_anomaly(True)           # bắt NaN trong backward
-DEBUG_STEPS = int(os.getenv("DEBUG_STEPS", 50))   # 0 ⇒ tắt debug # 50 debug 50 step dau tiên
-PRINT_EVERY = 1                                   # in log mỗi bước
-# ──────────────────────
+torch.autograd.set_detect_anomaly(True)   # phát hiện NaN nếu có
 
+# ======== ARGPARSE ========
 def parse_args():
-    p = argparse.ArgumentParser()
-    p.add_argument("--config", required=True, help="Path to finetune_config.yaml")
-    return p.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", required=True, help="Path to finetune_config.yaml")
+    parser.add_argument("--smoke", action="store_true", help="Dùng subset nhỏ để debug nhanh")
+
+    return parser.parse_args()
+
+# ======== TRAIN LOOP ========
 
 def train():
     args = parse_args()
     cfg = FinetuneConfig.from_yaml(args.config)
+    smoke = args.smoke
+    run_train(cfg, smoke)
 
+
+def run_train(cfg, smoke=False):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    train_loader, valid_loader = get_dataloaders(cfg)
+    # train_loader, dev_loader = get_dataloaders(cfg)
+    # train_loader, dev_loader = get_dataloaders_smoke(cfg, ratio=0.01)
+    if smoke:
+        train_loader, dev_loader = get_dataloaders_smoke(cfg, ratio=0.01)
+    else:
+        train_loader, dev_loader = get_dataloaders(cfg)
+
 
     total_steps = len(train_loader) * cfg.training.epochs
-    model, tokenizer, optim, sched = build_model_and_optimizer(
-        cfg, device, total_steps
-    )
+    model, tokenizer, optimizer, scheduler = build_model_and_optimizer(cfg, device, total_steps)
     model.to(device)
+
+    # 👉 EVALUATE TRƯỚC TRAINING (pretrained model)
+    print("\n🧪 Đánh giá mô hình trước khi fine-tune:")
+    evaluate(model, tokenizer, dev_loader, cfg, device)
 
     global_step = 0
     for epoch in range(1, cfg.training.epochs + 1):
         model.train()
-                
+        print(f"\n🌀 Epoch {epoch} bắt đầu...")
+
         for step, (feats, feat_lens, toks, tok_lens) in enumerate(train_loader, 1):
             feats, feat_lens = feats.to(device), feat_lens.to(device)
             toks,  tok_lens  = toks.to(device),  tok_lens.to(device)
 
-            batch_loss, loss_ctc, loss_att = compute_loss_batch_v1(
+            loss, loss_ctc, loss_att = compute_loss_batch_v1(
                 model, feats, feat_lens, toks, tok_lens, cfg, device
             )
 
-            optim.zero_grad()
-            batch_loss.backward()
-
+            optimizer.zero_grad()
+            loss.backward()
             grad_norm = torch.nn.utils.clip_grad_norm_(
                 model.parameters(), cfg.training.max_grad_norm
             )
-
-            optim.step(); sched.step()
+            optimizer.step(); scheduler.step()
             global_step += 1
 
-            # ---------- DEBUG PRINT ----------
-            if DEBUG_STEPS and step <= DEBUG_STEPS and step % PRINT_EVERY == 0:
-                B, Tm, _ = feats.shape
-                Lm = toks.shape[1]
-                lr_now = sched.get_last_lr()[0]
-                print(f"[DBG] ep={epoch} st={step:3d}  B={B} T={Tm} L={Lm} "
-                    f"loss={batch_loss:.3f} (ctc={loss_ctc:.3f}, att={loss_att:.3f}) "
-                    f"grad={grad_norm:.2f} lr={lr_now:.2e}")
-                if torch.isnan(batch_loss):
-                    raise ValueError("❌ NaN loss!")
-
+            # ---- Logging ----
             if global_step % cfg.training.log_steps == 0:
-                print(f"[Epoch {epoch} Step {global_step}] loss={batch_loss.item():.4f}")
+                lr_now = scheduler.get_last_lr()[0]
+                print(f"[Epoch {epoch} | Step {global_step}] "
+                      f"loss={loss.item():.4f} (ctc={loss_ctc.item():.4f}, att={loss_att.item():.4f}) "
+                      f"grad={grad_norm:.2f}  lr={lr_now:.2e}")
 
-            # Thoát sớm khi smoke-test
-            if DEBUG_STEPS and step >= DEBUG_STEPS:
-                print("===== SMOKE-EVAL =====")
-                evaluate(model, tokenizer, valid_loader, cfg, device)
-                return
-
-
-
-        # checkpoint per epoch
+        # Save checkpoint mỗi epoch
         ckpt_dir = cfg.training.checkpoint_dir
         os.makedirs(ckpt_dir, exist_ok=True)
-        path = os.path.join(ckpt_dir, f"epoch{epoch}.pt")
-        torch.save(model.state_dict(), path)
-        print(f"Saved checkpoint: {path}")
+        ckpt_path = os.path.join(ckpt_dir, f"epoch{epoch}.pt")
+        torch.save(model.state_dict(), ckpt_path)
+        print(f"💾 Đã lưu checkpoint: {ckpt_path}")
 
-        # eval at end of epoch
-        evaluate(model, tokenizer, valid_loader, cfg, device)
+        # Eval sau mỗi epoch
+        evaluate(model, tokenizer, dev_loader, cfg, device)
 
+
+# ======== EVALUATE ========
 def evaluate(model, tokenizer, loader, cfg, device):
     model.eval()
     tot_wer, count = 0.0, 0
+
     with torch.no_grad():
         for feats, feat_lens, toks, tok_lens in loader:
-            feats    = feats.to(device)
-            feat_lens= feat_lens.to(device)
-            toks     = toks.to(device)
-            tok_lens = tok_lens.to(device)
+            feats, feat_lens = feats.to(device), feat_lens.to(device)
+            toks,  tok_lens  = toks.to(device),  tok_lens.to(device)
 
             for i in range(feats.size(0)):
-                x       = feats[i].unsqueeze(0)
-                x_lens  = feat_lens[i].unsqueeze(0)
-                y       = toks[i].unsqueeze(0)
-                y_lens  = tok_lens[i].unsqueeze(0)
+                x = feats[i].unsqueeze(0)
+                x_lens = feat_lens[i].unsqueeze(0)
+                y = toks[i].unsqueeze(0)
+                y_lens = tok_lens[i].unsqueeze(0)
 
-                # forward chunk-encoder only to get encoder_outs
-                encoder_outs, encoder_mask = _chunk_encoder_forward(
-                    x, model, cfg.chunk, device
-                )
-                encoder_lens = encoder_mask.squeeze(1).sum(1).to(torch.long)
+                # encoder forward
+                enc_out, enc_mask = _chunk_encoder_forward(x, model, cfg.chunk, device)
+                enc_len = enc_mask.squeeze(1).sum(1).long()
 
-                # CTC greedy decode (remove blank & dup)
-                # bạn có thể thay bằng get_output_with_timestamps
-                logp = model.ctc.log_softmax(encoder_outs)  # [1, T, V]
-                pred_ids = logp.argmax(-1)                  # [1, T]
-                # remove duplicates & blanks
-                preds = []
-                prev = None
-                for pid in pred_ids[0].tolist():
-                    if pid != prev and pid != model.blank:
-                        preds.append(pid)
+                logp = model.ctc.log_softmax(enc_out)  # [1, T, V]
+                pred_ids = logp.argmax(dim=-1)[0].tolist()
+
+                # decode: remove blanks & dups
+                pred_seq, prev = [], None
+                for pid in pred_ids:
+                    if pid != model.blank and pid != prev:
+                        pred_seq.append(pid)
                     prev = pid
-                pred_text = tokenizer.decode_ids(preds)
-                # ref text
-                ref_ids = y[0, : y_lens.item()].tolist()
+                pred_text = tokenizer.decode_ids(pred_seq)
+
+                # ground truth
+                ref_ids = y[0, :y_lens.item()].tolist()
                 ref_text = tokenizer.decode_ids(ref_ids)
 
                 tot_wer += wer(ref_text, pred_text)
-                count   += 1
+                count += 1
 
-    print(f"== Dev WER: {tot_wer/count:.2%} ==")
+    print(f"🎯 Dev WER: {tot_wer / count:.2%}")
     model.train()
 
+# ======== MAIN ========
 if __name__ == "__main__":
     train()
