@@ -36,9 +36,39 @@ def train():
     smoke_ratio = args.smoke_ratio
     run_train(cfg_path, smoke=smoke, smoke_ratio=smoke_ratio)
 
+def freeze_encoder_groups(model, config):
+    """
+    config: FreezeConfigFT dataclass
+    """
+    if config.cmvn:
+        for param in model.encoder.global_cmvn.parameters():
+            param.requires_grad = False
 
-def run_train(cfg_path, smoke=False, smoke_ratio=0.01):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if config.subsampling:
+        for param in model.encoder.embed.parameters():
+            param.requires_grad = False
+
+    if config.post_embed_norm:
+        for param in model.encoder.after_norm.parameters():
+            param.requires_grad = False
+
+    if config.encoder_layers > 0:
+        freeze_n = config.encoder_layers
+        for i, layer in enumerate(model.encoder.encoders):
+            if i < freeze_n:
+                for param in layer.parameters():
+                    param.requires_grad = False
+
+    if config.ctc:
+        for param in model.encoder.ctc.parameters():
+            param.requires_grad = False
+
+
+
+def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False):
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = "cpu"
+
     cfg = FinetuneConfig.from_yaml(cfg_path)
 
     if smoke:
@@ -51,9 +81,27 @@ def run_train(cfg_path, smoke=False, smoke_ratio=0.01):
     model, tokenizer, optimizer, scheduler = build_model_and_optimizer(cfg, device, total_steps)
     model.to(device)
 
+    # 👇 Freeze một số phần trong encoder nếu cấu hình
+    if hasattr(cfg, "freeze") and cfg.freeze is not None:
+        freeze_encoder_groups(model, cfg.freeze)
+
+
+    # print model 
+    # print(f"🔧 Mô hình: {model.__class__.__name__}")
+    # print(model)
+    # print("-----------------------------------\n\n")
+
     # 👉 EVALUATE TRƯỚC TRAINING (pretrained model)
     print("\n🧪 Đánh giá mô hình trước khi fine-tune:")
-    evaluate(model, tokenizer, dev_loader, cfg, device)
+    if dev_loader is not None:
+        evaluate(model, tokenizer, dev_loader, cfg, device)
+    else:
+        print("⚠️ Không có dữ liệu dev để đánh giá!")
+
+    if eval_train:
+        print("\n🧪 Đánh giá mô hình trên tập train:")
+        evaluate(model, tokenizer, train_loader, cfg, device)
+
 
     global_step = 0
     num_steps_per_epoch = len(train_loader)
@@ -113,13 +161,17 @@ def run_train(cfg_path, smoke=False, smoke_ratio=0.01):
 # ======== EVALUATE ========
 from jiwer import wer
 from chunkformer_vpb.model_utils import decode_long_form, decode_aed_long_form, get_default_args
+from jiwer import wer
 
 def evaluate(model, tokenizer, loader, cfg, device, mode="ctc"):
-    """
-    mode: "ctc" hoặc "aed"
-    """
+    if loader is None:
+        print("🚫 No eval data found. Skipping evaluation.")
+        return
+
     model.eval()
     total_wer, count = 0.0, 0
+    all_refs, all_preds = [], []
+
     args = get_default_args()
     args.chunk_size = cfg.chunk.chunk_size
     args.left_context_size = cfg.chunk.left_context_size
@@ -138,27 +190,32 @@ def evaluate(model, tokenizer, loader, cfg, device, mode="ctc"):
                 y = toks[i].unsqueeze(0)
                 y_lens = tok_lens[i].item()
 
-                # chuẩn hóa ref text
                 ref_ids = y[0, :y_lens].tolist()
                 ref_text = tokenizer.decode_ids(ref_ids)
-
-                # CTC hoặc AED
+                
                 if mode == "ctc":
                     pred_text = decode_long_form(x, model, char_dict, args, device)
                 elif mode == "aed":
                     _, pred_text = decode_aed_long_form(x, model, char_dict, args, device)
                 else:
                     raise ValueError(f"Unknown mode: {mode}")
-                
-                # print(f"Ref: {ref_text}\nPred: {pred_text}")
 
-                # tính WER
-                total_wer += wer(ref_text.lower(), pred_text.lower())
+                ref_text = ref_text.lower() # .strip()
+                pred_text = pred_text.lower() # .strip()
+
+                total_wer += wer(ref_text, pred_text)
                 count += 1
 
-    print(f"🎯 Dev WER ({mode.upper()}): {total_wer / count:.2%}")
-    model.train()
+                all_refs.append(ref_text)
+                all_preds.append(pred_text)
 
+    avg_wer = total_wer / count
+    # global_wer = wer(" ".join(all_refs), " ".join(all_preds))
+    global_wer = wer(all_refs, all_preds)
+
+    print(f"🎯 Dev WER ({mode.upper()}): {avg_wer:.2%}")
+    print(f"🌐 Global WER           : {global_wer:.2%}")
+    model.train()
 
 # ======== MAIN ========
 if __name__ == "__main__":

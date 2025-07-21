@@ -20,6 +20,9 @@ DEBUG_COLLATE = True
 class VivosDataset(Dataset):
     def __init__(self, cfg: FinetuneConfig, split: str):
         self.cfg = cfg
+        print("==================================")
+        print(self.cfg.data.audio_dir)
+        print("==================================")
         manifest_file = os.path.join(cfg.data.manifest_dir, f"{split}_meta.json")
         with open(manifest_file, 'r', encoding='utf-8') as f:
             entries = json.load(f)
@@ -33,7 +36,10 @@ class VivosDataset(Dataset):
     def __getitem__(self, idx):
         entry = self.meta[idx]
         # 1) Load waveform
-        abs_path = self.cfg.data.manifest_dir + os.sep + entry.audio_path
+        audio_dir = self.cfg.data.audio_dir 
+        if not audio_dir:
+            audio_dir = self.cfg.data.manifest_dir
+        abs_path = audio_dir + os.sep + entry.audio_path
         wav, sr = torchaudio.load(abs_path)
 
         
@@ -85,30 +91,37 @@ def collate_fn(batch):
     tok_lens  = torch.LongTensor(tok_lens)                               # [B]
 
     return feats, feat_lens, toks, tok_lens
-
 def get_dataloaders(cfg: FinetuneConfig):
     bs = cfg.training.batch_size
     train_ds = VivosDataset(cfg, "train")
     valid_ds = VivosDataset(cfg, "valid")
-    train_loader = DataLoader(
-        train_ds,
-        batch_size=bs,
-        shuffle=cfg.training.shuffle,
-        collate_fn=collate_fn
-    )
-    valid_loader = DataLoader(
-        valid_ds,
-        batch_size=bs,
-        shuffle=False,
-        collate_fn=collate_fn
-    )
+
+    if len(train_ds) == 0:
+        print("❌ [DataLoader] Empty train dataset.")
+        train_loader = None
+    else:
+        train_loader = DataLoader(
+            train_ds,
+            batch_size=bs,
+            shuffle=cfg.training.shuffle,
+            collate_fn=collate_fn
+        )
+
+    if len(valid_ds) == 0:
+        print("❌ [DataLoader] Empty valid dataset.")
+        valid_loader = None
+    else:
+        valid_loader = DataLoader(
+            valid_ds,
+            batch_size=bs,
+            shuffle=False,
+            collate_fn=collate_fn
+        )
+
     return train_loader, valid_loader
 
 
 def get_dataloaders_smoke(cfg: FinetuneConfig, ratio: float = 0.01):
-    """
-    Trả về dataloader chỉ lấy subset nhỏ của dữ liệu (ví dụ 1%) để debug nhanh.
-    """
     from torch.utils.data import Subset
 
     bs = cfg.training.batch_size
@@ -116,27 +129,30 @@ def get_dataloaders_smoke(cfg: FinetuneConfig, ratio: float = 0.01):
     train_ds = VivosDataset(cfg, "train")
     valid_ds = VivosDataset(cfg, "valid")
 
-    num_train = len(train_ds)
-    num_valid = len(valid_ds)
+    if len(train_ds) == 0:
+        print("❌ [SmokeLoader] Empty train dataset.")
+        train_loader = None
+    else:
+        train_subset_size = max(1, int(len(train_ds) * ratio))
+        train_subset = Subset(train_ds, list(range(train_subset_size)))
+        train_loader = DataLoader(
+            train_subset,
+            batch_size=bs,
+            shuffle=cfg.training.shuffle,
+            collate_fn=collate_fn,
+        )
 
-    # Tính số lượng cần lấy
-    train_subset_size = max(1, int(num_train * ratio))
-    valid_subset_size = max(1, int(num_valid * ratio))
-
-    train_subset = Subset(train_ds, list(range(train_subset_size)))
-    valid_subset = Subset(valid_ds, list(range(valid_subset_size)))
-
-    train_loader = DataLoader(
-        train_subset,
-        batch_size=bs,
-        shuffle=cfg.training.shuffle,
-        collate_fn=collate_fn,
-    )
-    valid_loader = DataLoader(
-        valid_subset,
-        batch_size=bs,
-        shuffle=False,
-        collate_fn=collate_fn,
-    )
+    if len(valid_ds) == 0:
+        print("❌ [SmokeLoader] Empty valid dataset.")
+        valid_loader = None
+    else:
+        valid_subset_size = max(1, int(len(valid_ds) * ratio))
+        valid_subset = Subset(valid_ds, list(range(valid_subset_size)))
+        valid_loader = DataLoader(
+            valid_subset,
+            batch_size=bs,
+            shuffle=False,
+            collate_fn=collate_fn,
+        )
 
     return train_loader, valid_loader

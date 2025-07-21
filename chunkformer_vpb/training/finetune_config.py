@@ -8,6 +8,7 @@ from .tokenizer import GreedyTokenizer
 @dataclass
 class DataConfigFT:
     manifest_dir: str
+    audio_dir: str = None  # nếu không có thì lấy từ manifest_dir
     sample_rate: int = 16000
     num_mel_bins: int = 80
     frame_length: float = 25.0    # ms
@@ -59,18 +60,25 @@ class ChunkConfigFT:
     total_batch_duration: int  # ms
 
 @dataclass
+class FreezeConfigFT:
+    cmvn: bool = False
+    subsampling: bool = False
+    post_embed_norm: bool = False
+    encoder_layers: int = 0
+    ctc: bool = False
+
+
+@dataclass
 class FinetuneConfig:
     data: DataConfigFT
     tokenizer: TokenizerConfigFT
     model: ModelConfigFT
     training: TrainingConfigFT
     chunk: ChunkConfigFT
+    freeze: FreezeConfigFT = None  # 👈 Thêm dòng này
 
     @staticmethod
     def from_yaml(path: str) -> "FinetuneConfig":
-        """
-        Load finetune_config.yaml và khởi tạo tất cả sub-config.
-        """
         raw = yaml.safe_load(open(path, "r"))
 
         data_cfg = DataConfigFT(**raw["data"])
@@ -78,14 +86,21 @@ class FinetuneConfig:
         model_cfg = ModelConfigFT(**raw["model"])
         train_cfg = TrainingConfigFT(**raw["training"])
         chunk_cfg = ChunkConfigFT(**raw["chunk"])
+        
 
         # init tokenizer instance
         tok_cfg.init_tokenizer()
+
+        freeze_cfg = None
+        if "freeze" in raw:
+            freeze_cfg = FreezeConfigFT(**raw["freeze"])
 
         return FinetuneConfig(
             data=data_cfg,
             tokenizer=tok_cfg,
             model=model_cfg,
             training=train_cfg,
-            chunk=chunk_cfg
+            chunk=chunk_cfg,
+            freeze=freeze_cfg
         )
+

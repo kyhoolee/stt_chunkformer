@@ -1,0 +1,113 @@
+nohup: ignoring input
+[2025-07-21 18:49:56] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+⚙️  Running in smoke mode with ratio=0.01
+==================================
+../../../vpb_dataset
+==================================
+==================================
+../../../vpb_dataset
+==================================
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+!!!Vocab size: 6992
+
+🧪 Đánh giá mô hình trước khi fine-tune:
+🎯 Dev WER (CTC): 33.33%
+🌐 Global WER           : 16.67%
+
+🧪 Đánh giá mô hình trên tập train:
+🎯 Dev WER (CTC): 28.87%
+🌐 Global WER           : 21.98%
+
+🌀 Epoch 1 bắt đầu...
+[Epoch 1 Step 1/3 | Global-Step 0] loss=1.2444 (ctc=1.2454, att=1.2440) grad=3.97  lr=9.97e-05 | ⏱️ 19.91s/step - ETA: 0m39s
+[Epoch 1 Step 2/3 | Global-Step 0] loss=0.7201 (ctc=0.7892, att=0.6905) grad=2.57  lr=9.89e-05 | ⏱️ 20.70s/step - ETA: 0m20s
+[Epoch 1 Step 3/3 | Global-Step 0] loss=4.7151 (ctc=1.2102, att=6.2172) grad=20.85  lr=9.76e-05 | ⏱️ 2.59s/step - ETA: 0m0s
+✅ Epoch 1 hoàn tất trong 0m43s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch1.pt
+🎯 Dev WER (CTC): 26.67%
+🌐 Global WER           : 13.33%
+
+🌀 Epoch 2 bắt đầu...
+[Epoch 2 Step 1/3 | Global-Step 0] loss=0.5025 (ctc=0.4933, att=0.5064) grad=1.97  lr=9.57e-05 | ⏱️ 20.41s/step - ETA: 0m40s
+[Epoch 2 Step 2/3 | Global-Step 0] loss=0.5110 (ctc=0.3834, att=0.5657) grad=1.52  lr=9.34e-05 | ⏱️ 20.55s/step - ETA: 0m20s
+[Epoch 2 Step 3/3 | Global-Step 0] loss=5.2781 (ctc=0.6242, att=7.2727) grad=24.22  lr=9.05e-05 | ⏱️ 3.04s/step - ETA: 0m0s
+✅ Epoch 2 hoàn tất trong 0m44s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch2.pt
+🎯 Dev WER (CTC): 20.00%
+🌐 Global WER           : 10.00%
+
+🌀 Epoch 3 bắt đầu...
+[Epoch 3 Step 1/3 | Global-Step 0] loss=0.3109 (ctc=0.2359, att=0.3431) grad=1.10  lr=8.73e-05 | ⏱️ 18.99s/step - ETA: 0m37s
+[Epoch 3 Step 2/3 | Global-Step 0] loss=0.3076 (ctc=0.1314, att=0.3831) grad=0.88  lr=8.36e-05 | ⏱️ 20.12s/step - ETA: 0m20s
+[Epoch 3 Step 3/3 | Global-Step 0] loss=0.6194 (ctc=0.0824, att=0.8496) grad=10.74  lr=7.96e-05 | ⏱️ 2.63s/step - ETA: 0m0s
+✅ Epoch 3 hoàn tất trong 0m41s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch3.pt
+🎯 Dev WER (CTC): 20.00%
+🌐 Global WER           : 10.00%
+
+🌀 Epoch 4 bắt đầu...
+[Epoch 4 Step 1/3 | Global-Step 0] loss=0.2507 (ctc=0.1083, att=0.3118) grad=0.82  lr=7.52e-05 | ⏱️ 18.89s/step - ETA: 0m37s
+[Epoch 4 Step 2/3 | Global-Step 0] loss=0.1969 (ctc=0.1205, att=0.2297) grad=0.71  lr=7.06e-05 | ⏱️ 19.69s/step - ETA: 0m19s
+[Epoch 4 Step 3/3 | Global-Step 0] loss=0.4441 (ctc=0.0722, att=0.6035) grad=6.43  lr=6.58e-05 | ⏱️ 2.63s/step - ETA: 0m0s
+✅ Epoch 4 hoàn tất trong 0m41s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch4.pt
+🎯 Dev WER (CTC): 13.33%
+🌐 Global WER           : 6.67%
+
+🌀 Epoch 5 bắt đầu...
+[Epoch 5 Step 1/3 | Global-Step 0] loss=0.1850 (ctc=0.0779, att=0.2309) grad=0.57  lr=6.08e-05 | ⏱️ 19.01s/step - ETA: 0m38s
+[Epoch 5 Step 2/3 | Global-Step 0] loss=0.1653 (ctc=0.0764, att=0.2034) grad=0.59  lr=5.57e-05 | ⏱️ 19.82s/step - ETA: 0m19s
+[Epoch 5 Step 3/3 | Global-Step 0] loss=1.0478 (ctc=0.6897, att=1.2013) grad=9.93  lr=5.05e-05 | ⏱️ 2.60s/step - ETA: 0m0s
+✅ Epoch 5 hoàn tất trong 0m41s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch5.pt
+🎯 Dev WER (CTC): 13.33%
+🌐 Global WER           : 6.67%
+
+🌀 Epoch 6 bắt đầu...
+[Epoch 6 Step 1/3 | Global-Step 0] loss=0.1977 (ctc=0.0697, att=0.2526) grad=0.70  lr=4.53e-05 | ⏱️ 19.00s/step - ETA: 0m37s
+[Epoch 6 Step 2/3 | Global-Step 0] loss=0.0818 (ctc=0.0468, att=0.0968) grad=0.36  lr=4.02e-05 | ⏱️ 19.95s/step - ETA: 0m19s
+[Epoch 6 Step 3/3 | Global-Step 0] loss=1.5261 (ctc=0.4779, att=1.9754) grad=8.82  lr=3.52e-05 | ⏱️ 2.66s/step - ETA: 0m0s
+✅ Epoch 6 hoàn tất trong 0m41s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch6.pt
+🎯 Dev WER (CTC): 13.33%
+🌐 Global WER           : 6.67%
+
+🌀 Epoch 7 bắt đầu...
+[Epoch 7 Step 1/3 | Global-Step 0] loss=0.1587 (ctc=0.0551, att=0.2032) grad=0.49  lr=3.04e-05 | ⏱️ 19.34s/step - ETA: 0m38s
+[Epoch 7 Step 2/3 | Global-Step 0] loss=0.1089 (ctc=0.0504, att=0.1340) grad=0.54  lr=2.58e-05 | ⏱️ 20.28s/step - ETA: 0m20s
+[Epoch 7 Step 3/3 | Global-Step 0] loss=0.3601 (ctc=0.1107, att=0.4669) grad=8.26  lr=2.14e-05 | ⏱️ 3.05s/step - ETA: 0m0s
+✅ Epoch 7 hoàn tất trong 0m42s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch7.pt
+🎯 Dev WER (CTC): 13.33%
+🌐 Global WER           : 6.67%
+
+🌀 Epoch 8 bắt đầu...
+[Epoch 8 Step 1/3 | Global-Step 0] loss=0.1007 (ctc=0.0318, att=0.1302) grad=0.44  lr=1.74e-05 | ⏱️ 19.31s/step - ETA: 0m38s
+[Epoch 8 Step 2/3 | Global-Step 0] loss=0.1213 (ctc=0.0490, att=0.1523) grad=0.49  lr=1.37e-05 | ⏱️ 19.52s/step - ETA: 0m19s
+[Epoch 8 Step 3/3 | Global-Step 0] loss=1.8539 (ctc=0.4342, att=2.4623) grad=12.55  lr=1.05e-05 | ⏱️ 3.06s/step - ETA: 0m0s
+✅ Epoch 8 hoàn tất trong 0m42s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch8.pt
+🎯 Dev WER (CTC): 13.33%
+🌐 Global WER           : 6.67%
+
+🌀 Epoch 9 bắt đầu...
+[Epoch 9 Step 1/3 | Global-Step 0] loss=0.1050 (ctc=0.0448, att=0.1309) grad=0.49  lr=7.63e-06 | ⏱️ 18.67s/step - ETA: 0m37s
+[Epoch 9 Step 2/3 | Global-Step 0] loss=0.1225 (ctc=0.0341, att=0.1604) grad=0.42  lr=5.28e-06 | ⏱️ 19.86s/step - ETA: 0m19s
+[Epoch 9 Step 3/3 | Global-Step 0] loss=0.8504 (ctc=0.4943, att=1.0030) grad=13.78  lr=3.42e-06 | ⏱️ 2.65s/step - ETA: 0m0s
+✅ Epoch 9 hoàn tất trong 0m41s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch9.pt
+🎯 Dev WER (CTC): 13.33%
+🌐 Global WER           : 6.67%
+
+🌀 Epoch 10 bắt đầu...
+[Epoch 10 Step 1/3 | Global-Step 0] loss=0.0706 (ctc=0.0201, att=0.0922) grad=0.37  lr=2.08e-06 | ⏱️ 18.50s/step - ETA: 0m36s
+[Epoch 10 Step 2/3 | Global-Step 0] loss=0.1411 (ctc=0.0548, att=0.1782) grad=0.47  lr=1.27e-06 | ⏱️ 19.56s/step - ETA: 0m19s
+[Epoch 10 Step 3/3 | Global-Step 0] loss=0.4251 (ctc=0.0875, att=0.5698) grad=5.51  lr=1.00e-06 | ⏱️ 2.63s/step - ETA: 0m0s
+✅ Epoch 10 hoàn tất trong 0m40s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch10.pt
+🎯 Dev WER (CTC): 13.33%
+🌐 Global WER           : 6.67%
