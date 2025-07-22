@@ -1,0 +1,25 @@
+nohup: ignoring input
+⚙️  Running in smoke mode with ratio=1
+==================================
+../../../vpb_dataset
+==================================
+==================================
+../../../vpb_dataset
+==================================
+[2025-07-22 20:37:47] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+!!!Vocab size: 6992
+🔰 Khởi tạo từ đầu (pretrained model)
+💻 Sử dụng thiết bị: cuda
+⚠️ Mô hình không ở thiết bị đúng! (cuda:0)
+
+🧪 Đánh giá mô hình trước khi fine-tune:
+🎯 Dev WER (CTC): 33.63%
+🌐 Global WER           : 21.44%
+🕒 Evaluate time: 13.33s (avg decode/sample: 0.03s)
+
+🧪 Đánh giá mô hình trên tập train:

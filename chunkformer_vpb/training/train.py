@@ -34,7 +34,8 @@ def train():
     cfg_path = args.config
     smoke = args.smoke
     smoke_ratio = args.smoke_ratio
-    run_train(cfg_path, smoke=smoke, smoke_ratio=smoke_ratio)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    run_train(cfg_path, smoke=smoke, smoke_ratio=smoke_ratio, device=device)
 
 def freeze_encoder_groups(model, config):
     """
@@ -64,13 +65,15 @@ def freeze_encoder_groups(model, config):
             param.requires_grad = False
 
 
+# ======== RUN TRAIN ========
 
-def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False, eval_ratio=0.1):
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = "cpu"
+def run_train(cfg_path, smoke=False, smoke_ratio=0.01,
+              eval_train=False, eval_ratio=0.1,
+              device="cpu", resume_ckpt_path=None):
 
     cfg = FinetuneConfig.from_yaml(cfg_path)
 
+    # === Load dataloader ===
     if smoke:
         print(f"⚙️  Running in smoke mode with ratio={smoke_ratio}")
         train_loader, dev_loader = get_dataloaders_smoke(cfg, ratio=smoke_ratio)
@@ -79,29 +82,36 @@ def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False, eval_ra
 
     total_steps = len(train_loader) * cfg.training.epochs
     model, tokenizer, optimizer, scheduler = build_model_and_optimizer(cfg, device, total_steps)
+
+    # === Resume checkpoint nếu có ===
+    if resume_ckpt_path and os.path.exists(resume_ckpt_path):
+        print(f"♻️ Resume training từ checkpoint: {resume_ckpt_path}")
+        ckpt = torch.load(resume_ckpt_path, map_location=device)
+        model.load_state_dict(ckpt["model_state_dict"])
+        optimizer.load_state_dict(ckpt["optimizer_state_dict"])
+        scheduler.load_state_dict(ckpt["scheduler_state_dict"])
+        start_epoch = ckpt.get("epoch", 0) + 1
+        global_step = ckpt.get("global_step", 0)
+    else:
+        print(f"🔰 Khởi tạo từ đầu (pretrained model)")
+        start_epoch = 1
+        global_step = 0
+
     model.to(device)
 
-    # 👇 Freeze một số phần trong encoder nếu cấu hình
+    # === Freeze encoder nếu cần ===
     if hasattr(cfg, "freeze") and cfg.freeze is not None:
         freeze_encoder_groups(model, cfg.freeze)
 
-
-    # print model 
-    # print(f"🔧 Mô hình: {model.__class__.__name__}")
-    # print(model)
-    # print("-----------------------------------\n\n")
-
-    # print device info
+    # === Thông tin thiết bị ===
     print(f"💻 Sử dụng thiết bị: {device}")
     model_device = next(model.parameters()).device
-    print(f"🔧 Mô hình đang ở thiết bị: {model_device}")
-    # check model device 
-    if next(model.parameters()).device != device:
-        print("⚠️ Mô hình không được chuyển sang thiết bị đúng!")
+    if model_device != device:
+        print(f"⚠️ Mô hình không ở thiết bị đúng! ({model_device})")
     else:
-        print("✅ Mô hình đã được chuyển sang thiết bị đúng.")
+        print(f"✅ Mô hình đã được chuyển sang đúng thiết bị: {device}")
 
-    # 👉 EVALUATE TRƯỚC TRAINING (pretrained model)
+    # === Evaluate trước training ===
     print("\n🧪 Đánh giá mô hình trước khi fine-tune:")
     if dev_loader is not None:
         evaluate(model, tokenizer, dev_loader, cfg, device)
@@ -112,18 +122,16 @@ def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False, eval_ra
         print("\n🧪 Đánh giá mô hình trên tập train:")
         evaluate(model, tokenizer, train_loader, cfg, device, eval_ratio=eval_ratio)
 
-
-    global_step = 0
+    # === Train loop ===
     num_steps_per_epoch = len(train_loader)
 
-    for epoch in range(1, cfg.training.epochs + 1):
+    for epoch in range(start_epoch, cfg.training.epochs + 1):
         model.train()
         print(f"\n🌀 Epoch {epoch} bắt đầu...")
-        epoch_start_time = time.time()  # ⏱️ bắt đầu đo thời gian epoch
-
+        epoch_start_time = time.time()
 
         for step, (feats, feat_lens, toks, tok_lens) in enumerate(train_loader, 1):
-            step_start_time = time.time()  # ⏱️ bắt đầu đo thời gian step
+            step_start_time = time.time()
 
             feats, feat_lens = feats.to(device), feat_lens.to(device)
             toks,  tok_lens  = toks.to(device),  tok_lens.to(device)
@@ -134,44 +142,51 @@ def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False, eval_ra
 
             optimizer.zero_grad()
             loss.backward()
-            grad_norm = torch.nn.utils.clip_grad_norm_(
-                model.parameters(), cfg.training.max_grad_norm
-            )
-            optimizer.step(); scheduler.step()
+            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.training.max_grad_norm)
+            optimizer.step()
+            scheduler.step()
+            global_step += 1
 
-            # ---- Timing ----
             step_time = time.time() - step_start_time
             remaining_steps = num_steps_per_epoch - step
             eta_epoch = remaining_steps * step_time
             eta_min, eta_sec = divmod(int(eta_epoch), 60)
 
-            # ---- Logging ----
             lr_now = scheduler.get_last_lr()[0]
             print(f"[Epoch {epoch} Step {step}/{num_steps_per_epoch} | "
-                f"Global-Step {global_step}] "
-                f"loss={loss.item():.4f} (ctc={loss_ctc.item():.4f}, att={loss_att.item():.4f}) "
-                f"grad={grad_norm:.2f}  lr={lr_now:.2e} "
-                f"| ⏱️ {step_time:.2f}s/step - ETA: {eta_min}m{eta_sec}s")
+                  f"Global-Step {global_step}] "
+                  f"loss={loss.item():.4f} (ctc={loss_ctc.item():.4f}, att={loss_att.item():.4f}) "
+                  f"grad={grad_norm:.2f}  lr={lr_now:.2e} "
+                  f"| ⏱️ {step_time:.2f}s/step - ETA: {eta_min}m{eta_sec}s")
 
         epoch_duration = time.time() - epoch_start_time
         ep_m, ep_s = divmod(int(epoch_duration), 60)
         print(f"✅ Epoch {epoch} hoàn tất trong {ep_m}m{ep_s}s")
 
-        # Save checkpoint mỗi epoch
+        # === Save checkpoint (đầy đủ state) ===
         ckpt_dir = cfg.training.checkpoint_dir
         os.makedirs(ckpt_dir, exist_ok=True)
         ckpt_path = os.path.join(ckpt_dir, f"epoch{epoch}.pt")
-        torch.save(model.state_dict(), ckpt_path)
+        torch.save({
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "scheduler_state_dict": scheduler.state_dict(),
+            "epoch": epoch,
+            "global_step": global_step,
+        }, ckpt_path)
         print(f"💾 Đã lưu checkpoint: {ckpt_path}")
 
-        # Eval sau mỗi epoch
+        # === Evaluate dev ===
         evaluate(model, tokenizer, dev_loader, cfg, device)
+
+
 
 
 # ======== EVALUATE ========
 from jiwer import wer
 from chunkformer_vpb.model_utils import decode_long_form, decode_aed_long_form, get_default_args
 from jiwer import wer
+
 def evaluate(model, tokenizer, loader, cfg, device, mode="ctc", eval_ratio=1.0):
     if loader is None:
         print("🚫 No eval data found. Skipping evaluation.")
@@ -192,6 +207,9 @@ def evaluate(model, tokenizer, loader, cfg, device, mode="ctc", eval_ratio=1.0):
     max_samples = int(len(loader.dataset) * eval_ratio)
     processed_samples = 0
 
+    start_eval_time = time.time()  # ⏱️ Tổng thời gian evaluate
+    total_decode_time = 0.0
+
     with torch.no_grad():
         for feats, feat_lens, toks, tok_lens in loader:
             feats, feat_lens = feats.to(device), feat_lens.to(device)
@@ -208,12 +226,15 @@ def evaluate(model, tokenizer, loader, cfg, device, mode="ctc", eval_ratio=1.0):
                 ref_ids = y[0, :y_lens].tolist()
                 ref_text = tokenizer.decode_ids(ref_ids)
 
+                decode_start = time.time()
                 if mode == "ctc":
                     pred_text = decode_long_form(x, model, char_dict, args, device)
                 elif mode == "aed":
                     _, pred_text = decode_aed_long_form(x, model, char_dict, args, device)
                 else:
                     raise ValueError(f"Unknown mode: {mode}")
+                decode_duration = time.time() - decode_start
+                total_decode_time += decode_duration
 
                 ref_text = ref_text.lower()
                 pred_text = pred_text.lower()
@@ -228,15 +249,20 @@ def evaluate(model, tokenizer, loader, cfg, device, mode="ctc", eval_ratio=1.0):
             if processed_samples >= max_samples:
                 break
 
+    total_eval_time = time.time() - start_eval_time
+
     if count == 0:
         print("⚠️ No samples evaluated.")
         return
 
     avg_wer = total_wer / count
     global_wer = wer(all_refs, all_preds)
+    avg_decode_time = total_decode_time / count
 
     print(f"🎯 Dev WER ({mode.upper()}): {avg_wer:.2%}")
     print(f"🌐 Global WER           : {global_wer:.2%}")
+    print(f"🕒 Evaluate time: {total_eval_time:.2f}s "
+          f"(avg decode/sample: {avg_decode_time:.2f}s)")
     model.train()
 
 
