@@ -1,0 +1,45 @@
+nohup: ignoring input
+==================================
+../../../vpb_dataset
+==================================
+==================================
+../../../vpb_dataset
+==================================
+[2025-07-22 09:25:37] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+!!!Vocab size: 6992
+
+🧪 Đánh giá mô hình trước khi fine-tune:
+🎯 Dev WER (CTC): 33.63%
+🌐 Global WER           : 21.44%
+
+🧪 Đánh giá mô hình trên tập train:
+🎯 Dev WER (CTC): 32.33%
+🌐 Global WER           : 19.84%
+
+🌀 Epoch 1 bắt đầu...
+[Epoch 1 Step 1/214 | Global-Step 0] loss=0.7060 (ctc=0.6136, att=0.7456) grad=1.91  lr=1.00e-04 | ⏱️ 5.75s/step - ETA: 20m25s
+Traceback (most recent call last):
+  File "/home/kylh/work/stt_chunkformer/notebook/3_finetune/_0_finetune_main.py", line 11, in <module>
+    fine_tune_main.run_train(cfg_path=CFG_PATH, smoke=False, eval_train=True)
+  File "/home/kylh/work/stt_chunkformer/chunkformer_vpb/training/train.py", line 121, in run_train
+    loss, loss_ctc, loss_att = compute_loss_batch_v1(
+  File "/home/kylh/work/stt_chunkformer/chunkformer_vpb/training/finetune_utils.py", line 320, in compute_loss_batch_v1
+    enc_outs, enc_masks = encode_offline_batch_debug(feats, feat_lens, model, cfg.chunk, device)
+  File "/home/kylh/work/stt_chunkformer/chunkformer_vpb/training/finetune_utils.py", line 281, in encode_offline_batch_debug
+    out_i, m_i = _chunk_encoder_forward(x_i, model, chunk_cfg, device)
+  File "/home/kylh/work/stt_chunkformer/chunkformer_vpb/training/finetune_utils.py", line 201, in _chunk_encoder_forward
+    out, out_len, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(
+  File "/home/kylh/work/stt_chunkformer/chunkformer_vpb/model/encoder.py", line 290, in forward_parallel_chunk
+    xs, _, new_att_cache, new_cnn_cache = layer.forward_parallel_chunk(
+  File "/home/kylh/work/stt_chunkformer/chunkformer_vpb/model/encoder_layer.py", line 114, in forward_parallel_chunk
+    x_att, new_att_cache = self.self_attn.forward_parallel_chunk(
+  File "/home/kylh/work/stt_chunkformer/chunkformer_vpb/model/attention.py", line 607, in forward_parallel_chunk
+    return self.forward_attention(v, scores, mask), new_cache
+  File "/home/kylh/work/stt_chunkformer/chunkformer_vpb/model/attention.py", line 101, in forward_attention
+    x = (x.transpose(1, 2).contiguous().view(n_batch, -1,
+torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 MiB. GPU 

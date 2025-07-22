@@ -1,0 +1,86 @@
+nohup: ignoring input
+⚙️  Running in smoke mode with ratio=1
+==================================
+../../../vpb_dataset
+==================================
+==================================
+../../../vpb_dataset
+==================================
+[2025-07-22 11:45:02] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+!!!Vocab size: 6992
+💻 Sử dụng thiết bị: cpu
+🔧 Mô hình đang ở thiết bị: cpu
+⚠️ Mô hình không được chuyển sang thiết bị đúng!
+
+🧪 Đánh giá mô hình trước khi fine-tune:
+🎯 Dev WER (CTC): 33.73%
+🌐 Global WER           : 21.78%
+
+🧪 Đánh giá mô hình trên tập train:
+🎯 Dev WER (CTC): 32.02%
+🌐 Global WER           : 20.09%
+
+🌀 Epoch 1 bắt đầu...
+[Epoch 1 Step 1/54 | Global-Step 0] loss=0.2832 (ctc=0.4170, att=0.2259) grad=1.29  lr=9.99e-05 | ⏱️ 82.65s/step - ETA: 73m0s
+[Epoch 1 Step 2/54 | Global-Step 0] loss=0.1663 (ctc=0.1505, att=0.1731) grad=0.54  lr=9.97e-05 | ⏱️ 89.82s/step - ETA: 77m50s
+[Epoch 1 Step 3/54 | Global-Step 0] loss=0.1501 (ctc=0.1057, att=0.1691) grad=0.42  lr=9.92e-05 | ⏱️ 99.02s/step - ETA: 84m9s
+[Epoch 1 Step 4/54 | Global-Step 0] loss=0.1328 (ctc=0.0802, att=0.1554) grad=0.29  lr=9.87e-05 | ⏱️ 106.56s/step - ETA: 88m47s
+[Epoch 1 Step 5/54 | Global-Step 0] loss=0.1096 (ctc=0.0657, att=0.1284) grad=0.23  lr=9.79e-05 | ⏱️ 110.14s/step - ETA: 89m56s
+[Epoch 1 Step 6/54 | Global-Step 0] loss=0.0944 (ctc=0.0538, att=0.1118) grad=0.19  lr=9.70e-05 | ⏱️ 109.69s/step - ETA: 87m44s
+[Epoch 1 Step 7/54 | Global-Step 0] loss=0.1211 (ctc=0.0377, att=0.1569) grad=0.17  lr=9.60e-05 | ⏱️ 108.40s/step - ETA: 84m55s
+[Epoch 1 Step 8/54 | Global-Step 0] loss=0.0866 (ctc=0.0263, att=0.1125) grad=0.15  lr=9.47e-05 | ⏱️ 110.92s/step - ETA: 85m2s
+[Epoch 1 Step 9/54 | Global-Step 0] loss=0.0755 (ctc=0.0249, att=0.0972) grad=0.12  lr=9.34e-05 | ⏱️ 101.88s/step - ETA: 76m24s
+[Epoch 1 Step 10/54 | Global-Step 0] loss=0.0707 (ctc=0.0191, att=0.0928) grad=0.14  lr=9.19e-05 | ⏱️ 110.94s/step - ETA: 81m21s
+[Epoch 1 Step 11/54 | Global-Step 0] loss=0.0827 (ctc=0.0281, att=0.1061) grad=0.13  lr=9.02e-05 | ⏱️ 108.51s/step - ETA: 77m45s
+[Epoch 1 Step 12/54 | Global-Step 0] loss=0.0745 (ctc=0.0205, att=0.0976) grad=0.14  lr=8.84e-05 | ⏱️ 108.66s/step - ETA: 76m3s
+[Epoch 1 Step 13/54 | Global-Step 0] loss=0.0827 (ctc=0.0255, att=0.1072) grad=0.13  lr=8.65e-05 | ⏱️ 127.38s/step - ETA: 87m2s
+[Epoch 1 Step 14/54 | Global-Step 0] loss=0.0479 (ctc=0.0169, att=0.0612) grad=0.09  lr=8.45e-05 | ⏱️ 132.49s/step - ETA: 88m19s
+[Epoch 1 Step 15/54 | Global-Step 0] loss=0.0686 (ctc=0.0188, att=0.0900) grad=0.12  lr=8.23e-05 | ⏱️ 124.18s/step - ETA: 80m43s
+[Epoch 1 Step 16/54 | Global-Step 0] loss=0.0602 (ctc=0.0223, att=0.0764) grad=0.12  lr=8.01e-05 | ⏱️ 103.53s/step - ETA: 65m34s
+[Epoch 1 Step 17/54 | Global-Step 0] loss=0.0581 (ctc=0.0139, att=0.0771) grad=0.10  lr=7.77e-05 | ⏱️ 122.02s/step - ETA: 75m14s
+[Epoch 1 Step 18/54 | Global-Step 0] loss=0.0797 (ctc=0.0187, att=0.1058) grad=0.14  lr=7.52e-05 | ⏱️ 114.91s/step - ETA: 68m56s
+[Epoch 1 Step 19/54 | Global-Step 0] loss=0.0600 (ctc=0.0211, att=0.0767) grad=0.11  lr=7.27e-05 | ⏱️ 119.69s/step - ETA: 69m49s
+[Epoch 1 Step 20/54 | Global-Step 0] loss=0.0726 (ctc=0.0219, att=0.0943) grad=0.14  lr=7.01e-05 | ⏱️ 119.82s/step - ETA: 67m53s
+[Epoch 1 Step 21/54 | Global-Step 0] loss=0.0656 (ctc=0.0144, att=0.0876) grad=0.12  lr=6.74e-05 | ⏱️ 118.63s/step - ETA: 65m14s
+[Epoch 1 Step 22/54 | Global-Step 0] loss=0.0659 (ctc=0.0172, att=0.0867) grad=0.11  lr=6.47e-05 | ⏱️ 137.93s/step - ETA: 73m33s
+[Epoch 1 Step 23/54 | Global-Step 0] loss=0.0486 (ctc=0.0130, att=0.0639) grad=0.13  lr=6.19e-05 | ⏱️ 134.19s/step - ETA: 69m20s
+[Epoch 1 Step 24/54 | Global-Step 0] loss=0.0467 (ctc=0.0199, att=0.0582) grad=0.10  lr=5.91e-05 | ⏱️ 115.70s/step - ETA: 57m51s
+[Epoch 1 Step 25/54 | Global-Step 0] loss=0.0748 (ctc=0.0184, att=0.0990) grad=0.14  lr=5.62e-05 | ⏱️ 128.40s/step - ETA: 62m3s
+[Epoch 1 Step 26/54 | Global-Step 0] loss=0.0662 (ctc=0.0131, att=0.0890) grad=0.11  lr=5.34e-05 | ⏱️ 135.51s/step - ETA: 63m14s
+[Epoch 1 Step 27/54 | Global-Step 0] loss=0.0613 (ctc=0.0142, att=0.0815) grad=0.11  lr=5.05e-05 | ⏱️ 127.03s/step - ETA: 57m9s
+[Epoch 1 Step 28/54 | Global-Step 0] loss=0.0761 (ctc=0.0234, att=0.0987) grad=0.11  lr=4.76e-05 | ⏱️ 135.96s/step - ETA: 58m54s
+[Epoch 1 Step 29/54 | Global-Step 0] loss=0.0696 (ctc=0.0184, att=0.0915) grad=0.11  lr=4.48e-05 | ⏱️ 115.69s/step - ETA: 48m12s
+[Epoch 1 Step 30/54 | Global-Step 0] loss=0.0540 (ctc=0.0183, att=0.0693) grad=0.10  lr=4.19e-05 | ⏱️ 126.69s/step - ETA: 50m40s
+[Epoch 1 Step 31/54 | Global-Step 0] loss=0.0681 (ctc=0.0215, att=0.0880) grad=0.12  lr=3.91e-05 | ⏱️ 132.74s/step - ETA: 50m53s
+[Epoch 1 Step 32/54 | Global-Step 0] loss=0.0743 (ctc=0.0166, att=0.0990) grad=0.11  lr=3.63e-05 | ⏱️ 119.57s/step - ETA: 43m50s
+[Epoch 1 Step 33/54 | Global-Step 0] loss=0.0523 (ctc=0.0118, att=0.0696) grad=0.10  lr=3.36e-05 | ⏱️ 116.25s/step - ETA: 40m41s
+[Epoch 1 Step 34/54 | Global-Step 0] loss=0.0637 (ctc=0.0165, att=0.0839) grad=0.12  lr=3.09e-05 | ⏱️ 114.45s/step - ETA: 38m9s
+[Epoch 1 Step 35/54 | Global-Step 0] loss=0.0492 (ctc=0.0133, att=0.0646) grad=0.09  lr=2.83e-05 | ⏱️ 114.80s/step - ETA: 36m21s
+[Epoch 1 Step 36/54 | Global-Step 0] loss=0.0531 (ctc=0.0125, att=0.0705) grad=0.11  lr=2.58e-05 | ⏱️ 113.90s/step - ETA: 34m10s
+[Epoch 1 Step 37/54 | Global-Step 0] loss=0.0657 (ctc=0.0212, att=0.0847) grad=0.12  lr=2.33e-05 | ⏱️ 114.29s/step - ETA: 32m22s
+[Epoch 1 Step 38/54 | Global-Step 0] loss=0.0598 (ctc=0.0147, att=0.0791) grad=0.10  lr=2.09e-05 | ⏱️ 112.46s/step - ETA: 29m59s
+[Epoch 1 Step 39/54 | Global-Step 0] loss=0.0591 (ctc=0.0173, att=0.0770) grad=0.10  lr=1.87e-05 | ⏱️ 113.30s/step - ETA: 28m19s
+[Epoch 1 Step 40/54 | Global-Step 0] loss=0.0610 (ctc=0.0116, att=0.0822) grad=0.11  lr=1.65e-05 | ⏱️ 111.84s/step - ETA: 26m5s
+[Epoch 1 Step 41/54 | Global-Step 0] loss=0.0563 (ctc=0.0120, att=0.0753) grad=0.10  lr=1.45e-05 | ⏱️ 112.07s/step - ETA: 24m16s
+[Epoch 1 Step 42/54 | Global-Step 0] loss=0.0670 (ctc=0.0151, att=0.0892) grad=0.11  lr=1.26e-05 | ⏱️ 133.62s/step - ETA: 26m43s
+[Epoch 1 Step 43/54 | Global-Step 0] loss=0.0650 (ctc=0.0149, att=0.0866) grad=0.12  lr=1.08e-05 | ⏱️ 139.59s/step - ETA: 25m35s
+[Epoch 1 Step 44/54 | Global-Step 0] loss=0.0545 (ctc=0.0189, att=0.0698) grad=0.10  lr=9.14e-06 | ⏱️ 119.89s/step - ETA: 19m58s
+[Epoch 1 Step 45/54 | Global-Step 0] loss=0.0592 (ctc=0.0146, att=0.0783) grad=0.10  lr=7.63e-06 | ⏱️ 114.82s/step - ETA: 17m13s
+[Epoch 1 Step 46/54 | Global-Step 0] loss=0.0540 (ctc=0.0173, att=0.0697) grad=0.11  lr=6.27e-06 | ⏱️ 112.34s/step - ETA: 14m58s
+[Epoch 1 Step 47/54 | Global-Step 0] loss=0.0684 (ctc=0.0182, att=0.0899) grad=0.10  lr=5.05e-06 | ⏱️ 131.72s/step - ETA: 15m22s
+[Epoch 1 Step 48/54 | Global-Step 0] loss=0.0569 (ctc=0.0154, att=0.0747) grad=0.10  lr=3.99e-06 | ⏱️ 138.38s/step - ETA: 13m50s
+[Epoch 1 Step 49/54 | Global-Step 0] loss=0.0515 (ctc=0.0125, att=0.0682) grad=0.09  lr=3.08e-06 | ⏱️ 131.37s/step - ETA: 10m56s
+[Epoch 1 Step 50/54 | Global-Step 0] loss=0.0579 (ctc=0.0122, att=0.0775) grad=0.10  lr=2.33e-06 | ⏱️ 138.26s/step - ETA: 9m13s
+[Epoch 1 Step 51/54 | Global-Step 0] loss=0.0651 (ctc=0.0209, att=0.0840) grad=0.10  lr=1.75e-06 | ⏱️ 119.06s/step - ETA: 5m57s
+[Epoch 1 Step 52/54 | Global-Step 0] loss=0.0455 (ctc=0.0121, att=0.0598) grad=0.10  lr=1.33e-06 | ⏱️ 115.18s/step - ETA: 3m50s
+[Epoch 1 Step 53/54 | Global-Step 0] loss=0.0490 (ctc=0.0156, att=0.0633) grad=0.09  lr=1.08e-06 | ⏱️ 113.99s/step - ETA: 1m53s
+[Epoch 1 Step 54/54 | Global-Step 0] loss=0.1361 (ctc=0.0385, att=0.1779) grad=0.42  lr=1.00e-06 | ⏱️ 48.16s/step - ETA: 0m0s
+✅ Epoch 1 hoàn tất trong 105m46s
+💾 Đã lưu checkpoint: checkpoints_vpb/epoch1.pt
+🎯 Dev WER (CTC): 23.68%
+🌐 Global WER           : 14.90%

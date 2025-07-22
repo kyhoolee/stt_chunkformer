@@ -32,7 +32,7 @@ training:
   epochs: 1
   max_grad_norm: 5.0
   log_steps: 50
-  checkpoint_dir: checkpoints_vpb
+  checkpoint_dir: checkpoints_vpb_small
   shuffle: true          #  ← thêm dòng này
 
 # 6) Freeze config (tuỳ chọn)

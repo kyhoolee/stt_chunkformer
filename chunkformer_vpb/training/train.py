@@ -65,7 +65,7 @@ def freeze_encoder_groups(model, config):
 
 
 
-def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False):
+def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False, eval_ratio=0.1):
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     device = "cpu"
 
@@ -91,6 +91,16 @@ def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False):
     # print(model)
     # print("-----------------------------------\n\n")
 
+    # print device info
+    print(f"💻 Sử dụng thiết bị: {device}")
+    model_device = next(model.parameters()).device
+    print(f"🔧 Mô hình đang ở thiết bị: {model_device}")
+    # check model device 
+    if next(model.parameters()).device != device:
+        print("⚠️ Mô hình không được chuyển sang thiết bị đúng!")
+    else:
+        print("✅ Mô hình đã được chuyển sang thiết bị đúng.")
+
     # 👉 EVALUATE TRƯỚC TRAINING (pretrained model)
     print("\n🧪 Đánh giá mô hình trước khi fine-tune:")
     if dev_loader is not None:
@@ -100,7 +110,7 @@ def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False):
 
     if eval_train:
         print("\n🧪 Đánh giá mô hình trên tập train:")
-        evaluate(model, tokenizer, train_loader, cfg, device)
+        evaluate(model, tokenizer, train_loader, cfg, device, eval_ratio=eval_ratio)
 
 
     global_step = 0
@@ -162,8 +172,7 @@ def run_train(cfg_path, smoke=False, smoke_ratio=0.01, eval_train=False):
 from jiwer import wer
 from chunkformer_vpb.model_utils import decode_long_form, decode_aed_long_form, get_default_args
 from jiwer import wer
-
-def evaluate(model, tokenizer, loader, cfg, device, mode="ctc"):
+def evaluate(model, tokenizer, loader, cfg, device, mode="ctc", eval_ratio=1.0):
     if loader is None:
         print("🚫 No eval data found. Skipping evaluation.")
         return
@@ -180,19 +189,25 @@ def evaluate(model, tokenizer, loader, cfg, device, mode="ctc"):
 
     char_dict = tokenizer.vocab
 
+    max_samples = int(len(loader.dataset) * eval_ratio)
+    processed_samples = 0
+
     with torch.no_grad():
         for feats, feat_lens, toks, tok_lens in loader:
             feats, feat_lens = feats.to(device), feat_lens.to(device)
             toks,  tok_lens  = toks.to(device),  tok_lens.to(device)
 
             for i in range(feats.size(0)):
+                if processed_samples >= max_samples:
+                    break
+
                 x = feats[i].unsqueeze(0)
                 y = toks[i].unsqueeze(0)
                 y_lens = tok_lens[i].item()
 
                 ref_ids = y[0, :y_lens].tolist()
                 ref_text = tokenizer.decode_ids(ref_ids)
-                
+
                 if mode == "ctc":
                     pred_text = decode_long_form(x, model, char_dict, args, device)
                 elif mode == "aed":
@@ -200,22 +215,31 @@ def evaluate(model, tokenizer, loader, cfg, device, mode="ctc"):
                 else:
                     raise ValueError(f"Unknown mode: {mode}")
 
-                ref_text = ref_text.lower() # .strip()
-                pred_text = pred_text.lower() # .strip()
+                ref_text = ref_text.lower()
+                pred_text = pred_text.lower()
 
                 total_wer += wer(ref_text, pred_text)
                 count += 1
+                processed_samples += 1
 
                 all_refs.append(ref_text)
                 all_preds.append(pred_text)
 
+            if processed_samples >= max_samples:
+                break
+
+    if count == 0:
+        print("⚠️ No samples evaluated.")
+        return
+
     avg_wer = total_wer / count
-    # global_wer = wer(" ".join(all_refs), " ".join(all_preds))
     global_wer = wer(all_refs, all_preds)
 
     print(f"🎯 Dev WER ({mode.upper()}): {avg_wer:.2%}")
     print(f"🌐 Global WER           : {global_wer:.2%}")
     model.train()
+
+
 
 # ======== MAIN ========
 if __name__ == "__main__":

@@ -146,7 +146,8 @@ def get_dataloaders_smoke(cfg: FinetuneConfig, ratio: float = 0.01):
         print("❌ [SmokeLoader] Empty valid dataset.")
         valid_loader = None
     else:
-        valid_subset_size = max(1, int(len(valid_ds) * ratio))
+        # @NOTE: luôn sử dụng full valid set -> ko cần smoke ratio 
+        valid_subset_size = max(1, int(len(valid_ds)))
         valid_subset = Subset(valid_ds, list(range(valid_subset_size)))
         valid_loader = DataLoader(
             valid_subset,
