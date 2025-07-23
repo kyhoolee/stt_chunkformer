@@ -1,0 +1,52 @@
+# finetune_config.yaml
+
+# 1) Dữ liệu & feature
+data:
+  # Thư mục chứa các file manifest JSON do DataConfig yêu cầu
+  manifest_dir: ../../../vpb_dataset/manifest_vpb_non_empty_full
+  audio_dir: ../../../vpb_dataset
+  sample_rate: 16000
+  num_mel_bins: 80
+  frame_length: 25      # in ms
+  frame_shift: 10       # in ms
+  dither: 0.0
+  energy_floor: 0.0
+
+# 2) Tokenizer / vocab
+tokenizer:
+  vocab_path: ../../../chunkformer-large-vie/vocab.txt
+
+# 3) Mô hình
+model:
+  # Thư mục (hoặc checkpoint file) để load weights
+  checkpoint: ../../../chunkformer-large-vie
+  # Cân số giữa CTC và AED loss
+  ctc_weight: 0.6
+
+# 4) Training hyper-params
+training:
+  batch_size: 32
+  lr: 1e-4
+  weight_decay: 0.01
+  warmup_steps: 1000
+  epochs: 10
+  max_grad_norm: 5.0
+  log_steps: 50
+  checkpoint_dir: checkpoints_vpb_ctc # @NOTE
+  shuffle: true          #  ← thêm dòng này
+
+# 6) Freeze config (tuỳ chọn)
+freeze:
+  cmvn: false
+  subsampling: true
+  post_embed_norm: false
+  encoder_layers: 0   # freeze 0 layer đầu trong encoder
+  ctc: false
+
+
+# 5) Chunking parameters (cho forward chunked encoder)
+chunk:
+  chunk_size: 64
+  left_context_size: 128
+  right_context_size: 128
+  total_batch_duration: 1800  # ms

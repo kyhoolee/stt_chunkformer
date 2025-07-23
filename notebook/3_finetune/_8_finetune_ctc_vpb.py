@@ -1,7 +1,7 @@
 
 from chunkformer_vpb.training import train as fine_tune_main
 
-CFG_PATH = "../../config/vpb_cmvn_finetune_config.yaml"
+CFG_PATH = "../../config/vpb_ctc_finetune_config.yaml"
 
 # 🔥 Gọi đúng hàm run_train (đã chỉnh sửa ở bước 1)
 fine_tune_main.run_train(
@@ -9,4 +9,4 @@ fine_tune_main.run_train(
         resume_ckpt_path=None
     )
 
-# nohup env PYTHONUNBUFFERED=1 python _7_finetune_cmvn_vpb.py > train_0_cmvn_vpb.log 2>&1 &
+# nohup env PYTHONUNBUFFERED=1 python _8_finetune_ctc_vpb.py > train_0_ctc_vpb.log 2>&1 &
