@@ -1,0 +1,727 @@
+nohup: ignoring input
+⚙️  Running in smoke mode with ratio=1
+==================================
+../../../vpb_dataset
+==================================
+==================================
+../../../vpb_dataset
+==================================
+[2025-07-23 13:50:12] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+!!!Vocab size: 6992
+🔰 Khởi tạo từ đầu (pretrained model)
+💻 Sử dụng thiết bị: cuda
+⚠️ Mô hình không ở thiết bị đúng! (cuda:0)
+
+🧪 Đánh giá mô hình trước khi fine-tune:
+🎯 Dev WER (CTC): 33.57%
+🌐 Global WER           : 21.95%
+🕒 Evaluate time: 13.66s (avg decode/sample: 0.03s)
+
+🧪 Đánh giá mô hình trên tập train:
+🎯 Dev WER (CTC): 31.97%
+🌐 Global WER           : 20.09%
+🕒 Evaluate time: 122.66s (avg decode/sample: 0.03s)
+
+🌀 Epoch 1 bắt đầu...
+[Epoch 1 Step 1/107 | Global-Step 1] loss=0.3645 (ctc=0.3730, att=0.3517) grad=2.16  lr=1.00e-04 | ⏱️ 12.62s/step - ETA: 22m17s
+[Epoch 1 Step 2/107 | Global-Step 2] loss=0.3258 (ctc=0.2501, att=0.4394) grad=1.49  lr=1.00e-04 | ⏱️ 12.33s/step - ETA: 21m34s
+[Epoch 1 Step 3/107 | Global-Step 3] loss=0.2135 (ctc=0.1450, att=0.3162) grad=0.64  lr=1.00e-04 | ⏱️ 12.16s/step - ETA: 21m5s
+[Epoch 1 Step 4/107 | Global-Step 4] loss=0.2220 (ctc=0.1713, att=0.2981) grad=0.86  lr=1.00e-04 | ⏱️ 12.44s/step - ETA: 21m21s
+[Epoch 1 Step 5/107 | Global-Step 5] loss=0.1411 (ctc=0.0797, att=0.2331) grad=0.35  lr=1.00e-04 | ⏱️ 12.25s/step - ETA: 20m49s
+[Epoch 1 Step 6/107 | Global-Step 6] loss=0.1343 (ctc=0.1008, att=0.1845) grad=0.45  lr=1.00e-04 | ⏱️ 12.05s/step - ETA: 20m17s
+[Epoch 1 Step 7/107 | Global-Step 7] loss=0.1376 (ctc=0.0750, att=0.2315) grad=0.29  lr=1.00e-04 | ⏱️ 12.15s/step - ETA: 20m14s
+[Epoch 1 Step 8/107 | Global-Step 8] loss=0.1301 (ctc=0.0667, att=0.2253) grad=0.28  lr=1.00e-04 | ⏱️ 12.31s/step - ETA: 20m19s
+[Epoch 1 Step 9/107 | Global-Step 9] loss=0.1356 (ctc=0.0763, att=0.2245) grad=0.30  lr=1.00e-04 | ⏱️ 12.16s/step - ETA: 19m52s
+[Epoch 1 Step 10/107 | Global-Step 10] loss=0.1428 (ctc=0.0442, att=0.2907) grad=0.27  lr=1.00e-04 | ⏱️ 12.35s/step - ETA: 19m58s
+[Epoch 1 Step 11/107 | Global-Step 11] loss=0.0958 (ctc=0.0365, att=0.1849) grad=0.21  lr=1.00e-04 | ⏱️ 12.27s/step - ETA: 19m37s
+[Epoch 1 Step 12/107 | Global-Step 12] loss=0.0998 (ctc=0.0391, att=0.1908) grad=0.27  lr=1.00e-04 | ⏱️ 12.39s/step - ETA: 19m37s
+[Epoch 1 Step 13/107 | Global-Step 13] loss=0.0792 (ctc=0.0258, att=0.1594) grad=0.20  lr=1.00e-04 | ⏱️ 12.23s/step - ETA: 19m9s
+[Epoch 1 Step 14/107 | Global-Step 14] loss=0.0839 (ctc=0.0237, att=0.1743) grad=0.26  lr=1.00e-04 | ⏱️ 12.09s/step - ETA: 18m44s
+[Epoch 1 Step 15/107 | Global-Step 15] loss=0.1246 (ctc=0.0404, att=0.2509) grad=0.27  lr=1.00e-04 | ⏱️ 12.69s/step - ETA: 19m27s
+[Epoch 1 Step 16/107 | Global-Step 16] loss=0.1132 (ctc=0.0278, att=0.2412) grad=0.26  lr=9.99e-05 | ⏱️ 12.41s/step - ETA: 18m49s
+[Epoch 1 Step 17/107 | Global-Step 17] loss=0.0991 (ctc=0.0312, att=0.2010) grad=0.20  lr=9.99e-05 | ⏱️ 12.15s/step - ETA: 18m13s
+[Epoch 1 Step 18/107 | Global-Step 18] loss=0.0995 (ctc=0.0439, att=0.1829) grad=0.24  lr=9.99e-05 | ⏱️ 12.53s/step - ETA: 18m35s
+[Epoch 1 Step 19/107 | Global-Step 19] loss=0.1072 (ctc=0.0452, att=0.2001) grad=0.21  lr=9.99e-05 | ⏱️ 12.31s/step - ETA: 18m2s
+[Epoch 1 Step 20/107 | Global-Step 20] loss=0.0673 (ctc=0.0192, att=0.1394) grad=0.20  lr=9.99e-05 | ⏱️ 12.51s/step - ETA: 18m8s
+[Epoch 1 Step 21/107 | Global-Step 21] loss=0.0815 (ctc=0.0326, att=0.1549) grad=0.21  lr=9.99e-05 | ⏱️ 12.16s/step - ETA: 17m25s
+[Epoch 1 Step 22/107 | Global-Step 22] loss=0.0606 (ctc=0.0239, att=0.1157) grad=0.18  lr=9.99e-05 | ⏱️ 12.13s/step - ETA: 17m11s
+[Epoch 1 Step 23/107 | Global-Step 23] loss=0.1053 (ctc=0.0277, att=0.2217) grad=0.22  lr=9.99e-05 | ⏱️ 12.42s/step - ETA: 17m23s
+[Epoch 1 Step 24/107 | Global-Step 24] loss=0.0847 (ctc=0.0294, att=0.1676) grad=0.26  lr=9.99e-05 | ⏱️ 12.56s/step - ETA: 17m22s
+[Epoch 1 Step 25/107 | Global-Step 25] loss=0.1002 (ctc=0.0318, att=0.2027) grad=0.26  lr=9.99e-05 | ⏱️ 12.37s/step - ETA: 16m54s
+[Epoch 1 Step 26/107 | Global-Step 26] loss=0.0842 (ctc=0.0446, att=0.1436) grad=0.19  lr=9.99e-05 | ⏱️ 12.12s/step - ETA: 16m21s
+[Epoch 1 Step 27/107 | Global-Step 27] loss=0.0878 (ctc=0.0300, att=0.1744) grad=0.19  lr=9.98e-05 | ⏱️ 12.53s/step - ETA: 16m42s
+[Epoch 1 Step 28/107 | Global-Step 28] loss=0.1037 (ctc=0.0521, att=0.1812) grad=0.22  lr=9.98e-05 | ⏱️ 12.09s/step - ETA: 15m54s
+[Epoch 1 Step 29/107 | Global-Step 29] loss=0.0728 (ctc=0.0264, att=0.1424) grad=0.21  lr=9.98e-05 | ⏱️ 12.34s/step - ETA: 16m2s
+[Epoch 1 Step 30/107 | Global-Step 30] loss=0.0781 (ctc=0.0336, att=0.1450) grad=0.16  lr=9.98e-05 | ⏱️ 12.52s/step - ETA: 16m4s
+[Epoch 1 Step 31/107 | Global-Step 31] loss=0.1034 (ctc=0.0478, att=0.1869) grad=0.20  lr=9.98e-05 | ⏱️ 12.19s/step - ETA: 15m26s
+[Epoch 1 Step 32/107 | Global-Step 32] loss=0.0969 (ctc=0.0368, att=0.1869) grad=0.19  lr=9.98e-05 | ⏱️ 12.54s/step - ETA: 15m40s
+[Epoch 1 Step 33/107 | Global-Step 33] loss=0.0769 (ctc=0.0208, att=0.1610) grad=0.23  lr=9.98e-05 | ⏱️ 12.50s/step - ETA: 15m24s
+[Epoch 1 Step 34/107 | Global-Step 34] loss=0.0719 (ctc=0.0246, att=0.1428) grad=0.18  lr=9.98e-05 | ⏱️ 12.55s/step - ETA: 15m15s
+[Epoch 1 Step 35/107 | Global-Step 35] loss=0.0974 (ctc=0.0296, att=0.1991) grad=0.20  lr=9.97e-05 | ⏱️ 12.39s/step - ETA: 14m52s
+[Epoch 1 Step 36/107 | Global-Step 36] loss=0.0757 (ctc=0.0308, att=0.1430) grad=0.18  lr=9.97e-05 | ⏱️ 12.21s/step - ETA: 14m26s
+[Epoch 1 Step 37/107 | Global-Step 37] loss=0.0654 (ctc=0.0273, att=0.1224) grad=0.19  lr=9.97e-05 | ⏱️ 12.14s/step - ETA: 14m9s
+[Epoch 1 Step 38/107 | Global-Step 38] loss=0.0762 (ctc=0.0309, att=0.1440) grad=0.15  lr=9.97e-05 | ⏱️ 12.15s/step - ETA: 13m58s
+[Epoch 1 Step 39/107 | Global-Step 39] loss=0.0791 (ctc=0.0311, att=0.1510) grad=0.26  lr=9.97e-05 | ⏱️ 12.13s/step - ETA: 13m45s
+[Epoch 1 Step 40/107 | Global-Step 40] loss=0.0843 (ctc=0.0288, att=0.1675) grad=0.17  lr=9.97e-05 | ⏱️ 12.18s/step - ETA: 13m36s
+[Epoch 1 Step 41/107 | Global-Step 41] loss=0.0901 (ctc=0.0298, att=0.1804) grad=0.21  lr=9.96e-05 | ⏱️ 12.17s/step - ETA: 13m22s
+[Epoch 1 Step 42/107 | Global-Step 42] loss=0.0493 (ctc=0.0117, att=0.1058) grad=0.12  lr=9.96e-05 | ⏱️ 12.38s/step - ETA: 13m24s
+[Epoch 1 Step 43/107 | Global-Step 43] loss=0.1188 (ctc=0.0493, att=0.2230) grad=0.18  lr=9.96e-05 | ⏱️ 12.23s/step - ETA: 13m2s
+[Epoch 1 Step 44/107 | Global-Step 44] loss=0.0821 (ctc=0.0371, att=0.1496) grad=0.17  lr=9.96e-05 | ⏱️ 12.17s/step - ETA: 12m46s
+[Epoch 1 Step 45/107 | Global-Step 45] loss=0.0690 (ctc=0.0326, att=0.1236) grad=0.15  lr=9.96e-05 | ⏱️ 12.12s/step - ETA: 12m31s
+[Epoch 1 Step 46/107 | Global-Step 46] loss=0.0794 (ctc=0.0332, att=0.1487) grad=0.17  lr=9.95e-05 | ⏱️ 12.39s/step - ETA: 12m35s
+[Epoch 1 Step 47/107 | Global-Step 47] loss=0.0728 (ctc=0.0273, att=0.1409) grad=0.13  lr=9.95e-05 | ⏱️ 12.53s/step - ETA: 12m32s
+[Epoch 1 Step 48/107 | Global-Step 48] loss=0.1071 (ctc=0.0310, att=0.2213) grad=0.16  lr=9.95e-05 | ⏱️ 12.43s/step - ETA: 12m13s
+[Epoch 1 Step 49/107 | Global-Step 49] loss=0.0506 (ctc=0.0189, att=0.0983) grad=0.15  lr=9.95e-05 | ⏱️ 12.14s/step - ETA: 11m44s
+[Epoch 1 Step 50/107 | Global-Step 50] loss=0.0852 (ctc=0.0375, att=0.1567) grad=0.17  lr=9.95e-05 | ⏱️ 12.18s/step - ETA: 11m34s
+[Epoch 1 Step 51/107 | Global-Step 51] loss=0.0638 (ctc=0.0238, att=0.1238) grad=0.15  lr=9.94e-05 | ⏱️ 12.25s/step - ETA: 11m26s
+[Epoch 1 Step 52/107 | Global-Step 52] loss=0.0720 (ctc=0.0324, att=0.1315) grad=0.16  lr=9.94e-05 | ⏱️ 12.17s/step - ETA: 11m9s
+[Epoch 1 Step 53/107 | Global-Step 53] loss=0.0728 (ctc=0.0309, att=0.1356) grad=0.24  lr=9.94e-05 | ⏱️ 12.14s/step - ETA: 10m55s
+[Epoch 1 Step 54/107 | Global-Step 54] loss=0.0602 (ctc=0.0208, att=0.1194) grad=0.16  lr=9.94e-05 | ⏱️ 12.67s/step - ETA: 11m11s
+[Epoch 1 Step 55/107 | Global-Step 55] loss=0.0649 (ctc=0.0274, att=0.1211) grad=0.16  lr=9.94e-05 | ⏱️ 12.15s/step - ETA: 10m31s
+[Epoch 1 Step 56/107 | Global-Step 56] loss=0.0793 (ctc=0.0338, att=0.1476) grad=0.17  lr=9.93e-05 | ⏱️ 12.16s/step - ETA: 10m20s
+[Epoch 1 Step 57/107 | Global-Step 57] loss=0.0709 (ctc=0.0318, att=0.1297) grad=0.16  lr=9.93e-05 | ⏱️ 12.12s/step - ETA: 10m5s
+[Epoch 1 Step 58/107 | Global-Step 58] loss=0.0376 (ctc=0.0123, att=0.0755) grad=0.11  lr=9.93e-05 | ⏱️ 12.20s/step - ETA: 9m57s
+[Epoch 1 Step 59/107 | Global-Step 59] loss=0.0876 (ctc=0.0364, att=0.1646) grad=0.18  lr=9.93e-05 | ⏱️ 12.48s/step - ETA: 9m59s
+[Epoch 1 Step 60/107 | Global-Step 60] loss=0.0797 (ctc=0.0267, att=0.1593) grad=0.14  lr=9.92e-05 | ⏱️ 12.18s/step - ETA: 9m32s
+[Epoch 1 Step 61/107 | Global-Step 61] loss=0.0936 (ctc=0.0439, att=0.1682) grad=0.21  lr=9.92e-05 | ⏱️ 12.27s/step - ETA: 9m24s
+[Epoch 1 Step 62/107 | Global-Step 62] loss=0.0729 (ctc=0.0237, att=0.1467) grad=0.19  lr=9.92e-05 | ⏱️ 12.60s/step - ETA: 9m26s
+[Epoch 1 Step 63/107 | Global-Step 63] loss=0.0636 (ctc=0.0166, att=0.1340) grad=0.16  lr=9.92e-05 | ⏱️ 12.20s/step - ETA: 8m56s
+[Epoch 1 Step 64/107 | Global-Step 64] loss=0.0598 (ctc=0.0308, att=0.1033) grad=0.16  lr=9.91e-05 | ⏱️ 12.04s/step - ETA: 8m37s
+[Epoch 1 Step 65/107 | Global-Step 65] loss=0.0805 (ctc=0.0165, att=0.1764) grad=0.16  lr=9.91e-05 | ⏱️ 12.20s/step - ETA: 8m32s
+[Epoch 1 Step 66/107 | Global-Step 66] loss=0.0799 (ctc=0.0348, att=0.1475) grad=0.15  lr=9.91e-05 | ⏱️ 12.67s/step - ETA: 8m39s
+[Epoch 1 Step 67/107 | Global-Step 67] loss=0.0472 (ctc=0.0238, att=0.0822) grad=0.15  lr=9.90e-05 | ⏱️ 12.32s/step - ETA: 8m12s
+[Epoch 1 Step 68/107 | Global-Step 68] loss=0.0637 (ctc=0.0304, att=0.1137) grad=0.16  lr=9.90e-05 | ⏱️ 12.44s/step - ETA: 8m5s
+[Epoch 1 Step 69/107 | Global-Step 69] loss=0.0704 (ctc=0.0262, att=0.1367) grad=0.22  lr=9.90e-05 | ⏱️ 12.12s/step - ETA: 7m40s
+[Epoch 1 Step 70/107 | Global-Step 70] loss=0.0668 (ctc=0.0163, att=0.1425) grad=0.14  lr=9.90e-05 | ⏱️ 12.51s/step - ETA: 7m42s
+[Epoch 1 Step 71/107 | Global-Step 71] loss=0.0602 (ctc=0.0214, att=0.1184) grad=0.15  lr=9.89e-05 | ⏱️ 12.31s/step - ETA: 7m23s
+[Epoch 1 Step 72/107 | Global-Step 72] loss=0.0650 (ctc=0.0256, att=0.1240) grad=0.16  lr=9.89e-05 | ⏱️ 12.17s/step - ETA: 7m5s
+[Epoch 1 Step 73/107 | Global-Step 73] loss=0.0482 (ctc=0.0166, att=0.0955) grad=0.13  lr=9.89e-05 | ⏱️ 12.54s/step - ETA: 7m6s
+[Epoch 1 Step 74/107 | Global-Step 74] loss=0.0911 (ctc=0.0296, att=0.1834) grad=0.19  lr=9.88e-05 | ⏱️ 12.65s/step - ETA: 6m57s
+[Epoch 1 Step 75/107 | Global-Step 75] loss=0.0570 (ctc=0.0232, att=0.1077) grad=0.13  lr=9.88e-05 | ⏱️ 12.26s/step - ETA: 6m32s
+[Epoch 1 Step 76/107 | Global-Step 76] loss=0.0810 (ctc=0.0252, att=0.1648) grad=0.17  lr=9.88e-05 | ⏱️ 12.52s/step - ETA: 6m27s
+[Epoch 1 Step 77/107 | Global-Step 77] loss=0.0585 (ctc=0.0226, att=0.1122) grad=0.15  lr=9.87e-05 | ⏱️ 12.57s/step - ETA: 6m17s
+[Epoch 1 Step 78/107 | Global-Step 78] loss=0.0886 (ctc=0.0259, att=0.1827) grad=0.19  lr=9.87e-05 | ⏱️ 12.20s/step - ETA: 5m53s
+[Epoch 1 Step 79/107 | Global-Step 79] loss=0.0683 (ctc=0.0225, att=0.1369) grad=0.18  lr=9.87e-05 | ⏱️ 12.18s/step - ETA: 5m40s
+[Epoch 1 Step 80/107 | Global-Step 80] loss=0.0557 (ctc=0.0279, att=0.0974) grad=0.16  lr=9.86e-05 | ⏱️ 12.15s/step - ETA: 5m28s
+[Epoch 1 Step 81/107 | Global-Step 81] loss=0.0892 (ctc=0.0310, att=0.1765) grad=0.23  lr=9.86e-05 | ⏱️ 12.64s/step - ETA: 5m28s
+[Epoch 1 Step 82/107 | Global-Step 82] loss=0.0615 (ctc=0.0244, att=0.1172) grad=0.12  lr=9.86e-05 | ⏱️ 12.34s/step - ETA: 5m8s
+[Epoch 1 Step 83/107 | Global-Step 83] loss=0.0804 (ctc=0.0379, att=0.1441) grad=0.16  lr=9.85e-05 | ⏱️ 12.20s/step - ETA: 4m52s
+[Epoch 1 Step 84/107 | Global-Step 84] loss=0.0860 (ctc=0.0360, att=0.1611) grad=0.17  lr=9.85e-05 | ⏱️ 12.54s/step - ETA: 4m48s
+[Epoch 1 Step 85/107 | Global-Step 85] loss=0.0720 (ctc=0.0323, att=0.1315) grad=0.17  lr=9.85e-05 | ⏱️ 12.20s/step - ETA: 4m28s
+[Epoch 1 Step 86/107 | Global-Step 86] loss=0.1015 (ctc=0.0349, att=0.2013) grad=0.18  lr=9.84e-05 | ⏱️ 12.17s/step - ETA: 4m15s
+[Epoch 1 Step 87/107 | Global-Step 87] loss=0.0570 (ctc=0.0194, att=0.1134) grad=0.15  lr=9.84e-05 | ⏱️ 12.33s/step - ETA: 4m6s
+[Epoch 1 Step 88/107 | Global-Step 88] loss=0.0718 (ctc=0.0326, att=0.1306) grad=0.16  lr=9.84e-05 | ⏱️ 12.25s/step - ETA: 3m52s
+[Epoch 1 Step 89/107 | Global-Step 89] loss=0.0595 (ctc=0.0248, att=0.1115) grad=0.14  lr=9.83e-05 | ⏱️ 12.31s/step - ETA: 3m41s
+[Epoch 1 Step 90/107 | Global-Step 90] loss=0.0856 (ctc=0.0311, att=0.1673) grad=0.18  lr=9.83e-05 | ⏱️ 12.20s/step - ETA: 3m27s
+[Epoch 1 Step 91/107 | Global-Step 91] loss=0.0586 (ctc=0.0175, att=0.1201) grad=0.15  lr=9.82e-05 | ⏱️ 12.19s/step - ETA: 3m15s
+[Epoch 1 Step 92/107 | Global-Step 92] loss=0.0526 (ctc=0.0150, att=0.1090) grad=0.14  lr=9.82e-05 | ⏱️ 12.45s/step - ETA: 3m6s
+[Epoch 1 Step 93/107 | Global-Step 93] loss=0.0520 (ctc=0.0198, att=0.1003) grad=0.13  lr=9.82e-05 | ⏱️ 12.16s/step - ETA: 2m50s
+[Epoch 1 Step 94/107 | Global-Step 94] loss=0.0987 (ctc=0.0342, att=0.1954) grad=0.18  lr=9.81e-05 | ⏱️ 12.61s/step - ETA: 2m43s
+[Epoch 1 Step 95/107 | Global-Step 95] loss=0.0713 (ctc=0.0291, att=0.1346) grad=0.17  lr=9.81e-05 | ⏱️ 12.25s/step - ETA: 2m27s
+[Epoch 1 Step 96/107 | Global-Step 96] loss=0.0623 (ctc=0.0314, att=0.1085) grad=0.16  lr=9.80e-05 | ⏱️ 12.21s/step - ETA: 2m14s
+[Epoch 1 Step 97/107 | Global-Step 97] loss=0.0604 (ctc=0.0252, att=0.1131) grad=0.13  lr=9.80e-05 | ⏱️ 12.18s/step - ETA: 2m1s
+[Epoch 1 Step 98/107 | Global-Step 98] loss=0.0708 (ctc=0.0219, att=0.1440) grad=0.13  lr=9.80e-05 | ⏱️ 12.63s/step - ETA: 1m53s
+[Epoch 1 Step 99/107 | Global-Step 99] loss=0.0733 (ctc=0.0370, att=0.1276) grad=0.18  lr=9.79e-05 | ⏱️ 12.45s/step - ETA: 1m39s
+[Epoch 1 Step 100/107 | Global-Step 100] loss=0.0599 (ctc=0.0198, att=0.1202) grad=0.16  lr=9.79e-05 | ⏱️ 12.28s/step - ETA: 1m25s
+[Epoch 1 Step 101/107 | Global-Step 101] loss=0.0835 (ctc=0.0269, att=0.1684) grad=0.20  lr=9.78e-05 | ⏱️ 12.22s/step - ETA: 1m13s
+[Epoch 1 Step 102/107 | Global-Step 102] loss=0.0506 (ctc=0.0174, att=0.1003) grad=0.13  lr=9.78e-05 | ⏱️ 12.23s/step - ETA: 1m1s
+[Epoch 1 Step 103/107 | Global-Step 103] loss=0.0666 (ctc=0.0270, att=0.1259) grad=0.17  lr=9.78e-05 | ⏱️ 12.44s/step - ETA: 0m49s
+[Epoch 1 Step 104/107 | Global-Step 104] loss=0.0583 (ctc=0.0156, att=0.1224) grad=0.31  lr=9.77e-05 | ⏱️ 12.48s/step - ETA: 0m37s
+[Epoch 1 Step 105/107 | Global-Step 105] loss=0.0948 (ctc=0.0265, att=0.1973) grad=0.16  lr=9.77e-05 | ⏱️ 12.28s/step - ETA: 0m24s
+[Epoch 1 Step 106/107 | Global-Step 106] loss=0.0682 (ctc=0.0192, att=0.1416) grad=0.14  lr=9.76e-05 | ⏱️ 12.40s/step - ETA: 0m12s
+[Epoch 1 Step 107/107 | Global-Step 107] loss=0.1210 (ctc=0.0286, att=0.2595) grad=0.29  lr=9.76e-05 | ⏱️ 8.16s/step - ETA: 0m0s
+✅ Epoch 1 hoàn tất trong 22m17s
+💾 Đã lưu checkpoint: checkpoints_vpb_chunk/epoch1.pt
+🎯 Dev WER (CTC): 20.27%
+🌐 Global WER           : 12.92%
+🕒 Evaluate time: 14.43s (avg decode/sample: 0.03s)
+
+🌀 Epoch 2 bắt đầu...
+[Epoch 2 Step 1/107 | Global-Step 108] loss=0.0346 (ctc=0.0178, att=0.0597) grad=0.10  lr=9.75e-05 | ⏱️ 12.07s/step - ETA: 21m19s
+[Epoch 2 Step 2/107 | Global-Step 109] loss=0.0581 (ctc=0.0222, att=0.1120) grad=0.14  lr=9.75e-05 | ⏱️ 12.31s/step - ETA: 21m32s
+[Epoch 2 Step 3/107 | Global-Step 110] loss=0.0435 (ctc=0.0191, att=0.0801) grad=0.10  lr=9.74e-05 | ⏱️ 12.27s/step - ETA: 21m15s
+[Epoch 2 Step 4/107 | Global-Step 111] loss=0.0614 (ctc=0.0278, att=0.1118) grad=0.14  lr=9.74e-05 | ⏱️ 12.47s/step - ETA: 21m24s
+[Epoch 2 Step 5/107 | Global-Step 112] loss=0.0361 (ctc=0.0155, att=0.0670) grad=0.14  lr=9.73e-05 | ⏱️ 12.19s/step - ETA: 20m43s
+[Epoch 2 Step 6/107 | Global-Step 113] loss=0.0675 (ctc=0.0206, att=0.1379) grad=0.13  lr=9.73e-05 | ⏱️ 12.26s/step - ETA: 20m38s
+[Epoch 2 Step 7/107 | Global-Step 114] loss=0.0414 (ctc=0.0269, att=0.0633) grad=0.11  lr=9.73e-05 | ⏱️ 12.48s/step - ETA: 20m48s
+[Epoch 2 Step 8/107 | Global-Step 115] loss=0.0573 (ctc=0.0238, att=0.1074) grad=0.13  lr=9.72e-05 | ⏱️ 12.24s/step - ETA: 20m11s
+[Epoch 2 Step 9/107 | Global-Step 116] loss=0.0324 (ctc=0.0122, att=0.0626) grad=0.10  lr=9.72e-05 | ⏱️ 12.45s/step - ETA: 20m19s
+[Epoch 2 Step 10/107 | Global-Step 117] loss=0.0473 (ctc=0.0199, att=0.0885) grad=0.12  lr=9.71e-05 | ⏱️ 12.19s/step - ETA: 19m42s
+[Epoch 2 Step 11/107 | Global-Step 118] loss=0.0464 (ctc=0.0201, att=0.0857) grad=0.16  lr=9.71e-05 | ⏱️ 12.19s/step - ETA: 19m30s
+[Epoch 2 Step 12/107 | Global-Step 119] loss=0.0318 (ctc=0.0095, att=0.0652) grad=0.09  lr=9.70e-05 | ⏱️ 12.27s/step - ETA: 19m25s
+[Epoch 2 Step 13/107 | Global-Step 120] loss=0.0557 (ctc=0.0232, att=0.1045) grad=0.15  lr=9.70e-05 | ⏱️ 12.47s/step - ETA: 19m31s
+[Epoch 2 Step 14/107 | Global-Step 121] loss=0.0589 (ctc=0.0251, att=0.1096) grad=0.15  lr=9.69e-05 | ⏱️ 12.18s/step - ETA: 18m53s
+[Epoch 2 Step 15/107 | Global-Step 122] loss=0.0473 (ctc=0.0257, att=0.0798) grad=0.15  lr=9.69e-05 | ⏱️ 12.18s/step - ETA: 18m40s
+[Epoch 2 Step 16/107 | Global-Step 123] loss=0.0433 (ctc=0.0192, att=0.0794) grad=0.16  lr=9.68e-05 | ⏱️ 12.07s/step - ETA: 18m18s
+[Epoch 2 Step 17/107 | Global-Step 124] loss=0.0601 (ctc=0.0135, att=0.1300) grad=0.14  lr=9.68e-05 | ⏱️ 12.38s/step - ETA: 18m34s
+[Epoch 2 Step 18/107 | Global-Step 125] loss=0.0447 (ctc=0.0184, att=0.0841) grad=0.17  lr=9.67e-05 | ⏱️ 12.44s/step - ETA: 18m27s
+[Epoch 2 Step 19/107 | Global-Step 126] loss=0.0316 (ctc=0.0151, att=0.0562) grad=0.09  lr=9.67e-05 | ⏱️ 12.44s/step - ETA: 18m14s
+[Epoch 2 Step 20/107 | Global-Step 127] loss=0.0481 (ctc=0.0233, att=0.0853) grad=0.18  lr=9.66e-05 | ⏱️ 12.51s/step - ETA: 18m8s
+[Epoch 2 Step 21/107 | Global-Step 128] loss=0.0328 (ctc=0.0109, att=0.0656) grad=0.11  lr=9.65e-05 | ⏱️ 12.28s/step - ETA: 17m36s
+[Epoch 2 Step 22/107 | Global-Step 129] loss=0.0350 (ctc=0.0146, att=0.0656) grad=0.11  lr=9.65e-05 | ⏱️ 12.18s/step - ETA: 17m15s
+[Epoch 2 Step 23/107 | Global-Step 130] loss=0.0468 (ctc=0.0211, att=0.0854) grad=0.11  lr=9.64e-05 | ⏱️ 12.12s/step - ETA: 16m57s
+[Epoch 2 Step 24/107 | Global-Step 131] loss=0.0388 (ctc=0.0097, att=0.0825) grad=0.11  lr=9.64e-05 | ⏱️ 12.19s/step - ETA: 16m51s
+[Epoch 2 Step 25/107 | Global-Step 132] loss=0.0324 (ctc=0.0093, att=0.0671) grad=0.10  lr=9.63e-05 | ⏱️ 12.42s/step - ETA: 16m58s
+[Epoch 2 Step 26/107 | Global-Step 133] loss=0.0447 (ctc=0.0162, att=0.0876) grad=0.11  lr=9.63e-05 | ⏱️ 12.62s/step - ETA: 17m2s
+[Epoch 2 Step 27/107 | Global-Step 134] loss=0.0366 (ctc=0.0124, att=0.0728) grad=0.12  lr=9.62e-05 | ⏱️ 12.61s/step - ETA: 16m48s
+[Epoch 2 Step 28/107 | Global-Step 135] loss=0.0420 (ctc=0.0143, att=0.0837) grad=0.14  lr=9.62e-05 | ⏱️ 12.16s/step - ETA: 16m0s
+[Epoch 2 Step 29/107 | Global-Step 136] loss=0.0329 (ctc=0.0131, att=0.0626) grad=0.14  lr=9.61e-05 | ⏱️ 12.45s/step - ETA: 16m11s
+[Epoch 2 Step 30/107 | Global-Step 137] loss=0.0456 (ctc=0.0118, att=0.0963) grad=0.14  lr=9.60e-05 | ⏱️ 12.24s/step - ETA: 15m42s
+[Epoch 2 Step 31/107 | Global-Step 138] loss=0.0579 (ctc=0.0166, att=0.1200) grad=0.15  lr=9.60e-05 | ⏱️ 12.44s/step - ETA: 15m45s
+[Epoch 2 Step 32/107 | Global-Step 139] loss=0.0349 (ctc=0.0163, att=0.0629) grad=0.13  lr=9.59e-05 | ⏱️ 12.23s/step - ETA: 15m17s
+[Epoch 2 Step 33/107 | Global-Step 140] loss=0.0520 (ctc=0.0169, att=0.1047) grad=0.15  lr=9.59e-05 | ⏱️ 12.62s/step - ETA: 15m33s
+[Epoch 2 Step 34/107 | Global-Step 141] loss=0.0611 (ctc=0.0208, att=0.1215) grad=0.19  lr=9.58e-05 | ⏱️ 12.61s/step - ETA: 15m20s
+[Epoch 2 Step 35/107 | Global-Step 142] loss=0.0554 (ctc=0.0273, att=0.0976) grad=0.13  lr=9.58e-05 | ⏱️ 12.43s/step - ETA: 14m54s
+[Epoch 2 Step 36/107 | Global-Step 143] loss=0.0636 (ctc=0.0125, att=0.1403) grad=0.15  lr=9.57e-05 | ⏱️ 12.43s/step - ETA: 14m42s
+[Epoch 2 Step 37/107 | Global-Step 144] loss=0.0407 (ctc=0.0138, att=0.0811) grad=0.18  lr=9.56e-05 | ⏱️ 12.27s/step - ETA: 14m18s
+[Epoch 2 Step 38/107 | Global-Step 145] loss=0.0567 (ctc=0.0155, att=0.1186) grad=0.16  lr=9.56e-05 | ⏱️ 12.57s/step - ETA: 14m27s
+[Epoch 2 Step 39/107 | Global-Step 146] loss=0.0445 (ctc=0.0204, att=0.0807) grad=0.12  lr=9.55e-05 | ⏱️ 12.53s/step - ETA: 14m11s
+[Epoch 2 Step 40/107 | Global-Step 147] loss=0.0488 (ctc=0.0190, att=0.0935) grad=0.12  lr=9.55e-05 | ⏱️ 12.77s/step - ETA: 14m15s
+[Epoch 2 Step 41/107 | Global-Step 148] loss=0.0619 (ctc=0.0306, att=0.1088) grad=0.15  lr=9.54e-05 | ⏱️ 12.23s/step - ETA: 13m27s
+[Epoch 2 Step 42/107 | Global-Step 149] loss=0.0681 (ctc=0.0226, att=0.1363) grad=0.15  lr=9.53e-05 | ⏱️ 12.60s/step - ETA: 13m39s
+[Epoch 2 Step 43/107 | Global-Step 150] loss=0.0425 (ctc=0.0175, att=0.0801) grad=0.22  lr=9.53e-05 | ⏱️ 12.20s/step - ETA: 13m1s
+[Epoch 2 Step 44/107 | Global-Step 151] loss=0.0489 (ctc=0.0167, att=0.0970) grad=0.13  lr=9.52e-05 | ⏱️ 12.19s/step - ETA: 12m47s
+[Epoch 2 Step 45/107 | Global-Step 152] loss=0.0403 (ctc=0.0197, att=0.0713) grad=0.14  lr=9.52e-05 | ⏱️ 12.20s/step - ETA: 12m36s
+[Epoch 2 Step 46/107 | Global-Step 153] loss=0.0441 (ctc=0.0151, att=0.0877) grad=0.10  lr=9.51e-05 | ⏱️ 12.25s/step - ETA: 12m26s
+[Epoch 2 Step 47/107 | Global-Step 154] loss=0.0358 (ctc=0.0170, att=0.0640) grad=0.11  lr=9.50e-05 | ⏱️ 12.59s/step - ETA: 12m35s
+[Epoch 2 Step 48/107 | Global-Step 155] loss=0.0346 (ctc=0.0117, att=0.0690) grad=0.10  lr=9.50e-05 | ⏱️ 12.58s/step - ETA: 12m22s
+[Epoch 2 Step 49/107 | Global-Step 156] loss=0.0494 (ctc=0.0210, att=0.0921) grad=0.13  lr=9.49e-05 | ⏱️ 12.45s/step - ETA: 12m2s
+[Epoch 2 Step 50/107 | Global-Step 157] loss=0.0621 (ctc=0.0177, att=0.1286) grad=0.12  lr=9.48e-05 | ⏱️ 12.18s/step - ETA: 11m34s
+[Epoch 2 Step 51/107 | Global-Step 158] loss=0.0631 (ctc=0.0194, att=0.1287) grad=0.18  lr=9.48e-05 | ⏱️ 12.59s/step - ETA: 11m45s
+[Epoch 2 Step 52/107 | Global-Step 159] loss=0.0358 (ctc=0.0162, att=0.0651) grad=0.11  lr=9.47e-05 | ⏱️ 12.19s/step - ETA: 11m10s
+[Epoch 2 Step 53/107 | Global-Step 160] loss=0.0520 (ctc=0.0196, att=0.1007) grad=0.14  lr=9.46e-05 | ⏱️ 12.44s/step - ETA: 11m11s
+[Epoch 2 Step 54/107 | Global-Step 161] loss=0.0392 (ctc=0.0146, att=0.0761) grad=0.12  lr=9.46e-05 | ⏱️ 12.36s/step - ETA: 10m55s
+[Epoch 2 Step 55/107 | Global-Step 162] loss=0.0255 (ctc=0.0131, att=0.0442) grad=0.08  lr=9.45e-05 | ⏱️ 12.23s/step - ETA: 10m35s
+[Epoch 2 Step 56/107 | Global-Step 163] loss=0.0639 (ctc=0.0158, att=0.1360) grad=0.15  lr=9.44e-05 | ⏱️ 12.47s/step - ETA: 10m35s
+[Epoch 2 Step 57/107 | Global-Step 164] loss=0.0511 (ctc=0.0193, att=0.0989) grad=0.18  lr=9.44e-05 | ⏱️ 12.20s/step - ETA: 10m10s
+[Epoch 2 Step 58/107 | Global-Step 165] loss=0.0286 (ctc=0.0108, att=0.0552) grad=0.11  lr=9.43e-05 | ⏱️ 12.33s/step - ETA: 10m4s
+[Epoch 2 Step 59/107 | Global-Step 166] loss=0.0481 (ctc=0.0153, att=0.0973) grad=0.15  lr=9.42e-05 | ⏱️ 12.27s/step - ETA: 9m48s
+[Epoch 2 Step 60/107 | Global-Step 167] loss=0.0656 (ctc=0.0175, att=0.1377) grad=0.13  lr=9.42e-05 | ⏱️ 12.46s/step - ETA: 9m45s
+[Epoch 2 Step 61/107 | Global-Step 168] loss=0.0316 (ctc=0.0128, att=0.0599) grad=0.12  lr=9.41e-05 | ⏱️ 12.20s/step - ETA: 9m21s
+[Epoch 2 Step 62/107 | Global-Step 169] loss=0.0716 (ctc=0.0275, att=0.1377) grad=0.15  lr=9.40e-05 | ⏱️ 12.19s/step - ETA: 9m8s
+[Epoch 2 Step 63/107 | Global-Step 170] loss=0.0247 (ctc=0.0119, att=0.0438) grad=0.08  lr=9.40e-05 | ⏱️ 12.10s/step - ETA: 8m52s
+[Epoch 2 Step 64/107 | Global-Step 171] loss=0.0636 (ctc=0.0200, att=0.1288) grad=0.16  lr=9.39e-05 | ⏱️ 12.11s/step - ETA: 8m40s
+[Epoch 2 Step 65/107 | Global-Step 172] loss=0.0572 (ctc=0.0181, att=0.1158) grad=0.14  lr=9.38e-05 | ⏱️ 12.51s/step - ETA: 8m45s
+[Epoch 2 Step 66/107 | Global-Step 173] loss=0.0507 (ctc=0.0198, att=0.0971) grad=0.13  lr=9.38e-05 | ⏱️ 12.38s/step - ETA: 8m27s
+[Epoch 2 Step 67/107 | Global-Step 174] loss=0.0383 (ctc=0.0177, att=0.0693) grad=0.11  lr=9.37e-05 | ⏱️ 12.45s/step - ETA: 8m18s
+[Epoch 2 Step 68/107 | Global-Step 175] loss=0.0470 (ctc=0.0165, att=0.0929) grad=0.11  lr=9.36e-05 | ⏱️ 12.39s/step - ETA: 8m3s
+[Epoch 2 Step 69/107 | Global-Step 176] loss=0.0395 (ctc=0.0150, att=0.0762) grad=0.11  lr=9.35e-05 | ⏱️ 12.25s/step - ETA: 7m45s
+[Epoch 2 Step 70/107 | Global-Step 177] loss=0.0360 (ctc=0.0113, att=0.0731) grad=0.11  lr=9.35e-05 | ⏱️ 12.19s/step - ETA: 7m31s
+[Epoch 2 Step 71/107 | Global-Step 178] loss=0.0413 (ctc=0.0134, att=0.0831) grad=0.18  lr=9.34e-05 | ⏱️ 12.22s/step - ETA: 7m20s
+[Epoch 2 Step 72/107 | Global-Step 179] loss=0.0342 (ctc=0.0140, att=0.0645) grad=0.11  lr=9.33e-05 | ⏱️ 12.24s/step - ETA: 7m8s
+[Epoch 2 Step 73/107 | Global-Step 180] loss=0.0408 (ctc=0.0131, att=0.0823) grad=0.14  lr=9.32e-05 | ⏱️ 12.13s/step - ETA: 6m52s
+[Epoch 2 Step 74/107 | Global-Step 181] loss=0.0635 (ctc=0.0311, att=0.1121) grad=0.14  lr=9.32e-05 | ⏱️ 12.26s/step - ETA: 6m44s
+[Epoch 2 Step 75/107 | Global-Step 182] loss=0.0317 (ctc=0.0175, att=0.0530) grad=0.13  lr=9.31e-05 | ⏱️ 12.25s/step - ETA: 6m31s
+[Epoch 2 Step 76/107 | Global-Step 183] loss=0.0386 (ctc=0.0136, att=0.0761) grad=0.09  lr=9.30e-05 | ⏱️ 12.11s/step - ETA: 6m15s
+[Epoch 2 Step 77/107 | Global-Step 184] loss=0.0685 (ctc=0.0290, att=0.1278) grad=0.17  lr=9.30e-05 | ⏱️ 12.21s/step - ETA: 6m6s
+[Epoch 2 Step 78/107 | Global-Step 185] loss=0.0498 (ctc=0.0192, att=0.0957) grad=0.15  lr=9.29e-05 | ⏱️ 12.52s/step - ETA: 6m3s
+[Epoch 2 Step 79/107 | Global-Step 186] loss=0.0361 (ctc=0.0096, att=0.0757) grad=0.11  lr=9.28e-05 | ⏱️ 12.45s/step - ETA: 5m48s
+[Epoch 2 Step 80/107 | Global-Step 187] loss=0.0379 (ctc=0.0152, att=0.0718) grad=0.10  lr=9.27e-05 | ⏱️ 12.48s/step - ETA: 5m36s
+[Epoch 2 Step 81/107 | Global-Step 188] loss=0.0470 (ctc=0.0186, att=0.0896) grad=0.14  lr=9.26e-05 | ⏱️ 12.21s/step - ETA: 5m17s
+[Epoch 2 Step 82/107 | Global-Step 189] loss=0.0441 (ctc=0.0114, att=0.0930) grad=0.11  lr=9.26e-05 | ⏱️ 12.45s/step - ETA: 5m11s
+[Epoch 2 Step 83/107 | Global-Step 190] loss=0.0494 (ctc=0.0179, att=0.0966) grad=0.16  lr=9.25e-05 | ⏱️ 12.20s/step - ETA: 4m52s
+[Epoch 2 Step 84/107 | Global-Step 191] loss=0.0602 (ctc=0.0265, att=0.1107) grad=0.17  lr=9.24e-05 | ⏱️ 12.44s/step - ETA: 4m46s
+[Epoch 2 Step 85/107 | Global-Step 192] loss=0.0497 (ctc=0.0226, att=0.0905) grad=0.12  lr=9.23e-05 | ⏱️ 12.46s/step - ETA: 4m34s
+[Epoch 2 Step 86/107 | Global-Step 193] loss=0.0313 (ctc=0.0134, att=0.0581) grad=0.14  lr=9.23e-05 | ⏱️ 12.40s/step - ETA: 4m20s
+[Epoch 2 Step 87/107 | Global-Step 194] loss=0.0273 (ctc=0.0078, att=0.0566) grad=0.10  lr=9.22e-05 | ⏱️ 12.19s/step - ETA: 4m3s
+[Epoch 2 Step 88/107 | Global-Step 195] loss=0.0547 (ctc=0.0269, att=0.0965) grad=0.16  lr=9.21e-05 | ⏱️ 12.27s/step - ETA: 3m53s
+[Epoch 2 Step 89/107 | Global-Step 196] loss=0.0415 (ctc=0.0222, att=0.0704) grad=0.17  lr=9.20e-05 | ⏱️ 12.13s/step - ETA: 3m38s
+[Epoch 2 Step 90/107 | Global-Step 197] loss=0.0443 (ctc=0.0201, att=0.0807) grad=0.14  lr=9.19e-05 | ⏱️ 12.22s/step - ETA: 3m27s
+[Epoch 2 Step 91/107 | Global-Step 198] loss=0.0376 (ctc=0.0188, att=0.0659) grad=0.11  lr=9.19e-05 | ⏱️ 12.41s/step - ETA: 3m18s
+[Epoch 2 Step 92/107 | Global-Step 199] loss=0.0424 (ctc=0.0179, att=0.0792) grad=0.13  lr=9.18e-05 | ⏱️ 12.22s/step - ETA: 3m3s
+[Epoch 2 Step 93/107 | Global-Step 200] loss=0.0306 (ctc=0.0118, att=0.0588) grad=0.11  lr=9.17e-05 | ⏱️ 12.23s/step - ETA: 2m51s
+[Epoch 2 Step 94/107 | Global-Step 201] loss=0.0633 (ctc=0.0227, att=0.1242) grad=0.14  lr=9.16e-05 | ⏱️ 12.62s/step - ETA: 2m44s
+[Epoch 2 Step 95/107 | Global-Step 202] loss=0.0442 (ctc=0.0276, att=0.0691) grad=0.11  lr=9.15e-05 | ⏱️ 12.18s/step - ETA: 2m26s
+[Epoch 2 Step 96/107 | Global-Step 203] loss=0.0674 (ctc=0.0274, att=0.1273) grad=0.16  lr=9.15e-05 | ⏱️ 12.24s/step - ETA: 2m14s
+[Epoch 2 Step 97/107 | Global-Step 204] loss=0.0456 (ctc=0.0144, att=0.0923) grad=0.14  lr=9.14e-05 | ⏱️ 12.55s/step - ETA: 2m5s
+[Epoch 2 Step 98/107 | Global-Step 205] loss=0.0550 (ctc=0.0200, att=0.1076) grad=0.12  lr=9.13e-05 | ⏱️ 12.80s/step - ETA: 1m55s
+[Epoch 2 Step 99/107 | Global-Step 206] loss=0.0483 (ctc=0.0181, att=0.0935) grad=0.12  lr=9.12e-05 | ⏱️ 12.24s/step - ETA: 1m37s
+[Epoch 2 Step 100/107 | Global-Step 207] loss=0.0478 (ctc=0.0136, att=0.0992) grad=0.14  lr=9.11e-05 | ⏱️ 12.45s/step - ETA: 1m27s
+[Epoch 2 Step 101/107 | Global-Step 208] loss=0.0429 (ctc=0.0128, att=0.0881) grad=0.10  lr=9.11e-05 | ⏱️ 12.46s/step - ETA: 1m14s
+[Epoch 2 Step 102/107 | Global-Step 209] loss=0.0633 (ctc=0.0237, att=0.1227) grad=0.13  lr=9.10e-05 | ⏱️ 12.61s/step - ETA: 1m3s
+[Epoch 2 Step 103/107 | Global-Step 210] loss=0.0525 (ctc=0.0175, att=0.1051) grad=0.13  lr=9.09e-05 | ⏱️ 12.44s/step - ETA: 0m49s
+[Epoch 2 Step 104/107 | Global-Step 211] loss=0.0426 (ctc=0.0142, att=0.0850) grad=0.14  lr=9.08e-05 | ⏱️ 12.68s/step - ETA: 0m38s
+[Epoch 2 Step 105/107 | Global-Step 212] loss=0.0454 (ctc=0.0206, att=0.0825) grad=0.11  lr=9.07e-05 | ⏱️ 12.47s/step - ETA: 0m24s
+[Epoch 2 Step 106/107 | Global-Step 213] loss=0.0561 (ctc=0.0279, att=0.0985) grad=0.14  lr=9.06e-05 | ⏱️ 12.57s/step - ETA: 0m12s
+[Epoch 2 Step 107/107 | Global-Step 214] loss=0.0382 (ctc=0.0224, att=0.0617) grad=0.19  lr=9.05e-05 | ⏱️ 7.99s/step - ETA: 0m0s
+✅ Epoch 2 hoàn tất trong 22m20s
+💾 Đã lưu checkpoint: checkpoints_vpb_chunk/epoch2.pt
+🎯 Dev WER (CTC): 20.39%
+🌐 Global WER           : 12.38%
+🕒 Evaluate time: 14.11s (avg decode/sample: 0.03s)
+
+🌀 Epoch 3 bắt đầu...
+[Epoch 3 Step 1/107 | Global-Step 215] loss=0.0294 (ctc=0.0116, att=0.0559) grad=0.09  lr=9.05e-05 | ⏱️ 12.64s/step - ETA: 22m19s
+[Epoch 3 Step 2/107 | Global-Step 216] loss=0.0356 (ctc=0.0147, att=0.0670) grad=0.10  lr=9.04e-05 | ⏱️ 12.57s/step - ETA: 22m0s
+[Epoch 3 Step 3/107 | Global-Step 217] loss=0.0211 (ctc=0.0092, att=0.0391) grad=0.09  lr=9.03e-05 | ⏱️ 12.16s/step - ETA: 21m4s
+[Epoch 3 Step 4/107 | Global-Step 218] loss=0.0291 (ctc=0.0128, att=0.0535) grad=0.10  lr=9.02e-05 | ⏱️ 12.26s/step - ETA: 21m2s
+[Epoch 3 Step 5/107 | Global-Step 219] loss=0.0252 (ctc=0.0073, att=0.0521) grad=0.09  lr=9.01e-05 | ⏱️ 12.41s/step - ETA: 21m6s
+[Epoch 3 Step 6/107 | Global-Step 220] loss=0.0434 (ctc=0.0199, att=0.0787) grad=0.10  lr=9.00e-05 | ⏱️ 12.70s/step - ETA: 21m22s
+[Epoch 3 Step 7/107 | Global-Step 221] loss=0.0323 (ctc=0.0128, att=0.0615) grad=0.12  lr=8.99e-05 | ⏱️ 12.32s/step - ETA: 20m31s
+[Epoch 3 Step 8/107 | Global-Step 222] loss=0.0304 (ctc=0.0181, att=0.0489) grad=0.09  lr=8.99e-05 | ⏱️ 12.08s/step - ETA: 19m56s
+[Epoch 3 Step 9/107 | Global-Step 223] loss=0.0341 (ctc=0.0111, att=0.0686) grad=0.10  lr=8.98e-05 | ⏱️ 12.20s/step - ETA: 19m55s
+[Epoch 3 Step 10/107 | Global-Step 224] loss=0.0280 (ctc=0.0130, att=0.0503) grad=0.13  lr=8.97e-05 | ⏱️ 12.20s/step - ETA: 19m43s
+[Epoch 3 Step 11/107 | Global-Step 225] loss=0.0428 (ctc=0.0177, att=0.0804) grad=0.11  lr=8.96e-05 | ⏱️ 12.24s/step - ETA: 19m35s
+[Epoch 3 Step 12/107 | Global-Step 226] loss=0.0258 (ctc=0.0116, att=0.0471) grad=0.13  lr=8.95e-05 | ⏱️ 12.18s/step - ETA: 19m16s
+[Epoch 3 Step 13/107 | Global-Step 227] loss=0.0403 (ctc=0.0164, att=0.0760) grad=0.11  lr=8.94e-05 | ⏱️ 12.12s/step - ETA: 18m58s
+[Epoch 3 Step 14/107 | Global-Step 228] loss=0.0382 (ctc=0.0167, att=0.0705) grad=0.20  lr=8.93e-05 | ⏱️ 12.43s/step - ETA: 19m16s
+[Epoch 3 Step 15/107 | Global-Step 229] loss=0.0368 (ctc=0.0146, att=0.0700) grad=0.10  lr=8.92e-05 | ⏱️ 12.19s/step - ETA: 18m41s
+[Epoch 3 Step 16/107 | Global-Step 230] loss=0.0509 (ctc=0.0189, att=0.0990) grad=0.09  lr=8.91e-05 | ⏱️ 12.30s/step - ETA: 18m39s
+[Epoch 3 Step 17/107 | Global-Step 231] loss=0.0321 (ctc=0.0099, att=0.0653) grad=0.10  lr=8.90e-05 | ⏱️ 12.18s/step - ETA: 18m16s
+[Epoch 3 Step 18/107 | Global-Step 232] loss=0.0424 (ctc=0.0242, att=0.0695) grad=0.14  lr=8.90e-05 | ⏱️ 12.44s/step - ETA: 18m26s
+[Epoch 3 Step 19/107 | Global-Step 233] loss=0.0338 (ctc=0.0131, att=0.0648) grad=0.11  lr=8.89e-05 | ⏱️ 12.37s/step - ETA: 18m8s
+[Epoch 3 Step 20/107 | Global-Step 234] loss=0.0361 (ctc=0.0094, att=0.0761) grad=0.12  lr=8.88e-05 | ⏱️ 12.21s/step - ETA: 17m41s
+[Epoch 3 Step 21/107 | Global-Step 235] loss=0.0303 (ctc=0.0171, att=0.0501) grad=0.11  lr=8.87e-05 | ⏱️ 12.49s/step - ETA: 17m53s
+[Epoch 3 Step 22/107 | Global-Step 236] loss=0.0313 (ctc=0.0137, att=0.0576) grad=0.13  lr=8.86e-05 | ⏱️ 12.18s/step - ETA: 17m15s
+[Epoch 3 Step 23/107 | Global-Step 237] loss=0.0329 (ctc=0.0104, att=0.0666) grad=0.12  lr=8.85e-05 | ⏱️ 12.47s/step - ETA: 17m27s
+[Epoch 3 Step 24/107 | Global-Step 238] loss=0.0250 (ctc=0.0090, att=0.0491) grad=0.08  lr=8.84e-05 | ⏱️ 12.50s/step - ETA: 17m17s
+[Epoch 3 Step 25/107 | Global-Step 239] loss=0.0259 (ctc=0.0104, att=0.0492) grad=0.11  lr=8.83e-05 | ⏱️ 12.52s/step - ETA: 17m6s
+[Epoch 3 Step 26/107 | Global-Step 240] loss=0.0287 (ctc=0.0127, att=0.0528) grad=0.12  lr=8.82e-05 | ⏱️ 12.78s/step - ETA: 17m15s
+[Epoch 3 Step 27/107 | Global-Step 241] loss=0.0253 (ctc=0.0072, att=0.0523) grad=0.09  lr=8.81e-05 | ⏱️ 12.60s/step - ETA: 16m48s
+[Epoch 3 Step 28/107 | Global-Step 242] loss=0.0301 (ctc=0.0083, att=0.0630) grad=0.11  lr=8.80e-05 | ⏱️ 12.26s/step - ETA: 16m8s
+[Epoch 3 Step 29/107 | Global-Step 243] loss=0.0342 (ctc=0.0132, att=0.0656) grad=0.11  lr=8.79e-05 | ⏱️ 12.63s/step - ETA: 16m25s
+[Epoch 3 Step 30/107 | Global-Step 244] loss=0.0382 (ctc=0.0160, att=0.0716) grad=0.10  lr=8.78e-05 | ⏱️ 12.61s/step - ETA: 16m11s
+[Epoch 3 Step 31/107 | Global-Step 245] loss=0.0328 (ctc=0.0083, att=0.0694) grad=0.12  lr=8.77e-05 | ⏱️ 12.43s/step - ETA: 15m45s
+[Epoch 3 Step 32/107 | Global-Step 246] loss=0.0325 (ctc=0.0136, att=0.0608) grad=0.12  lr=8.76e-05 | ⏱️ 12.30s/step - ETA: 15m22s
+[Epoch 3 Step 33/107 | Global-Step 247] loss=0.0200 (ctc=0.0060, att=0.0410) grad=0.08  lr=8.75e-05 | ⏱️ 12.45s/step - ETA: 15m21s
+[Epoch 3 Step 34/107 | Global-Step 248] loss=0.0296 (ctc=0.0123, att=0.0554) grad=0.10  lr=8.74e-05 | ⏱️ 12.13s/step - ETA: 14m45s
+[Epoch 3 Step 35/107 | Global-Step 249] loss=0.0326 (ctc=0.0112, att=0.0647) grad=0.09  lr=8.74e-05 | ⏱️ 12.19s/step - ETA: 14m37s
+[Epoch 3 Step 36/107 | Global-Step 250] loss=0.0273 (ctc=0.0063, att=0.0587) grad=0.09  lr=8.73e-05 | ⏱️ 12.43s/step - ETA: 14m42s
+[Epoch 3 Step 37/107 | Global-Step 251] loss=0.0313 (ctc=0.0122, att=0.0599) grad=0.12  lr=8.72e-05 | ⏱️ 12.17s/step - ETA: 14m11s
+[Epoch 3 Step 38/107 | Global-Step 252] loss=0.0499 (ctc=0.0226, att=0.0909) grad=0.20  lr=8.71e-05 | ⏱️ 12.79s/step - ETA: 14m42s
+[Epoch 3 Step 39/107 | Global-Step 253] loss=0.0339 (ctc=0.0123, att=0.0664) grad=0.15  lr=8.70e-05 | ⏱️ 12.20s/step - ETA: 13m49s
+[Epoch 3 Step 40/107 | Global-Step 254] loss=0.0488 (ctc=0.0167, att=0.0970) grad=0.12  lr=8.69e-05 | ⏱️ 12.18s/step - ETA: 13m35s
+[Epoch 3 Step 41/107 | Global-Step 255] loss=0.0338 (ctc=0.0142, att=0.0631) grad=0.16  lr=8.68e-05 | ⏱️ 12.17s/step - ETA: 13m23s
+[Epoch 3 Step 42/107 | Global-Step 256] loss=0.0230 (ctc=0.0110, att=0.0409) grad=0.09  lr=8.67e-05 | ⏱️ 12.30s/step - ETA: 13m19s
+[Epoch 3 Step 43/107 | Global-Step 257] loss=0.0354 (ctc=0.0127, att=0.0695) grad=0.12  lr=8.66e-05 | ⏱️ 12.25s/step - ETA: 13m4s
+[Epoch 3 Step 44/107 | Global-Step 258] loss=0.0230 (ctc=0.0086, att=0.0446) grad=0.08  lr=8.65e-05 | ⏱️ 12.20s/step - ETA: 12m48s
+[Epoch 3 Step 45/107 | Global-Step 259] loss=0.0241 (ctc=0.0093, att=0.0463) grad=0.10  lr=8.64e-05 | ⏱️ 12.74s/step - ETA: 13m10s
+[Epoch 3 Step 46/107 | Global-Step 260] loss=0.0330 (ctc=0.0192, att=0.0536) grad=0.11  lr=8.63e-05 | ⏱️ 12.60s/step - ETA: 12m48s
+[Epoch 3 Step 47/107 | Global-Step 261] loss=0.0353 (ctc=0.0164, att=0.0638) grad=0.13  lr=8.62e-05 | ⏱️ 12.11s/step - ETA: 12m6s
+[Epoch 3 Step 48/107 | Global-Step 262] loss=0.0478 (ctc=0.0092, att=0.1058) grad=0.10  lr=8.61e-05 | ⏱️ 12.20s/step - ETA: 11m59s
+[Epoch 3 Step 49/107 | Global-Step 263] loss=0.0364 (ctc=0.0128, att=0.0719) grad=0.11  lr=8.60e-05 | ⏱️ 12.20s/step - ETA: 11m47s
+[Epoch 3 Step 50/107 | Global-Step 264] loss=0.0238 (ctc=0.0091, att=0.0457) grad=0.10  lr=8.59e-05 | ⏱️ 12.80s/step - ETA: 12m9s
+[Epoch 3 Step 51/107 | Global-Step 265] loss=0.0325 (ctc=0.0130, att=0.0617) grad=0.13  lr=8.58e-05 | ⏱️ 12.26s/step - ETA: 11m26s
+[Epoch 3 Step 52/107 | Global-Step 266] loss=0.0169 (ctc=0.0056, att=0.0338) grad=0.08  lr=8.57e-05 | ⏱️ 12.14s/step - ETA: 11m7s
+[Epoch 3 Step 53/107 | Global-Step 267] loss=0.0334 (ctc=0.0147, att=0.0616) grad=0.11  lr=8.56e-05 | ⏱️ 12.53s/step - ETA: 11m16s
+[Epoch 3 Step 54/107 | Global-Step 268] loss=0.0261 (ctc=0.0098, att=0.0505) grad=0.11  lr=8.55e-05 | ⏱️ 12.13s/step - ETA: 10m43s
+[Epoch 3 Step 55/107 | Global-Step 269] loss=0.0546 (ctc=0.0184, att=0.1088) grad=0.15  lr=8.53e-05 | ⏱️ 12.45s/step - ETA: 10m47s
+[Epoch 3 Step 56/107 | Global-Step 270] loss=0.0243 (ctc=0.0095, att=0.0465) grad=0.11  lr=8.52e-05 | ⏱️ 12.21s/step - ETA: 10m22s
+[Epoch 3 Step 57/107 | Global-Step 271] loss=0.0321 (ctc=0.0113, att=0.0633) grad=0.12  lr=8.51e-05 | ⏱️ 12.11s/step - ETA: 10m5s
+[Epoch 3 Step 58/107 | Global-Step 272] loss=0.0517 (ctc=0.0137, att=0.1088) grad=0.13  lr=8.50e-05 | ⏱️ 12.52s/step - ETA: 10m13s
+[Epoch 3 Step 59/107 | Global-Step 273] loss=0.0374 (ctc=0.0182, att=0.0661) grad=0.12  lr=8.49e-05 | ⏱️ 12.21s/step - ETA: 9m46s
+[Epoch 3 Step 60/107 | Global-Step 274] loss=0.0310 (ctc=0.0136, att=0.0572) grad=0.12  lr=8.48e-05 | ⏱️ 12.50s/step - ETA: 9m47s
+[Epoch 3 Step 61/107 | Global-Step 275] loss=0.0419 (ctc=0.0196, att=0.0754) grad=0.13  lr=8.47e-05 | ⏱️ 12.15s/step - ETA: 9m18s
+[Epoch 3 Step 62/107 | Global-Step 276] loss=0.0589 (ctc=0.0226, att=0.1132) grad=0.15  lr=8.46e-05 | ⏱️ 12.83s/step - ETA: 9m37s
+[Epoch 3 Step 63/107 | Global-Step 277] loss=0.0275 (ctc=0.0122, att=0.0505) grad=0.13  lr=8.45e-05 | ⏱️ 12.63s/step - ETA: 9m15s
+[Epoch 3 Step 64/107 | Global-Step 278] loss=0.0420 (ctc=0.0155, att=0.0819) grad=0.14  lr=8.44e-05 | ⏱️ 12.11s/step - ETA: 8m40s
+[Epoch 3 Step 65/107 | Global-Step 279] loss=0.0352 (ctc=0.0120, att=0.0700) grad=0.11  lr=8.43e-05 | ⏱️ 12.23s/step - ETA: 8m33s
+[Epoch 3 Step 66/107 | Global-Step 280] loss=0.0173 (ctc=0.0095, att=0.0292) grad=0.10  lr=8.42e-05 | ⏱️ 12.22s/step - ETA: 8m20s
+[Epoch 3 Step 67/107 | Global-Step 281] loss=0.0293 (ctc=0.0102, att=0.0579) grad=0.11  lr=8.41e-05 | ⏱️ 12.24s/step - ETA: 8m9s
+[Epoch 3 Step 68/107 | Global-Step 282] loss=0.0252 (ctc=0.0101, att=0.0479) grad=0.11  lr=8.40e-05 | ⏱️ 12.45s/step - ETA: 8m5s
+[Epoch 3 Step 69/107 | Global-Step 283] loss=0.0291 (ctc=0.0157, att=0.0491) grad=0.10  lr=8.39e-05 | ⏱️ 12.18s/step - ETA: 7m42s
+[Epoch 3 Step 70/107 | Global-Step 284] loss=0.0288 (ctc=0.0085, att=0.0591) grad=0.10  lr=8.38e-05 | ⏱️ 12.19s/step - ETA: 7m31s
+[Epoch 3 Step 71/107 | Global-Step 285] loss=0.0406 (ctc=0.0073, att=0.0906) grad=0.09  lr=8.37e-05 | ⏱️ 12.28s/step - ETA: 7m22s
+[Epoch 3 Step 72/107 | Global-Step 286] loss=0.0194 (ctc=0.0071, att=0.0378) grad=0.08  lr=8.35e-05 | ⏱️ 12.16s/step - ETA: 7m5s
+[Epoch 3 Step 73/107 | Global-Step 287] loss=0.0270 (ctc=0.0128, att=0.0485) grad=0.10  lr=8.34e-05 | ⏱️ 12.21s/step - ETA: 6m55s
+[Epoch 3 Step 74/107 | Global-Step 288] loss=0.0433 (ctc=0.0168, att=0.0829) grad=0.10  lr=8.33e-05 | ⏱️ 12.18s/step - ETA: 6m41s
+[Epoch 3 Step 75/107 | Global-Step 289] loss=0.0268 (ctc=0.0133, att=0.0470) grad=0.17  lr=8.32e-05 | ⏱️ 12.37s/step - ETA: 6m35s
+[Epoch 3 Step 76/107 | Global-Step 290] loss=0.0447 (ctc=0.0148, att=0.0895) grad=0.13  lr=8.31e-05 | ⏱️ 12.63s/step - ETA: 6m31s
+[Epoch 3 Step 77/107 | Global-Step 291] loss=0.0266 (ctc=0.0090, att=0.0529) grad=0.14  lr=8.30e-05 | ⏱️ 12.62s/step - ETA: 6m18s
+[Epoch 3 Step 78/107 | Global-Step 292] loss=0.0267 (ctc=0.0058, att=0.0581) grad=0.09  lr=8.29e-05 | ⏱️ 12.24s/step - ETA: 5m55s
+[Epoch 3 Step 79/107 | Global-Step 293] loss=0.0293 (ctc=0.0090, att=0.0596) grad=0.09  lr=8.28e-05 | ⏱️ 12.63s/step - ETA: 5m53s
+[Epoch 3 Step 80/107 | Global-Step 294] loss=0.0185 (ctc=0.0085, att=0.0334) grad=0.11  lr=8.27e-05 | ⏱️ 12.19s/step - ETA: 5m29s
+[Epoch 3 Step 81/107 | Global-Step 295] loss=0.0323 (ctc=0.0112, att=0.0638) grad=0.10  lr=8.26e-05 | ⏱️ 12.58s/step - ETA: 5m27s
+[Epoch 3 Step 82/107 | Global-Step 296] loss=0.0228 (ctc=0.0123, att=0.0385) grad=0.09  lr=8.25e-05 | ⏱️ 12.47s/step - ETA: 5m11s
+[Epoch 3 Step 83/107 | Global-Step 297] loss=0.0213 (ctc=0.0065, att=0.0434) grad=0.09  lr=8.23e-05 | ⏱️ 12.50s/step - ETA: 4m59s
+[Epoch 3 Step 84/107 | Global-Step 298] loss=0.0336 (ctc=0.0147, att=0.0618) grad=0.16  lr=8.22e-05 | ⏱️ 12.46s/step - ETA: 4m46s
+[Epoch 3 Step 85/107 | Global-Step 299] loss=0.0203 (ctc=0.0098, att=0.0361) grad=0.08  lr=8.21e-05 | ⏱️ 12.21s/step - ETA: 4m28s
+[Epoch 3 Step 86/107 | Global-Step 300] loss=0.0544 (ctc=0.0277, att=0.0944) grad=0.13  lr=8.20e-05 | ⏱️ 12.43s/step - ETA: 4m20s
+[Epoch 3 Step 87/107 | Global-Step 301] loss=0.0241 (ctc=0.0098, att=0.0456) grad=0.11  lr=8.19e-05 | ⏱️ 12.40s/step - ETA: 4m7s
+[Epoch 3 Step 88/107 | Global-Step 302] loss=0.0366 (ctc=0.0140, att=0.0704) grad=0.11  lr=8.18e-05 | ⏱️ 12.30s/step - ETA: 3m53s
+[Epoch 3 Step 89/107 | Global-Step 303] loss=0.0237 (ctc=0.0102, att=0.0440) grad=0.11  lr=8.17e-05 | ⏱️ 12.12s/step - ETA: 3m38s
+[Epoch 3 Step 90/107 | Global-Step 304] loss=0.0230 (ctc=0.0130, att=0.0381) grad=0.11  lr=8.16e-05 | ⏱️ 12.45s/step - ETA: 3m31s
+[Epoch 3 Step 91/107 | Global-Step 305] loss=0.0317 (ctc=0.0171, att=0.0536) grad=0.12  lr=8.14e-05 | ⏱️ 12.32s/step - ETA: 3m17s
+[Epoch 3 Step 92/107 | Global-Step 306] loss=0.0327 (ctc=0.0124, att=0.0630) grad=0.11  lr=8.13e-05 | ⏱️ 12.27s/step - ETA: 3m4s
+[Epoch 3 Step 93/107 | Global-Step 307] loss=0.0315 (ctc=0.0120, att=0.0607) grad=0.10  lr=8.12e-05 | ⏱️ 12.25s/step - ETA: 2m51s
+[Epoch 3 Step 94/107 | Global-Step 308] loss=0.0396 (ctc=0.0173, att=0.0732) grad=0.13  lr=8.11e-05 | ⏱️ 12.23s/step - ETA: 2m38s
+[Epoch 3 Step 95/107 | Global-Step 309] loss=0.0515 (ctc=0.0207, att=0.0978) grad=0.14  lr=8.10e-05 | ⏱️ 12.20s/step - ETA: 2m26s
+[Epoch 3 Step 96/107 | Global-Step 310] loss=0.0461 (ctc=0.0203, att=0.0847) grad=0.10  lr=8.09e-05 | ⏱️ 12.24s/step - ETA: 2m14s
+[Epoch 3 Step 97/107 | Global-Step 311] loss=0.0344 (ctc=0.0147, att=0.0640) grad=0.11  lr=8.08e-05 | ⏱️ 12.22s/step - ETA: 2m2s
+[Epoch 3 Step 98/107 | Global-Step 312] loss=0.0293 (ctc=0.0093, att=0.0593) grad=0.10  lr=8.06e-05 | ⏱️ 12.19s/step - ETA: 1m49s
+[Epoch 3 Step 99/107 | Global-Step 313] loss=0.0348 (ctc=0.0105, att=0.0713) grad=0.15  lr=8.05e-05 | ⏱️ 12.66s/step - ETA: 1m41s
+[Epoch 3 Step 100/107 | Global-Step 314] loss=0.0557 (ctc=0.0236, att=0.1039) grad=0.19  lr=8.04e-05 | ⏱️ 12.72s/step - ETA: 1m29s
+[Epoch 3 Step 101/107 | Global-Step 315] loss=0.0217 (ctc=0.0104, att=0.0387) grad=0.11  lr=8.03e-05 | ⏱️ 12.29s/step - ETA: 1m13s
+[Epoch 3 Step 102/107 | Global-Step 316] loss=0.0339 (ctc=0.0118, att=0.0670) grad=0.09  lr=8.02e-05 | ⏱️ 12.25s/step - ETA: 1m1s
+[Epoch 3 Step 103/107 | Global-Step 317] loss=0.0375 (ctc=0.0097, att=0.0792) grad=0.12  lr=8.01e-05 | ⏱️ 12.52s/step - ETA: 0m50s
+[Epoch 3 Step 104/107 | Global-Step 318] loss=0.0173 (ctc=0.0092, att=0.0295) grad=0.09  lr=7.99e-05 | ⏱️ 12.19s/step - ETA: 0m36s
+[Epoch 3 Step 105/107 | Global-Step 319] loss=0.0442 (ctc=0.0181, att=0.0834) grad=0.14  lr=7.98e-05 | ⏱️ 12.21s/step - ETA: 0m24s
+[Epoch 3 Step 106/107 | Global-Step 320] loss=0.0448 (ctc=0.0212, att=0.0803) grad=0.13  lr=7.97e-05 | ⏱️ 12.57s/step - ETA: 0m12s
+[Epoch 3 Step 107/107 | Global-Step 321] loss=0.0522 (ctc=0.0202, att=0.1003) grad=0.22  lr=7.96e-05 | ⏱️ 7.99s/step - ETA: 0m0s
+✅ Epoch 3 hoàn tất trong 22m19s
+💾 Đã lưu checkpoint: checkpoints_vpb_chunk/epoch3.pt
+🎯 Dev WER (CTC): 19.00%
+🌐 Global WER           : 12.33%
+🕒 Evaluate time: 14.35s (avg decode/sample: 0.03s)
+
+🌀 Epoch 4 bắt đầu...
+[Epoch 4 Step 1/107 | Global-Step 322] loss=0.0249 (ctc=0.0111, att=0.0456) grad=0.09  lr=7.95e-05 | ⏱️ 12.33s/step - ETA: 21m46s
+[Epoch 4 Step 2/107 | Global-Step 323] loss=0.0262 (ctc=0.0128, att=0.0463) grad=0.11  lr=7.94e-05 | ⏱️ 12.72s/step - ETA: 22m15s
+[Epoch 4 Step 3/107 | Global-Step 324] loss=0.0428 (ctc=0.0168, att=0.0817) grad=0.10  lr=7.92e-05 | ⏱️ 12.88s/step - ETA: 22m19s
+[Epoch 4 Step 4/107 | Global-Step 325] loss=0.0248 (ctc=0.0122, att=0.0438) grad=0.09  lr=7.91e-05 | ⏱️ 12.79s/step - ETA: 21m57s
+[Epoch 4 Step 5/107 | Global-Step 326] loss=0.0251 (ctc=0.0138, att=0.0421) grad=0.12  lr=7.90e-05 | ⏱️ 12.56s/step - ETA: 21m21s
+[Epoch 4 Step 6/107 | Global-Step 327] loss=0.0222 (ctc=0.0064, att=0.0458) grad=0.08  lr=7.89e-05 | ⏱️ 12.34s/step - ETA: 20m46s
+[Epoch 4 Step 7/107 | Global-Step 328] loss=0.0184 (ctc=0.0071, att=0.0353) grad=0.15  lr=7.88e-05 | ⏱️ 12.41s/step - ETA: 20m40s
+[Epoch 4 Step 8/107 | Global-Step 329] loss=0.0257 (ctc=0.0116, att=0.0468) grad=0.09  lr=7.86e-05 | ⏱️ 12.51s/step - ETA: 20m38s
+[Epoch 4 Step 9/107 | Global-Step 330] loss=0.0297 (ctc=0.0085, att=0.0615) grad=0.10  lr=7.85e-05 | ⏱️ 12.22s/step - ETA: 19m57s
+[Epoch 4 Step 10/107 | Global-Step 331] loss=0.0358 (ctc=0.0092, att=0.0758) grad=0.10  lr=7.84e-05 | ⏱️ 12.37s/step - ETA: 19m59s
+[Epoch 4 Step 11/107 | Global-Step 332] loss=0.0481 (ctc=0.0204, att=0.0896) grad=0.15  lr=7.83e-05 | ⏱️ 12.50s/step - ETA: 19m59s
+[Epoch 4 Step 12/107 | Global-Step 333] loss=0.0219 (ctc=0.0114, att=0.0376) grad=0.10  lr=7.82e-05 | ⏱️ 12.24s/step - ETA: 19m22s
+[Epoch 4 Step 13/107 | Global-Step 334] loss=0.0261 (ctc=0.0113, att=0.0482) grad=0.09  lr=7.80e-05 | ⏱️ 12.27s/step - ETA: 19m13s
+[Epoch 4 Step 14/107 | Global-Step 335] loss=0.0288 (ctc=0.0076, att=0.0605) grad=0.09  lr=7.79e-05 | ⏱️ 12.31s/step - ETA: 19m5s
+[Epoch 4 Step 15/107 | Global-Step 336] loss=0.0212 (ctc=0.0079, att=0.0411) grad=0.07  lr=7.78e-05 | ⏱️ 12.75s/step - ETA: 19m32s
+[Epoch 4 Step 16/107 | Global-Step 337] loss=0.0214 (ctc=0.0081, att=0.0414) grad=0.07  lr=7.77e-05 | ⏱️ 12.15s/step - ETA: 18m25s
+[Epoch 4 Step 17/107 | Global-Step 338] loss=0.0278 (ctc=0.0126, att=0.0505) grad=0.10  lr=7.76e-05 | ⏱️ 12.26s/step - ETA: 18m23s
+[Epoch 4 Step 18/107 | Global-Step 339] loss=0.0359 (ctc=0.0124, att=0.0711) grad=0.11  lr=7.74e-05 | ⏱️ 12.48s/step - ETA: 18m30s
+[Epoch 4 Step 19/107 | Global-Step 340] loss=0.0270 (ctc=0.0119, att=0.0497) grad=0.13  lr=7.73e-05 | ⏱️ 12.50s/step - ETA: 18m20s
+[Epoch 4 Step 20/107 | Global-Step 341] loss=0.0247 (ctc=0.0081, att=0.0495) grad=0.11  lr=7.72e-05 | ⏱️ 12.27s/step - ETA: 17m47s
+[Epoch 4 Step 21/107 | Global-Step 342] loss=0.0190 (ctc=0.0084, att=0.0350) grad=0.12  lr=7.71e-05 | ⏱️ 12.60s/step - ETA: 18m3s
+[Epoch 4 Step 22/107 | Global-Step 343] loss=0.0171 (ctc=0.0063, att=0.0333) grad=0.08  lr=7.69e-05 | ⏱️ 12.27s/step - ETA: 17m22s
+[Epoch 4 Step 23/107 | Global-Step 344] loss=0.0190 (ctc=0.0065, att=0.0378) grad=0.08  lr=7.68e-05 | ⏱️ 12.65s/step - ETA: 17m42s
+[Epoch 4 Step 24/107 | Global-Step 345] loss=0.0205 (ctc=0.0102, att=0.0361) grad=0.10  lr=7.67e-05 | ⏱️ 12.32s/step - ETA: 17m2s
+[Epoch 4 Step 25/107 | Global-Step 346] loss=0.0231 (ctc=0.0128, att=0.0384) grad=0.09  lr=7.66e-05 | ⏱️ 12.43s/step - ETA: 16m59s
+[Epoch 4 Step 26/107 | Global-Step 347] loss=0.0180 (ctc=0.0094, att=0.0307) grad=0.14  lr=7.65e-05 | ⏱️ 12.21s/step - ETA: 16m28s
+[Epoch 4 Step 27/107 | Global-Step 348] loss=0.0152 (ctc=0.0067, att=0.0280) grad=0.07  lr=7.63e-05 | ⏱️ 12.39s/step - ETA: 16m31s
+[Epoch 4 Step 28/107 | Global-Step 349] loss=0.0273 (ctc=0.0157, att=0.0447) grad=0.10  lr=7.62e-05 | ⏱️ 12.28s/step - ETA: 16m10s
+[Epoch 4 Step 29/107 | Global-Step 350] loss=0.0375 (ctc=0.0125, att=0.0751) grad=0.11  lr=7.61e-05 | ⏱️ 12.22s/step - ETA: 15m53s
+[Epoch 4 Step 30/107 | Global-Step 351] loss=0.0187 (ctc=0.0077, att=0.0352) grad=0.09  lr=7.60e-05 | ⏱️ 12.22s/step - ETA: 15m40s
+[Epoch 4 Step 31/107 | Global-Step 352] loss=0.0218 (ctc=0.0094, att=0.0403) grad=0.10  lr=7.58e-05 | ⏱️ 12.65s/step - ETA: 16m1s
+[Epoch 4 Step 32/107 | Global-Step 353] loss=0.0108 (ctc=0.0038, att=0.0212) grad=0.06  lr=7.57e-05 | ⏱️ 12.65s/step - ETA: 15m48s
+[Epoch 4 Step 33/107 | Global-Step 354] loss=0.0164 (ctc=0.0080, att=0.0290) grad=0.10  lr=7.56e-05 | ⏱️ 12.62s/step - ETA: 15m33s
+[Epoch 4 Step 34/107 | Global-Step 355] loss=0.0326 (ctc=0.0127, att=0.0623) grad=0.09  lr=7.55e-05 | ⏱️ 12.48s/step - ETA: 15m11s
+[Epoch 4 Step 35/107 | Global-Step 356] loss=0.0204 (ctc=0.0070, att=0.0405) grad=0.08  lr=7.53e-05 | ⏱️ 12.22s/step - ETA: 14m39s
+[Epoch 4 Step 36/107 | Global-Step 357] loss=0.0236 (ctc=0.0118, att=0.0414) grad=0.11  lr=7.52e-05 | ⏱️ 12.46s/step - ETA: 14m44s
+[Epoch 4 Step 37/107 | Global-Step 358] loss=0.0212 (ctc=0.0081, att=0.0407) grad=0.09  lr=7.51e-05 | ⏱️ 12.49s/step - ETA: 14m34s
+[Epoch 4 Step 38/107 | Global-Step 359] loss=0.0283 (ctc=0.0113, att=0.0538) grad=0.11  lr=7.50e-05 | ⏱️ 12.22s/step - ETA: 14m3s
+[Epoch 4 Step 39/107 | Global-Step 360] loss=0.0253 (ctc=0.0081, att=0.0510) grad=0.12  lr=7.48e-05 | ⏱️ 12.60s/step - ETA: 14m17s
+[Epoch 4 Step 40/107 | Global-Step 361] loss=0.0261 (ctc=0.0069, att=0.0548) grad=0.12  lr=7.47e-05 | ⏱️ 12.35s/step - ETA: 13m47s
+[Epoch 4 Step 41/107 | Global-Step 362] loss=0.0268 (ctc=0.0099, att=0.0523) grad=0.12  lr=7.46e-05 | ⏱️ 12.38s/step - ETA: 13m37s
+[Epoch 4 Step 42/107 | Global-Step 363] loss=0.0199 (ctc=0.0076, att=0.0382) grad=0.10  lr=7.44e-05 | ⏱️ 12.19s/step - ETA: 13m12s
+[Epoch 4 Step 43/107 | Global-Step 364] loss=0.0217 (ctc=0.0068, att=0.0442) grad=0.07  lr=7.43e-05 | ⏱️ 12.55s/step - ETA: 13m23s
+[Epoch 4 Step 44/107 | Global-Step 365] loss=0.0282 (ctc=0.0115, att=0.0532) grad=0.12  lr=7.42e-05 | ⏱️ 12.61s/step - ETA: 13m14s
+[Epoch 4 Step 45/107 | Global-Step 366] loss=0.0223 (ctc=0.0074, att=0.0447) grad=0.14  lr=7.41e-05 | ⏱️ 12.43s/step - ETA: 12m50s
+[Epoch 4 Step 46/107 | Global-Step 367] loss=0.0219 (ctc=0.0083, att=0.0422) grad=0.08  lr=7.39e-05 | ⏱️ 12.18s/step - ETA: 12m23s
+[Epoch 4 Step 47/107 | Global-Step 368] loss=0.0188 (ctc=0.0092, att=0.0330) grad=0.14  lr=7.38e-05 | ⏱️ 12.44s/step - ETA: 12m26s
+[Epoch 4 Step 48/107 | Global-Step 369] loss=0.0154 (ctc=0.0064, att=0.0290) grad=0.11  lr=7.37e-05 | ⏱️ 12.46s/step - ETA: 12m15s
+[Epoch 4 Step 49/107 | Global-Step 370] loss=0.0292 (ctc=0.0124, att=0.0544) grad=0.11  lr=7.36e-05 | ⏱️ 12.64s/step - ETA: 12m12s
+[Epoch 4 Step 50/107 | Global-Step 371] loss=0.0202 (ctc=0.0113, att=0.0336) grad=0.09  lr=7.34e-05 | ⏱️ 12.23s/step - ETA: 11m36s
+[Epoch 4 Step 51/107 | Global-Step 372] loss=0.0236 (ctc=0.0122, att=0.0409) grad=0.08  lr=7.33e-05 | ⏱️ 12.26s/step - ETA: 11m26s
+[Epoch 4 Step 52/107 | Global-Step 373] loss=0.0141 (ctc=0.0048, att=0.0282) grad=0.09  lr=7.32e-05 | ⏱️ 12.42s/step - ETA: 11m23s
+[Epoch 4 Step 53/107 | Global-Step 374] loss=0.0304 (ctc=0.0135, att=0.0557) grad=0.11  lr=7.30e-05 | ⏱️ 12.22s/step - ETA: 10m59s
+[Epoch 4 Step 54/107 | Global-Step 375] loss=0.0353 (ctc=0.0089, att=0.0749) grad=0.13  lr=7.29e-05 | ⏱️ 12.29s/step - ETA: 10m51s
+[Epoch 4 Step 55/107 | Global-Step 376] loss=0.0187 (ctc=0.0062, att=0.0375) grad=0.07  lr=7.28e-05 | ⏱️ 12.20s/step - ETA: 10m34s
+[Epoch 4 Step 56/107 | Global-Step 377] loss=0.0186 (ctc=0.0063, att=0.0371) grad=0.08  lr=7.26e-05 | ⏱️ 12.57s/step - ETA: 10m41s
+[Epoch 4 Step 57/107 | Global-Step 378] loss=0.0223 (ctc=0.0060, att=0.0468) grad=0.08  lr=7.25e-05 | ⏱️ 12.07s/step - ETA: 10m3s
+[Epoch 4 Step 58/107 | Global-Step 379] loss=0.0195 (ctc=0.0067, att=0.0385) grad=0.07  lr=7.24e-05 | ⏱️ 11.72s/step - ETA: 9m34s
+[Epoch 4 Step 59/107 | Global-Step 380] loss=0.0252 (ctc=0.0070, att=0.0526) grad=0.10  lr=7.23e-05 | ⏱️ 11.81s/step - ETA: 9m27s
+[Epoch 4 Step 60/107 | Global-Step 381] loss=0.0325 (ctc=0.0139, att=0.0605) grad=0.11  lr=7.21e-05 | ⏱️ 11.68s/step - ETA: 9m9s
+[Epoch 4 Step 61/107 | Global-Step 382] loss=0.0183 (ctc=0.0044, att=0.0393) grad=0.07  lr=7.20e-05 | ⏱️ 11.79s/step - ETA: 9m2s
+[Epoch 4 Step 62/107 | Global-Step 383] loss=0.0208 (ctc=0.0111, att=0.0352) grad=0.10  lr=7.19e-05 | ⏱️ 11.84s/step - ETA: 8m52s
+[Epoch 4 Step 63/107 | Global-Step 384] loss=0.0315 (ctc=0.0086, att=0.0659) grad=0.09  lr=7.17e-05 | ⏱️ 11.83s/step - ETA: 8m40s
+[Epoch 4 Step 64/107 | Global-Step 385] loss=0.0359 (ctc=0.0132, att=0.0699) grad=0.09  lr=7.16e-05 | ⏱️ 11.91s/step - ETA: 8m32s
+[Epoch 4 Step 65/107 | Global-Step 386] loss=0.0155 (ctc=0.0059, att=0.0300) grad=0.07  lr=7.15e-05 | ⏱️ 11.93s/step - ETA: 8m21s
+[Epoch 4 Step 66/107 | Global-Step 387] loss=0.0252 (ctc=0.0073, att=0.0521) grad=0.11  lr=7.13e-05 | ⏱️ 11.67s/step - ETA: 7m58s
+[Epoch 4 Step 67/107 | Global-Step 388] loss=0.0197 (ctc=0.0074, att=0.0381) grad=0.10  lr=7.12e-05 | ⏱️ 11.95s/step - ETA: 7m58s
+[Epoch 4 Step 68/107 | Global-Step 389] loss=0.0207 (ctc=0.0095, att=0.0375) grad=0.08  lr=7.11e-05 | ⏱️ 11.39s/step - ETA: 7m24s
+[Epoch 4 Step 69/107 | Global-Step 390] loss=0.0131 (ctc=0.0027, att=0.0287) grad=0.07  lr=7.09e-05 | ⏱️ 11.75s/step - ETA: 7m26s
+[Epoch 4 Step 70/107 | Global-Step 391] loss=0.0250 (ctc=0.0148, att=0.0403) grad=0.09  lr=7.08e-05 | ⏱️ 11.71s/step - ETA: 7m13s
+[Epoch 4 Step 71/107 | Global-Step 392] loss=0.0392 (ctc=0.0123, att=0.0794) grad=0.17  lr=7.07e-05 | ⏱️ 11.71s/step - ETA: 7m1s
+[Epoch 4 Step 72/107 | Global-Step 393] loss=0.0194 (ctc=0.0057, att=0.0400) grad=0.10  lr=7.05e-05 | ⏱️ 11.79s/step - ETA: 6m52s
+[Epoch 4 Step 73/107 | Global-Step 394] loss=0.0186 (ctc=0.0093, att=0.0325) grad=0.13  lr=7.04e-05 | ⏱️ 11.73s/step - ETA: 6m38s
+[Epoch 4 Step 74/107 | Global-Step 395] loss=0.0355 (ctc=0.0116, att=0.0714) grad=0.20  lr=7.03e-05 | ⏱️ 11.78s/step - ETA: 6m28s
+[Epoch 4 Step 75/107 | Global-Step 396] loss=0.0248 (ctc=0.0114, att=0.0449) grad=0.08  lr=7.01e-05 | ⏱️ 11.82s/step - ETA: 6m18s
+[Epoch 4 Step 76/107 | Global-Step 397] loss=0.0159 (ctc=0.0035, att=0.0345) grad=0.09  lr=7.00e-05 | ⏱️ 11.67s/step - ETA: 6m1s
+[Epoch 4 Step 77/107 | Global-Step 398] loss=0.0470 (ctc=0.0167, att=0.0924) grad=0.12  lr=6.99e-05 | ⏱️ 11.90s/step - ETA: 5m56s
+[Epoch 4 Step 78/107 | Global-Step 399] loss=0.0285 (ctc=0.0091, att=0.0576) grad=0.14  lr=6.97e-05 | ⏱️ 11.73s/step - ETA: 5m40s
+[Epoch 4 Step 79/107 | Global-Step 400] loss=0.0275 (ctc=0.0102, att=0.0534) grad=0.11  lr=6.96e-05 | ⏱️ 11.72s/step - ETA: 5m28s
+[Epoch 4 Step 80/107 | Global-Step 401] loss=0.0176 (ctc=0.0078, att=0.0323) grad=0.10  lr=6.95e-05 | ⏱️ 11.78s/step - ETA: 5m18s
+[Epoch 4 Step 81/107 | Global-Step 402] loss=0.0119 (ctc=0.0028, att=0.0255) grad=0.07  lr=6.93e-05 | ⏱️ 11.72s/step - ETA: 5m4s
+[Epoch 4 Step 82/107 | Global-Step 403] loss=0.0200 (ctc=0.0079, att=0.0382) grad=0.10  lr=6.92e-05 | ⏱️ 11.77s/step - ETA: 4m54s
+[Epoch 4 Step 83/107 | Global-Step 404] loss=0.0261 (ctc=0.0062, att=0.0559) grad=0.07  lr=6.91e-05 | ⏱️ 11.75s/step - ETA: 4m41s
+[Epoch 4 Step 84/107 | Global-Step 405] loss=0.0268 (ctc=0.0094, att=0.0528) grad=0.12  lr=6.89e-05 | ⏱️ 12.11s/step - ETA: 4m38s
+[Epoch 4 Step 85/107 | Global-Step 406] loss=0.0208 (ctc=0.0096, att=0.0375) grad=0.08  lr=6.88e-05 | ⏱️ 11.95s/step - ETA: 4m22s
+[Epoch 4 Step 86/107 | Global-Step 407] loss=0.0207 (ctc=0.0098, att=0.0371) grad=0.09  lr=6.87e-05 | ⏱️ 11.73s/step - ETA: 4m6s
+[Epoch 4 Step 87/107 | Global-Step 408] loss=0.0383 (ctc=0.0134, att=0.0756) grad=0.20  lr=6.85e-05 | ⏱️ 11.66s/step - ETA: 3m53s
+[Epoch 4 Step 88/107 | Global-Step 409] loss=0.0250 (ctc=0.0104, att=0.0468) grad=0.11  lr=6.84e-05 | ⏱️ 11.71s/step - ETA: 3m42s
+[Epoch 4 Step 89/107 | Global-Step 410] loss=0.0279 (ctc=0.0104, att=0.0541) grad=0.10  lr=6.83e-05 | ⏱️ 12.38s/step - ETA: 3m42s
+[Epoch 4 Step 90/107 | Global-Step 411] loss=0.0197 (ctc=0.0090, att=0.0358) grad=0.08  lr=6.81e-05 | ⏱️ 11.36s/step - ETA: 3m13s
+[Epoch 4 Step 91/107 | Global-Step 412] loss=0.0211 (ctc=0.0085, att=0.0399) grad=0.10  lr=6.80e-05 | ⏱️ 11.30s/step - ETA: 3m0s
+[Epoch 4 Step 92/107 | Global-Step 413] loss=0.0193 (ctc=0.0071, att=0.0376) grad=0.10  lr=6.79e-05 | ⏱️ 11.20s/step - ETA: 2m47s
+[Epoch 4 Step 93/107 | Global-Step 414] loss=0.0221 (ctc=0.0031, att=0.0505) grad=0.12  lr=6.77e-05 | ⏱️ 11.64s/step - ETA: 2m43s
+[Epoch 4 Step 94/107 | Global-Step 415] loss=0.0271 (ctc=0.0067, att=0.0576) grad=0.19  lr=6.76e-05 | ⏱️ 11.38s/step - ETA: 2m27s
+[Epoch 4 Step 95/107 | Global-Step 416] loss=0.0187 (ctc=0.0092, att=0.0330) grad=0.10  lr=6.74e-05 | ⏱️ 11.41s/step - ETA: 2m16s
+[Epoch 4 Step 96/107 | Global-Step 417] loss=0.0280 (ctc=0.0070, att=0.0596) grad=0.11  lr=6.73e-05 | ⏱️ 11.43s/step - ETA: 2m5s
+[Epoch 4 Step 97/107 | Global-Step 418] loss=0.0284 (ctc=0.0114, att=0.0539) grad=0.19  lr=6.72e-05 | ⏱️ 10.96s/step - ETA: 1m49s
+[Epoch 4 Step 98/107 | Global-Step 419] loss=0.0362 (ctc=0.0127, att=0.0713) grad=0.11  lr=6.70e-05 | ⏱️ 11.31s/step - ETA: 1m41s
+[Epoch 4 Step 99/107 | Global-Step 420] loss=0.0366 (ctc=0.0154, att=0.0684) grad=0.12  lr=6.69e-05 | ⏱️ 11.24s/step - ETA: 1m29s
+[Epoch 4 Step 100/107 | Global-Step 421] loss=0.0193 (ctc=0.0097, att=0.0337) grad=0.08  lr=6.68e-05 | ⏱️ 11.34s/step - ETA: 1m19s
+[Epoch 4 Step 101/107 | Global-Step 422] loss=0.0258 (ctc=0.0087, att=0.0516) grad=0.12  lr=6.66e-05 | ⏱️ 11.50s/step - ETA: 1m9s
+[Epoch 4 Step 102/107 | Global-Step 423] loss=0.0234 (ctc=0.0118, att=0.0408) grad=0.11  lr=6.65e-05 | ⏱️ 11.27s/step - ETA: 0m56s
+[Epoch 4 Step 103/107 | Global-Step 424] loss=0.0311 (ctc=0.0096, att=0.0634) grad=0.11  lr=6.63e-05 | ⏱️ 11.26s/step - ETA: 0m45s
+[Epoch 4 Step 104/107 | Global-Step 425] loss=0.0347 (ctc=0.0204, att=0.0561) grad=0.12  lr=6.62e-05 | ⏱️ 11.26s/step - ETA: 0m33s
+[Epoch 4 Step 105/107 | Global-Step 426] loss=0.0364 (ctc=0.0179, att=0.0642) grad=0.13  lr=6.61e-05 | ⏱️ 11.39s/step - ETA: 0m22s
+[Epoch 4 Step 106/107 | Global-Step 427] loss=0.0292 (ctc=0.0104, att=0.0573) grad=0.09  lr=6.59e-05 | ⏱️ 11.35s/step - ETA: 0m11s
+[Epoch 4 Step 107/107 | Global-Step 428] loss=0.0562 (ctc=0.0225, att=0.1068) grad=0.19  lr=6.58e-05 | ⏱️ 7.10s/step - ETA: 0m0s
+✅ Epoch 4 hoàn tất trong 21m48s
+💾 Đã lưu checkpoint: checkpoints_vpb_chunk/epoch4.pt
+🎯 Dev WER (CTC): 18.53%
+🌐 Global WER           : 11.66%
+🕒 Evaluate time: 14.23s (avg decode/sample: 0.03s)
+
+🌀 Epoch 5 bắt đầu...
+[Epoch 5 Step 1/107 | Global-Step 429] loss=0.0125 (ctc=0.0052, att=0.0236) grad=0.21  lr=6.57e-05 | ⏱️ 12.25s/step - ETA: 21m38s
+[Epoch 5 Step 2/107 | Global-Step 430] loss=0.0216 (ctc=0.0127, att=0.0349) grad=0.09  lr=6.55e-05 | ⏱️ 11.88s/step - ETA: 20m47s
+[Epoch 5 Step 3/107 | Global-Step 431] loss=0.0183 (ctc=0.0067, att=0.0357) grad=0.09  lr=6.54e-05 | ⏱️ 11.70s/step - ETA: 20m16s
+[Epoch 5 Step 4/107 | Global-Step 432] loss=0.0139 (ctc=0.0051, att=0.0271) grad=0.06  lr=6.52e-05 | ⏱️ 11.79s/step - ETA: 20m14s
+[Epoch 5 Step 5/107 | Global-Step 433] loss=0.0154 (ctc=0.0048, att=0.0314) grad=0.09  lr=6.51e-05 | ⏱️ 11.89s/step - ETA: 20m12s
+[Epoch 5 Step 6/107 | Global-Step 434] loss=0.0215 (ctc=0.0123, att=0.0353) grad=0.11  lr=6.50e-05 | ⏱️ 11.84s/step - ETA: 19m55s
+[Epoch 5 Step 7/107 | Global-Step 435] loss=0.0190 (ctc=0.0088, att=0.0344) grad=0.09  lr=6.48e-05 | ⏱️ 12.05s/step - ETA: 20m5s
+[Epoch 5 Step 8/107 | Global-Step 436] loss=0.0188 (ctc=0.0066, att=0.0371) grad=0.08  lr=6.47e-05 | ⏱️ 11.70s/step - ETA: 19m18s
+[Epoch 5 Step 9/107 | Global-Step 437] loss=0.0112 (ctc=0.0046, att=0.0210) grad=0.06  lr=6.45e-05 | ⏱️ 11.80s/step - ETA: 19m16s
+[Epoch 5 Step 10/107 | Global-Step 438] loss=0.0183 (ctc=0.0059, att=0.0369) grad=0.09  lr=6.44e-05 | ⏱️ 11.75s/step - ETA: 18m59s
+[Epoch 5 Step 11/107 | Global-Step 439] loss=0.0193 (ctc=0.0048, att=0.0411) grad=0.10  lr=6.43e-05 | ⏱️ 11.70s/step - ETA: 18m43s
+[Epoch 5 Step 12/107 | Global-Step 440] loss=0.0244 (ctc=0.0130, att=0.0415) grad=0.10  lr=6.41e-05 | ⏱️ 11.89s/step - ETA: 18m49s
+[Epoch 5 Step 13/107 | Global-Step 441] loss=0.0207 (ctc=0.0102, att=0.0363) grad=0.07  lr=6.40e-05 | ⏱️ 11.79s/step - ETA: 18m28s
+[Epoch 5 Step 14/107 | Global-Step 442] loss=0.0400 (ctc=0.0144, att=0.0785) grad=0.11  lr=6.38e-05 | ⏱️ 11.88s/step - ETA: 18m24s
+[Epoch 5 Step 15/107 | Global-Step 443] loss=0.0222 (ctc=0.0080, att=0.0434) grad=0.08  lr=6.37e-05 | ⏱️ 11.70s/step - ETA: 17m56s
+[Epoch 5 Step 16/107 | Global-Step 444] loss=0.0267 (ctc=0.0093, att=0.0527) grad=0.08  lr=6.36e-05 | ⏱️ 11.72s/step - ETA: 17m46s
+[Epoch 5 Step 17/107 | Global-Step 445] loss=0.0193 (ctc=0.0065, att=0.0384) grad=0.09  lr=6.34e-05 | ⏱️ 11.97s/step - ETA: 17m57s
+[Epoch 5 Step 18/107 | Global-Step 446] loss=0.0171 (ctc=0.0069, att=0.0324) grad=0.08  lr=6.33e-05 | ⏱️ 11.72s/step - ETA: 17m23s
+[Epoch 5 Step 19/107 | Global-Step 447] loss=0.0234 (ctc=0.0087, att=0.0456) grad=0.11  lr=6.31e-05 | ⏱️ 11.94s/step - ETA: 17m31s
+[Epoch 5 Step 20/107 | Global-Step 448] loss=0.0250 (ctc=0.0058, att=0.0539) grad=0.09  lr=6.30e-05 | ⏱️ 11.73s/step - ETA: 17m0s
+[Epoch 5 Step 21/107 | Global-Step 449] loss=0.0227 (ctc=0.0103, att=0.0413) grad=0.10  lr=6.29e-05 | ⏱️ 11.72s/step - ETA: 16m47s
+[Epoch 5 Step 22/107 | Global-Step 450] loss=0.0172 (ctc=0.0042, att=0.0368) grad=0.07  lr=6.27e-05 | ⏱️ 11.86s/step - ETA: 16m47s
+[Epoch 5 Step 23/107 | Global-Step 451] loss=0.0142 (ctc=0.0053, att=0.0276) grad=0.06  lr=6.26e-05 | ⏱️ 11.65s/step - ETA: 16m18s
+[Epoch 5 Step 24/107 | Global-Step 452] loss=0.0271 (ctc=0.0100, att=0.0527) grad=0.15  lr=6.24e-05 | ⏱️ 11.70s/step - ETA: 16m11s
+[Epoch 5 Step 25/107 | Global-Step 453] loss=0.0177 (ctc=0.0088, att=0.0311) grad=0.08  lr=6.23e-05 | ⏱️ 11.66s/step - ETA: 15m56s
+[Epoch 5 Step 26/107 | Global-Step 454] loss=0.0085 (ctc=0.0046, att=0.0145) grad=0.05  lr=6.22e-05 | ⏱️ 11.72s/step - ETA: 15m49s
+[Epoch 5 Step 27/107 | Global-Step 455] loss=0.0158 (ctc=0.0063, att=0.0300) grad=0.08  lr=6.20e-05 | ⏱️ 11.71s/step - ETA: 15m37s
+[Epoch 5 Step 28/107 | Global-Step 456] loss=0.0218 (ctc=0.0078, att=0.0429) grad=0.10  lr=6.19e-05 | ⏱️ 11.81s/step - ETA: 15m33s
+[Epoch 5 Step 29/107 | Global-Step 457] loss=0.0202 (ctc=0.0059, att=0.0418) grad=0.09  lr=6.17e-05 | ⏱️ 12.01s/step - ETA: 15m36s
+[Epoch 5 Step 30/107 | Global-Step 458] loss=0.0140 (ctc=0.0087, att=0.0220) grad=0.08  lr=6.16e-05 | ⏱️ 11.80s/step - ETA: 15m8s
+[Epoch 5 Step 31/107 | Global-Step 459] loss=0.0326 (ctc=0.0133, att=0.0616) grad=0.10  lr=6.15e-05 | ⏱️ 11.74s/step - ETA: 14m52s
+[Epoch 5 Step 32/107 | Global-Step 460] loss=0.0093 (ctc=0.0031, att=0.0187) grad=0.06  lr=6.13e-05 | ⏱️ 11.86s/step - ETA: 14m49s
+[Epoch 5 Step 33/107 | Global-Step 461] loss=0.0096 (ctc=0.0050, att=0.0166) grad=0.08  lr=6.12e-05 | ⏱️ 11.73s/step - ETA: 14m27s
+[Epoch 5 Step 34/107 | Global-Step 462] loss=0.0176 (ctc=0.0044, att=0.0373) grad=0.09  lr=6.10e-05 | ⏱️ 11.66s/step - ETA: 14m11s
+[Epoch 5 Step 35/107 | Global-Step 463] loss=0.0237 (ctc=0.0092, att=0.0456) grad=0.07  lr=6.09e-05 | ⏱️ 11.79s/step - ETA: 14m9s
+[Epoch 5 Step 36/107 | Global-Step 464] loss=0.0123 (ctc=0.0064, att=0.0213) grad=0.09  lr=6.07e-05 | ⏱️ 11.73s/step - ETA: 13m52s
+[Epoch 5 Step 37/107 | Global-Step 465] loss=0.0091 (ctc=0.0040, att=0.0168) grad=0.06  lr=6.06e-05 | ⏱️ 11.73s/step - ETA: 13m40s
+[Epoch 5 Step 38/107 | Global-Step 466] loss=0.0274 (ctc=0.0088, att=0.0552) grad=0.15  lr=6.05e-05 | ⏱️ 11.73s/step - ETA: 13m29s
+[Epoch 5 Step 39/107 | Global-Step 467] loss=0.0214 (ctc=0.0054, att=0.0453) grad=0.08  lr=6.03e-05 | ⏱️ 11.70s/step - ETA: 13m15s
+[Epoch 5 Step 40/107 | Global-Step 468] loss=0.0129 (ctc=0.0046, att=0.0255) grad=0.08  lr=6.02e-05 | ⏱️ 11.71s/step - ETA: 13m4s
+[Epoch 5 Step 41/107 | Global-Step 469] loss=0.0199 (ctc=0.0066, att=0.0399) grad=0.06  lr=6.00e-05 | ⏱️ 11.69s/step - ETA: 12m51s
+[Epoch 5 Step 42/107 | Global-Step 470] loss=0.0161 (ctc=0.0072, att=0.0295) grad=0.11  lr=5.99e-05 | ⏱️ 11.90s/step - ETA: 12m53s
+[Epoch 5 Step 43/107 | Global-Step 471] loss=0.0228 (ctc=0.0085, att=0.0444) grad=0.10  lr=5.97e-05 | ⏱️ 11.78s/step - ETA: 12m33s
+[Epoch 5 Step 44/107 | Global-Step 472] loss=0.0265 (ctc=0.0112, att=0.0495) grad=0.11  lr=5.96e-05 | ⏱️ 11.73s/step - ETA: 12m18s
+[Epoch 5 Step 45/107 | Global-Step 473] loss=0.0105 (ctc=0.0027, att=0.0222) grad=0.06  lr=5.95e-05 | ⏱️ 11.76s/step - ETA: 12m9s
+[Epoch 5 Step 46/107 | Global-Step 474] loss=0.0131 (ctc=0.0035, att=0.0275) grad=0.07  lr=5.93e-05 | ⏱️ 11.90s/step - ETA: 12m5s
+[Epoch 5 Step 47/107 | Global-Step 475] loss=0.0067 (ctc=0.0035, att=0.0115) grad=0.05  lr=5.92e-05 | ⏱️ 11.71s/step - ETA: 11m42s
+[Epoch 5 Step 48/107 | Global-Step 476] loss=0.0327 (ctc=0.0186, att=0.0538) grad=0.12  lr=5.90e-05 | ⏱️ 11.72s/step - ETA: 11m31s
+[Epoch 5 Step 49/107 | Global-Step 477] loss=0.0175 (ctc=0.0051, att=0.0361) grad=0.08  lr=5.89e-05 | ⏱️ 11.83s/step - ETA: 11m26s
+[Epoch 5 Step 50/107 | Global-Step 478] loss=0.0195 (ctc=0.0053, att=0.0409) grad=0.07  lr=5.87e-05 | ⏱️ 11.72s/step - ETA: 11m8s
+[Epoch 5 Step 51/107 | Global-Step 479] loss=0.0126 (ctc=0.0030, att=0.0270) grad=0.06  lr=5.86e-05 | ⏱️ 11.73s/step - ETA: 10m56s
+[Epoch 5 Step 52/107 | Global-Step 480] loss=0.0141 (ctc=0.0090, att=0.0218) grad=0.08  lr=5.85e-05 | ⏱️ 11.72s/step - ETA: 10m44s
+[Epoch 5 Step 53/107 | Global-Step 481] loss=0.0325 (ctc=0.0126, att=0.0623) grad=0.09  lr=5.83e-05 | ⏱️ 11.78s/step - ETA: 10m36s
+[Epoch 5 Step 54/107 | Global-Step 482] loss=0.0163 (ctc=0.0064, att=0.0312) grad=0.06  lr=5.82e-05 | ⏱️ 11.83s/step - ETA: 10m26s
+[Epoch 5 Step 55/107 | Global-Step 483] loss=0.0161 (ctc=0.0047, att=0.0331) grad=0.06  lr=5.80e-05 | ⏱️ 11.79s/step - ETA: 10m12s
+[Epoch 5 Step 56/107 | Global-Step 484] loss=0.0137 (ctc=0.0033, att=0.0293) grad=0.08  lr=5.79e-05 | ⏱️ 11.46s/step - ETA: 9m44s
+[Epoch 5 Step 57/107 | Global-Step 485] loss=0.0265 (ctc=0.0088, att=0.0531) grad=0.09  lr=5.77e-05 | ⏱️ 11.78s/step - ETA: 9m49s
+[Epoch 5 Step 58/107 | Global-Step 486] loss=0.0297 (ctc=0.0118, att=0.0565) grad=0.13  lr=5.76e-05 | ⏱️ 11.81s/step - ETA: 9m38s
+[Epoch 5 Step 59/107 | Global-Step 487] loss=0.0405 (ctc=0.0120, att=0.0833) grad=0.16  lr=5.75e-05 | ⏱️ 11.95s/step - ETA: 9m33s
+[Epoch 5 Step 60/107 | Global-Step 488] loss=0.0196 (ctc=0.0060, att=0.0401) grad=0.09  lr=5.73e-05 | ⏱️ 11.79s/step - ETA: 9m13s
+[Epoch 5 Step 61/107 | Global-Step 489] loss=0.0146 (ctc=0.0104, att=0.0209) grad=0.07  lr=5.72e-05 | ⏱️ 11.78s/step - ETA: 9m1s
+[Epoch 5 Step 62/107 | Global-Step 490] loss=0.0198 (ctc=0.0049, att=0.0421) grad=0.06  lr=5.70e-05 | ⏱️ 11.75s/step - ETA: 8m48s
+[Epoch 5 Step 63/107 | Global-Step 491] loss=0.0109 (ctc=0.0038, att=0.0215) grad=0.06  lr=5.69e-05 | ⏱️ 11.75s/step - ETA: 8m36s
+[Epoch 5 Step 64/107 | Global-Step 492] loss=0.0175 (ctc=0.0071, att=0.0332) grad=0.08  lr=5.67e-05 | ⏱️ 11.68s/step - ETA: 8m22s
+[Epoch 5 Step 65/107 | Global-Step 493] loss=0.0152 (ctc=0.0055, att=0.0298) grad=0.08  lr=5.66e-05 | ⏱️ 11.44s/step - ETA: 8m0s
+[Epoch 5 Step 66/107 | Global-Step 494] loss=0.0142 (ctc=0.0049, att=0.0283) grad=0.09  lr=5.64e-05 | ⏱️ 12.01s/step - ETA: 8m12s
+[Epoch 5 Step 67/107 | Global-Step 495] loss=0.0121 (ctc=0.0074, att=0.0191) grad=0.09  lr=5.63e-05 | ⏱️ 11.81s/step - ETA: 7m52s
+[Epoch 5 Step 68/107 | Global-Step 496] loss=0.0242 (ctc=0.0137, att=0.0400) grad=0.09  lr=5.62e-05 | ⏱️ 11.36s/step - ETA: 7m23s
+[Epoch 5 Step 69/107 | Global-Step 497] loss=0.0233 (ctc=0.0068, att=0.0481) grad=0.12  lr=5.60e-05 | ⏱️ 11.73s/step - ETA: 7m25s
+[Epoch 5 Step 70/107 | Global-Step 498] loss=0.0236 (ctc=0.0119, att=0.0413) grad=0.08  lr=5.59e-05 | ⏱️ 11.79s/step - ETA: 7m16s
+[Epoch 5 Step 71/107 | Global-Step 499] loss=0.0152 (ctc=0.0082, att=0.0258) grad=0.09  lr=5.57e-05 | ⏱️ 11.73s/step - ETA: 7m2s
+[Epoch 5 Step 72/107 | Global-Step 500] loss=0.0142 (ctc=0.0051, att=0.0279) grad=0.09  lr=5.56e-05 | ⏱️ 11.86s/step - ETA: 6m54s
+[Epoch 5 Step 73/107 | Global-Step 501] loss=0.0306 (ctc=0.0098, att=0.0618) grad=0.09  lr=5.54e-05 | ⏱️ 11.91s/step - ETA: 6m44s
+[Epoch 5 Step 74/107 | Global-Step 502] loss=0.0203 (ctc=0.0079, att=0.0389) grad=0.10  lr=5.53e-05 | ⏱️ 11.88s/step - ETA: 6m32s
+[Epoch 5 Step 75/107 | Global-Step 503] loss=0.0187 (ctc=0.0075, att=0.0355) grad=0.08  lr=5.51e-05 | ⏱️ 12.02s/step - ETA: 6m24s
+[Epoch 5 Step 76/107 | Global-Step 504] loss=0.0168 (ctc=0.0067, att=0.0319) grad=0.07  lr=5.50e-05 | ⏱️ 12.03s/step - ETA: 6m12s
+[Epoch 5 Step 77/107 | Global-Step 505] loss=0.0117 (ctc=0.0067, att=0.0193) grad=0.07  lr=5.49e-05 | ⏱️ 11.86s/step - ETA: 5m55s
+[Epoch 5 Step 78/107 | Global-Step 506] loss=0.0267 (ctc=0.0071, att=0.0561) grad=0.10  lr=5.47e-05 | ⏱️ 13.20s/step - ETA: 6m22s
+[Epoch 5 Step 79/107 | Global-Step 507] loss=0.0180 (ctc=0.0104, att=0.0296) grad=0.10  lr=5.46e-05 | ⏱️ 12.61s/step - ETA: 5m53s
+[Epoch 5 Step 80/107 | Global-Step 508] loss=0.0078 (ctc=0.0029, att=0.0152) grad=0.05  lr=5.44e-05 | ⏱️ 12.01s/step - ETA: 5m24s
+[Epoch 5 Step 81/107 | Global-Step 509] loss=0.0195 (ctc=0.0066, att=0.0388) grad=0.10  lr=5.43e-05 | ⏱️ 12.13s/step - ETA: 5m15s
+[Epoch 5 Step 82/107 | Global-Step 510] loss=0.0304 (ctc=0.0078, att=0.0642) grad=0.10  lr=5.41e-05 | ⏱️ 11.67s/step - ETA: 4m51s
+[Epoch 5 Step 83/107 | Global-Step 511] loss=0.0380 (ctc=0.0199, att=0.0652) grad=0.09  lr=5.40e-05 | ⏱️ 11.73s/step - ETA: 4m41s
+[Epoch 5 Step 84/107 | Global-Step 512] loss=0.0256 (ctc=0.0109, att=0.0477) grad=0.12  lr=5.38e-05 | ⏱️ 11.81s/step - ETA: 4m31s
+[Epoch 5 Step 85/107 | Global-Step 513] loss=0.0186 (ctc=0.0101, att=0.0312) grad=0.25  lr=5.37e-05 | ⏱️ 11.92s/step - ETA: 4m22s
+[Epoch 5 Step 86/107 | Global-Step 514] loss=0.0189 (ctc=0.0048, att=0.0400) grad=0.09  lr=5.36e-05 | ⏱️ 11.98s/step - ETA: 4m11s
+[Epoch 5 Step 87/107 | Global-Step 515] loss=0.0202 (ctc=0.0072, att=0.0396) grad=0.13  lr=5.34e-05 | ⏱️ 11.65s/step - ETA: 3m53s
+[Epoch 5 Step 88/107 | Global-Step 516] loss=0.0155 (ctc=0.0089, att=0.0254) grad=0.09  lr=5.33e-05 | ⏱️ 11.54s/step - ETA: 3m39s
+[Epoch 5 Step 89/107 | Global-Step 517] loss=0.0164 (ctc=0.0068, att=0.0310) grad=0.06  lr=5.31e-05 | ⏱️ 11.96s/step - ETA: 3m35s
+[Epoch 5 Step 90/107 | Global-Step 518] loss=0.0153 (ctc=0.0049, att=0.0310) grad=0.07  lr=5.30e-05 | ⏱️ 11.80s/step - ETA: 3m20s
+[Epoch 5 Step 91/107 | Global-Step 519] loss=0.0260 (ctc=0.0093, att=0.0511) grad=0.09  lr=5.28e-05 | ⏱️ 12.67s/step - ETA: 3m22s
+[Epoch 5 Step 92/107 | Global-Step 520] loss=0.0198 (ctc=0.0069, att=0.0391) grad=0.08  lr=5.27e-05 | ⏱️ 11.98s/step - ETA: 2m59s
+[Epoch 5 Step 93/107 | Global-Step 521] loss=0.0151 (ctc=0.0065, att=0.0280) grad=0.09  lr=5.25e-05 | ⏱️ 12.33s/step - ETA: 2m52s
+[Epoch 5 Step 94/107 | Global-Step 522] loss=0.0161 (ctc=0.0075, att=0.0290) grad=0.08  lr=5.24e-05 | ⏱️ 12.00s/step - ETA: 2m35s
+[Epoch 5 Step 95/107 | Global-Step 523] loss=0.0129 (ctc=0.0035, att=0.0270) grad=0.06  lr=5.22e-05 | ⏱️ 11.97s/step - ETA: 2m23s
+[Epoch 5 Step 96/107 | Global-Step 524] loss=0.0162 (ctc=0.0057, att=0.0320) grad=0.07  lr=5.21e-05 | ⏱️ 12.33s/step - ETA: 2m15s
+[Epoch 5 Step 97/107 | Global-Step 525] loss=0.0118 (ctc=0.0051, att=0.0219) grad=0.06  lr=5.20e-05 | ⏱️ 11.51s/step - ETA: 1m55s
+[Epoch 5 Step 98/107 | Global-Step 526] loss=0.0286 (ctc=0.0186, att=0.0437) grad=0.13  lr=5.18e-05 | ⏱️ 11.16s/step - ETA: 1m40s
+[Epoch 5 Step 99/107 | Global-Step 527] loss=0.0302 (ctc=0.0130, att=0.0560) grad=0.12  lr=5.17e-05 | ⏱️ 11.19s/step - ETA: 1m29s
+[Epoch 5 Step 100/107 | Global-Step 528] loss=0.0163 (ctc=0.0091, att=0.0271) grad=0.09  lr=5.15e-05 | ⏱️ 11.27s/step - ETA: 1m18s
+[Epoch 5 Step 101/107 | Global-Step 529] loss=0.0171 (ctc=0.0104, att=0.0270) grad=0.12  lr=5.14e-05 | ⏱️ 11.15s/step - ETA: 1m6s
+[Epoch 5 Step 102/107 | Global-Step 530] loss=0.0114 (ctc=0.0055, att=0.0202) grad=0.08  lr=5.12e-05 | ⏱️ 11.23s/step - ETA: 0m56s
+[Epoch 5 Step 103/107 | Global-Step 531] loss=0.0168 (ctc=0.0053, att=0.0341) grad=0.07  lr=5.11e-05 | ⏱️ 11.34s/step - ETA: 0m45s
+[Epoch 5 Step 104/107 | Global-Step 532] loss=0.0250 (ctc=0.0088, att=0.0492) grad=0.09  lr=5.09e-05 | ⏱️ 11.42s/step - ETA: 0m34s
+[Epoch 5 Step 105/107 | Global-Step 533] loss=0.0131 (ctc=0.0042, att=0.0265) grad=0.06  lr=5.08e-05 | ⏱️ 11.31s/step - ETA: 0m22s
+[Epoch 5 Step 106/107 | Global-Step 534] loss=0.0194 (ctc=0.0099, att=0.0337) grad=0.08  lr=5.06e-05 | ⏱️ 11.25s/step - ETA: 0m11s
+[Epoch 5 Step 107/107 | Global-Step 535] loss=0.0483 (ctc=0.0243, att=0.0842) grad=0.21  lr=5.05e-05 | ⏱️ 7.31s/step - ETA: 0m0s
+✅ Epoch 5 hoàn tất trong 21m20s
+💾 Đã lưu checkpoint: checkpoints_vpb_chunk/epoch5.pt
+🎯 Dev WER (CTC): 18.07%
+🌐 Global WER           : 11.60%
+🕒 Evaluate time: 13.81s (avg decode/sample: 0.03s)
+
+🌀 Epoch 6 bắt đầu...
+[Epoch 6 Step 1/107 | Global-Step 536] loss=0.0153 (ctc=0.0065, att=0.0286) grad=0.09  lr=5.04e-05 | ⏱️ 11.01s/step - ETA: 19m27s
+[Epoch 6 Step 2/107 | Global-Step 537] loss=0.0133 (ctc=0.0055, att=0.0249) grad=0.08  lr=5.02e-05 | ⏱️ 11.29s/step - ETA: 19m45s
+[Epoch 6 Step 3/107 | Global-Step 538] loss=0.0195 (ctc=0.0058, att=0.0401) grad=0.10  lr=5.01e-05 | ⏱️ 11.32s/step - ETA: 19m37s
+[Epoch 6 Step 4/107 | Global-Step 539] loss=0.0128 (ctc=0.0043, att=0.0256) grad=0.07  lr=4.99e-05 | ⏱️ 11.23s/step - ETA: 19m17s
+[Epoch 6 Step 5/107 | Global-Step 540] loss=0.0199 (ctc=0.0045, att=0.0429) grad=0.08  lr=4.98e-05 | ⏱️ 11.50s/step - ETA: 19m33s
+[Epoch 6 Step 6/107 | Global-Step 541] loss=0.0086 (ctc=0.0048, att=0.0142) grad=0.05  lr=4.96e-05 | ⏱️ 11.37s/step - ETA: 19m8s
+[Epoch 6 Step 7/107 | Global-Step 542] loss=0.0089 (ctc=0.0026, att=0.0184) grad=0.05  lr=4.95e-05 | ⏱️ 11.21s/step - ETA: 18m41s
+[Epoch 6 Step 8/107 | Global-Step 543] loss=0.0090 (ctc=0.0050, att=0.0149) grad=0.05  lr=4.93e-05 | ⏱️ 11.20s/step - ETA: 18m28s
+[Epoch 6 Step 9/107 | Global-Step 544] loss=0.0165 (ctc=0.0062, att=0.0320) grad=0.05  lr=4.92e-05 | ⏱️ 11.25s/step - ETA: 18m22s
+[Epoch 6 Step 10/107 | Global-Step 545] loss=0.0210 (ctc=0.0095, att=0.0382) grad=0.16  lr=4.90e-05 | ⏱️ 11.24s/step - ETA: 18m10s
+[Epoch 6 Step 11/107 | Global-Step 546] loss=0.0147 (ctc=0.0098, att=0.0220) grad=0.08  lr=4.89e-05 | ⏱️ 11.38s/step - ETA: 18m12s
+[Epoch 6 Step 12/107 | Global-Step 547] loss=0.0133 (ctc=0.0050, att=0.0258) grad=0.07  lr=4.88e-05 | ⏱️ 11.24s/step - ETA: 17m47s
+[Epoch 6 Step 13/107 | Global-Step 548] loss=0.0128 (ctc=0.0077, att=0.0205) grad=0.07  lr=4.86e-05 | ⏱️ 11.45s/step - ETA: 17m56s
+[Epoch 6 Step 14/107 | Global-Step 549] loss=0.0148 (ctc=0.0034, att=0.0319) grad=0.07  lr=4.85e-05 | ⏱️ 11.29s/step - ETA: 17m30s
+[Epoch 6 Step 15/107 | Global-Step 550] loss=0.0098 (ctc=0.0042, att=0.0182) grad=0.07  lr=4.83e-05 | ⏱️ 11.29s/step - ETA: 17m18s
+[Epoch 6 Step 16/107 | Global-Step 551] loss=0.0099 (ctc=0.0034, att=0.0195) grad=0.09  lr=4.82e-05 | ⏱️ 11.35s/step - ETA: 17m12s
+[Epoch 6 Step 17/107 | Global-Step 552] loss=0.0161 (ctc=0.0055, att=0.0319) grad=0.08  lr=4.80e-05 | ⏱️ 11.34s/step - ETA: 17m0s
+[Epoch 6 Step 18/107 | Global-Step 553] loss=0.0095 (ctc=0.0040, att=0.0178) grad=0.12  lr=4.79e-05 | ⏱️ 11.18s/step - ETA: 16m35s
+[Epoch 6 Step 19/107 | Global-Step 554] loss=0.0125 (ctc=0.0035, att=0.0260) grad=0.08  lr=4.77e-05 | ⏱️ 11.45s/step - ETA: 16m47s
+[Epoch 6 Step 20/107 | Global-Step 555] loss=0.0232 (ctc=0.0091, att=0.0444) grad=0.17  lr=4.76e-05 | ⏱️ 11.45s/step - ETA: 16m36s
+[Epoch 6 Step 21/107 | Global-Step 556] loss=0.0214 (ctc=0.0109, att=0.0370) grad=0.08  lr=4.74e-05 | ⏱️ 11.26s/step - ETA: 16m8s
+[Epoch 6 Step 22/107 | Global-Step 557] loss=0.0162 (ctc=0.0065, att=0.0308) grad=0.08  lr=4.73e-05 | ⏱️ 11.25s/step - ETA: 15m56s
+[Epoch 6 Step 23/107 | Global-Step 558] loss=0.0192 (ctc=0.0057, att=0.0393) grad=0.12  lr=4.72e-05 | ⏱️ 11.23s/step - ETA: 15m43s
+[Epoch 6 Step 24/107 | Global-Step 559] loss=0.0147 (ctc=0.0080, att=0.0247) grad=0.08  lr=4.70e-05 | ⏱️ 11.22s/step - ETA: 15m30s
+[Epoch 6 Step 25/107 | Global-Step 560] loss=0.0160 (ctc=0.0044, att=0.0335) grad=0.07  lr=4.69e-05 | ⏱️ 11.27s/step - ETA: 15m24s
+[Epoch 6 Step 26/107 | Global-Step 561] loss=0.0189 (ctc=0.0089, att=0.0338) grad=0.10  lr=4.67e-05 | ⏱️ 11.37s/step - ETA: 15m21s
+[Epoch 6 Step 27/107 | Global-Step 562] loss=0.0189 (ctc=0.0058, att=0.0386) grad=0.10  lr=4.66e-05 | ⏱️ 11.45s/step - ETA: 15m16s
+[Epoch 6 Step 28/107 | Global-Step 563] loss=0.0170 (ctc=0.0045, att=0.0358) grad=0.09  lr=4.64e-05 | ⏱️ 11.22s/step - ETA: 14m46s
+[Epoch 6 Step 29/107 | Global-Step 564] loss=0.0108 (ctc=0.0036, att=0.0217) grad=0.07  lr=4.63e-05 | ⏱️ 11.32s/step - ETA: 14m42s
+[Epoch 6 Step 30/107 | Global-Step 565] loss=0.0112 (ctc=0.0063, att=0.0185) grad=0.06  lr=4.61e-05 | ⏱️ 11.24s/step - ETA: 14m25s
+[Epoch 6 Step 31/107 | Global-Step 566] loss=0.0141 (ctc=0.0059, att=0.0263) grad=0.07  lr=4.60e-05 | ⏱️ 11.34s/step - ETA: 14m22s
+[Epoch 6 Step 32/107 | Global-Step 567] loss=0.0224 (ctc=0.0144, att=0.0343) grad=0.08  lr=4.59e-05 | ⏱️ 11.21s/step - ETA: 14m1s
+[Epoch 6 Step 33/107 | Global-Step 568] loss=0.0214 (ctc=0.0097, att=0.0388) grad=0.11  lr=4.57e-05 | ⏱️ 11.29s/step - ETA: 13m55s
+[Epoch 6 Step 34/107 | Global-Step 569] loss=0.0122 (ctc=0.0037, att=0.0250) grad=0.06  lr=4.56e-05 | ⏱️ 11.17s/step - ETA: 13m35s
+[Epoch 6 Step 35/107 | Global-Step 570] loss=0.0195 (ctc=0.0075, att=0.0374) grad=0.07  lr=4.54e-05 | ⏱️ 11.21s/step - ETA: 13m27s
+[Epoch 6 Step 36/107 | Global-Step 571] loss=0.0131 (ctc=0.0052, att=0.0250) grad=0.11  lr=4.53e-05 | ⏱️ 11.34s/step - ETA: 13m24s
+[Epoch 6 Step 37/107 | Global-Step 572] loss=0.0201 (ctc=0.0063, att=0.0407) grad=0.09  lr=4.51e-05 | ⏱️ 11.33s/step - ETA: 13m13s
+[Epoch 6 Step 38/107 | Global-Step 573] loss=0.0212 (ctc=0.0078, att=0.0412) grad=0.09  lr=4.50e-05 | ⏱️ 11.34s/step - ETA: 13m2s
+[Epoch 6 Step 39/107 | Global-Step 574] loss=0.0152 (ctc=0.0083, att=0.0256) grad=0.10  lr=4.48e-05 | ⏱️ 11.20s/step - ETA: 12m41s
+[Epoch 6 Step 40/107 | Global-Step 575] loss=0.0125 (ctc=0.0077, att=0.0198) grad=0.06  lr=4.47e-05 | ⏱️ 11.19s/step - ETA: 12m30s
+[Epoch 6 Step 41/107 | Global-Step 576] loss=0.0088 (ctc=0.0026, att=0.0180) grad=0.05  lr=4.46e-05 | ⏱️ 11.30s/step - ETA: 12m25s
+[Epoch 6 Step 42/107 | Global-Step 577] loss=0.0149 (ctc=0.0061, att=0.0280) grad=0.09  lr=4.44e-05 | ⏱️ 11.32s/step - ETA: 12m15s
+[Epoch 6 Step 43/107 | Global-Step 578] loss=0.0164 (ctc=0.0062, att=0.0316) grad=0.07  lr=4.43e-05 | ⏱️ 11.32s/step - ETA: 12m4s
+[Epoch 6 Step 44/107 | Global-Step 579] loss=0.0082 (ctc=0.0023, att=0.0171) grad=0.05  lr=4.41e-05 | ⏱️ 11.31s/step - ETA: 11m52s
+[Epoch 6 Step 45/107 | Global-Step 580] loss=0.0129 (ctc=0.0061, att=0.0233) grad=0.16  lr=4.40e-05 | ⏱️ 11.48s/step - ETA: 11m52s
+[Epoch 6 Step 46/107 | Global-Step 581] loss=0.0169 (ctc=0.0042, att=0.0360) grad=0.09  lr=4.38e-05 | ⏱️ 11.43s/step - ETA: 11m36s
+[Epoch 6 Step 47/107 | Global-Step 582] loss=0.0205 (ctc=0.0077, att=0.0398) grad=0.08  lr=4.37e-05 | ⏱️ 11.17s/step - ETA: 11m10s
+[Epoch 6 Step 48/107 | Global-Step 583] loss=0.0197 (ctc=0.0099, att=0.0346) grad=0.09  lr=4.35e-05 | ⏱️ 11.18s/step - ETA: 10m59s
+[Epoch 6 Step 49/107 | Global-Step 584] loss=0.0100 (ctc=0.0026, att=0.0211) grad=0.04  lr=4.34e-05 | ⏱️ 11.17s/step - ETA: 10m48s
+[Epoch 6 Step 50/107 | Global-Step 585] loss=0.0184 (ctc=0.0086, att=0.0331) grad=0.09  lr=4.33e-05 | ⏱️ 11.54s/step - ETA: 10m57s
+[Epoch 6 Step 51/107 | Global-Step 586] loss=0.0137 (ctc=0.0082, att=0.0219) grad=0.08  lr=4.31e-05 | ⏱️ 11.22s/step - ETA: 10m28s
+[Epoch 6 Step 52/107 | Global-Step 587] loss=0.0199 (ctc=0.0080, att=0.0377) grad=0.07  lr=4.30e-05 | ⏱️ 11.26s/step - ETA: 10m19s
+[Epoch 6 Step 53/107 | Global-Step 588] loss=0.0263 (ctc=0.0140, att=0.0447) grad=0.09  lr=4.28e-05 | ⏱️ 11.29s/step - ETA: 10m9s
+[Epoch 6 Step 54/107 | Global-Step 589] loss=0.0135 (ctc=0.0057, att=0.0251) grad=0.08  lr=4.27e-05 | ⏱️ 11.27s/step - ETA: 9m57s
+[Epoch 6 Step 55/107 | Global-Step 590] loss=0.0148 (ctc=0.0072, att=0.0262) grad=0.07  lr=4.25e-05 | ⏱️ 11.34s/step - ETA: 9m49s
+[Epoch 6 Step 56/107 | Global-Step 591] loss=0.0189 (ctc=0.0081, att=0.0352) grad=0.09  lr=4.24e-05 | ⏱️ 10.84s/step - ETA: 9m12s
+[Epoch 6 Step 57/107 | Global-Step 592] loss=0.0274 (ctc=0.0061, att=0.0594) grad=0.07  lr=4.23e-05 | ⏱️ 11.30s/step - ETA: 9m25s
+[Epoch 6 Step 58/107 | Global-Step 593] loss=0.0137 (ctc=0.0084, att=0.0217) grad=0.07  lr=4.21e-05 | ⏱️ 11.21s/step - ETA: 9m9s
+[Epoch 6 Step 59/107 | Global-Step 594] loss=0.0170 (ctc=0.0076, att=0.0311) grad=0.15  lr=4.20e-05 | ⏱️ 11.19s/step - ETA: 8m57s
+[Epoch 6 Step 60/107 | Global-Step 595] loss=0.0170 (ctc=0.0050, att=0.0350) grad=0.07  lr=4.18e-05 | ⏱️ 11.23s/step - ETA: 8m47s
+[Epoch 6 Step 61/107 | Global-Step 596] loss=0.0156 (ctc=0.0028, att=0.0348) grad=0.06  lr=4.17e-05 | ⏱️ 11.20s/step - ETA: 8m35s
+[Epoch 6 Step 62/107 | Global-Step 597] loss=0.0145 (ctc=0.0053, att=0.0284) grad=0.07  lr=4.15e-05 | ⏱️ 11.38s/step - ETA: 8m31s
+[Epoch 6 Step 63/107 | Global-Step 598] loss=0.0108 (ctc=0.0027, att=0.0229) grad=0.11  lr=4.14e-05 | ⏱️ 11.24s/step - ETA: 8m14s
+[Epoch 6 Step 64/107 | Global-Step 599] loss=0.0196 (ctc=0.0096, att=0.0344) grad=0.06  lr=4.13e-05 | ⏱️ 11.25s/step - ETA: 8m3s
+[Epoch 6 Step 65/107 | Global-Step 600] loss=0.0197 (ctc=0.0061, att=0.0400) grad=0.07  lr=4.11e-05 | ⏱️ 11.40s/step - ETA: 7m58s
+[Epoch 6 Step 66/107 | Global-Step 601] loss=0.0167 (ctc=0.0082, att=0.0295) grad=0.10  lr=4.10e-05 | ⏱️ 11.47s/step - ETA: 7m50s
+[Epoch 6 Step 67/107 | Global-Step 602] loss=0.0152 (ctc=0.0078, att=0.0265) grad=0.08  lr=4.08e-05 | ⏱️ 10.90s/step - ETA: 7m15s
+[Epoch 6 Step 68/107 | Global-Step 603] loss=0.0116 (ctc=0.0056, att=0.0205) grad=0.06  lr=4.07e-05 | ⏱️ 11.24s/step - ETA: 7m18s
+[Epoch 6 Step 69/107 | Global-Step 604] loss=0.0156 (ctc=0.0061, att=0.0298) grad=0.08  lr=4.05e-05 | ⏱️ 11.19s/step - ETA: 7m5s
+[Epoch 6 Step 70/107 | Global-Step 605] loss=0.0119 (ctc=0.0042, att=0.0234) grad=0.09  lr=4.04e-05 | ⏱️ 11.24s/step - ETA: 6m55s
+[Epoch 6 Step 71/107 | Global-Step 606] loss=0.0150 (ctc=0.0061, att=0.0284) grad=0.14  lr=4.03e-05 | ⏱️ 11.31s/step - ETA: 6m47s
+[Epoch 6 Step 72/107 | Global-Step 607] loss=0.0235 (ctc=0.0084, att=0.0462) grad=0.09  lr=4.01e-05 | ⏱️ 11.22s/step - ETA: 6m32s
+[Epoch 6 Step 73/107 | Global-Step 608] loss=0.0119 (ctc=0.0057, att=0.0210) grad=0.06  lr=4.00e-05 | ⏱️ 11.35s/step - ETA: 6m25s
+[Epoch 6 Step 74/107 | Global-Step 609] loss=0.0150 (ctc=0.0045, att=0.0308) grad=0.08  lr=3.98e-05 | ⏱️ 11.29s/step - ETA: 6m12s
+[Epoch 6 Step 75/107 | Global-Step 610] loss=0.0101 (ctc=0.0031, att=0.0207) grad=0.04  lr=3.97e-05 | ⏱️ 11.47s/step - ETA: 6m7s
+[Epoch 6 Step 76/107 | Global-Step 611] loss=0.0093 (ctc=0.0041, att=0.0171) grad=0.06  lr=3.95e-05 | ⏱️ 11.26s/step - ETA: 5m48s
+[Epoch 6 Step 77/107 | Global-Step 612] loss=0.0144 (ctc=0.0047, att=0.0291) grad=0.08  lr=3.94e-05 | ⏱️ 11.46s/step - ETA: 5m43s
+[Epoch 6 Step 78/107 | Global-Step 613] loss=0.0170 (ctc=0.0059, att=0.0335) grad=0.07  lr=3.93e-05 | ⏱️ 11.27s/step - ETA: 5m26s
+[Epoch 6 Step 79/107 | Global-Step 614] loss=0.0192 (ctc=0.0064, att=0.0383) grad=0.08  lr=3.91e-05 | ⏱️ 11.31s/step - ETA: 5m16s
+[Epoch 6 Step 80/107 | Global-Step 615] loss=0.0254 (ctc=0.0104, att=0.0479) grad=0.09  lr=3.90e-05 | ⏱️ 11.29s/step - ETA: 5m4s
+[Epoch 6 Step 81/107 | Global-Step 616] loss=0.0147 (ctc=0.0060, att=0.0277) grad=0.08  lr=3.88e-05 | ⏱️ 10.91s/step - ETA: 4m43s
+[Epoch 6 Step 82/107 | Global-Step 617] loss=0.0126 (ctc=0.0041, att=0.0254) grad=0.07  lr=3.87e-05 | ⏱️ 11.49s/step - ETA: 4m47s
+[Epoch 6 Step 83/107 | Global-Step 618] loss=0.0075 (ctc=0.0023, att=0.0153) grad=0.05  lr=3.86e-05 | ⏱️ 11.26s/step - ETA: 4m30s
+[Epoch 6 Step 84/107 | Global-Step 619] loss=0.0292 (ctc=0.0156, att=0.0495) grad=0.12  lr=3.84e-05 | ⏱️ 11.35s/step - ETA: 4m20s
+[Epoch 6 Step 85/107 | Global-Step 620] loss=0.0168 (ctc=0.0063, att=0.0325) grad=0.09  lr=3.83e-05 | ⏱️ 11.38s/step - ETA: 4m10s
+[Epoch 6 Step 86/107 | Global-Step 621] loss=0.0090 (ctc=0.0038, att=0.0167) grad=0.05  lr=3.81e-05 | ⏱️ 11.41s/step - ETA: 3m59s
+[Epoch 6 Step 87/107 | Global-Step 622] loss=0.0098 (ctc=0.0054, att=0.0164) grad=0.06  lr=3.80e-05 | ⏱️ 11.49s/step - ETA: 3m49s
+[Epoch 6 Step 88/107 | Global-Step 623] loss=0.0216 (ctc=0.0092, att=0.0404) grad=0.10  lr=3.79e-05 | ⏱️ 11.56s/step - ETA: 3m39s
+[Epoch 6 Step 89/107 | Global-Step 624] loss=0.0176 (ctc=0.0107, att=0.0280) grad=0.08  lr=3.77e-05 | ⏱️ 11.31s/step - ETA: 3m23s
+[Epoch 6 Step 90/107 | Global-Step 625] loss=0.0244 (ctc=0.0113, att=0.0440) grad=0.09  lr=3.76e-05 | ⏱️ 11.35s/step - ETA: 3m12s
+[Epoch 6 Step 91/107 | Global-Step 626] loss=0.0191 (ctc=0.0042, att=0.0415) grad=0.08  lr=3.74e-05 | ⏱️ 11.24s/step - ETA: 2m59s
+[Epoch 6 Step 92/107 | Global-Step 627] loss=0.0203 (ctc=0.0082, att=0.0385) grad=0.09  lr=3.73e-05 | ⏱️ 11.36s/step - ETA: 2m50s
+[Epoch 6 Step 93/107 | Global-Step 628] loss=0.0222 (ctc=0.0092, att=0.0418) grad=0.09  lr=3.72e-05 | ⏱️ 11.39s/step - ETA: 2m39s
+[Epoch 6 Step 94/107 | Global-Step 629] loss=0.0155 (ctc=0.0056, att=0.0303) grad=0.22  lr=3.70e-05 | ⏱️ 11.32s/step - ETA: 2m27s
+[Epoch 6 Step 95/107 | Global-Step 630] loss=0.0156 (ctc=0.0067, att=0.0289) grad=0.05  lr=3.69e-05 | ⏱️ 11.41s/step - ETA: 2m16s
+[Epoch 6 Step 96/107 | Global-Step 631] loss=0.0091 (ctc=0.0043, att=0.0164) grad=0.06  lr=3.67e-05 | ⏱️ 11.29s/step - ETA: 2m4s
+[Epoch 6 Step 97/107 | Global-Step 632] loss=0.0205 (ctc=0.0086, att=0.0383) grad=0.08  lr=3.66e-05 | ⏱️ 11.27s/step - ETA: 1m52s
+[Epoch 6 Step 98/107 | Global-Step 633] loss=0.0120 (ctc=0.0069, att=0.0195) grad=0.09  lr=3.65e-05 | ⏱️ 11.31s/step - ETA: 1m41s
+[Epoch 6 Step 99/107 | Global-Step 634] loss=0.0095 (ctc=0.0048, att=0.0166) grad=0.06  lr=3.63e-05 | ⏱️ 11.52s/step - ETA: 1m32s
+[Epoch 6 Step 100/107 | Global-Step 635] loss=0.0163 (ctc=0.0039, att=0.0349) grad=0.08  lr=3.62e-05 | ⏱️ 11.26s/step - ETA: 1m18s
+[Epoch 6 Step 101/107 | Global-Step 636] loss=0.0107 (ctc=0.0045, att=0.0199) grad=0.07  lr=3.60e-05 | ⏱️ 11.27s/step - ETA: 1m7s
+[Epoch 6 Step 102/107 | Global-Step 637] loss=0.0153 (ctc=0.0043, att=0.0318) grad=0.11  lr=3.59e-05 | ⏱️ 11.37s/step - ETA: 0m56s
+[Epoch 6 Step 103/107 | Global-Step 638] loss=0.0247 (ctc=0.0093, att=0.0478) grad=0.14  lr=3.58e-05 | ⏱️ 11.29s/step - ETA: 0m45s
+[Epoch 6 Step 104/107 | Global-Step 639] loss=0.0088 (ctc=0.0022, att=0.0188) grad=0.07  lr=3.56e-05 | ⏱️ 11.35s/step - ETA: 0m34s
+[Epoch 6 Step 105/107 | Global-Step 640] loss=0.0241 (ctc=0.0088, att=0.0470) grad=0.11  lr=3.55e-05 | ⏱️ 11.58s/step - ETA: 0m23s
+[Epoch 6 Step 106/107 | Global-Step 641] loss=0.0136 (ctc=0.0079, att=0.0223) grad=0.09  lr=3.53e-05 | ⏱️ 11.70s/step - ETA: 0m11s
+[Epoch 6 Step 107/107 | Global-Step 642] loss=0.0194 (ctc=0.0069, att=0.0380) grad=0.27  lr=3.52e-05 | ⏱️ 7.38s/step - ETA: 0m0s
+✅ Epoch 6 hoàn tất trong 20m26s
+💾 Đã lưu checkpoint: checkpoints_vpb_chunk/epoch6.pt
+🎯 Dev WER (CTC): 18.08%
+🌐 Global WER           : 11.85%
+🕒 Evaluate time: 14.36s (avg decode/sample: 0.03s)
+
+🌀 Epoch 7 bắt đầu...
+[Epoch 7 Step 1/107 | Global-Step 643] loss=0.0137 (ctc=0.0051, att=0.0266) grad=0.14  lr=3.51e-05 | ⏱️ 11.19s/step - ETA: 19m46s
+[Epoch 7 Step 2/107 | Global-Step 644] loss=0.0069 (ctc=0.0041, att=0.0110) grad=0.05  lr=3.49e-05 | ⏱️ 11.29s/step - ETA: 19m45s
+[Epoch 7 Step 3/107 | Global-Step 645] loss=0.0139 (ctc=0.0051, att=0.0271) grad=0.17  lr=3.48e-05 | ⏱️ 10.91s/step - ETA: 18m54s
+[Epoch 7 Step 4/107 | Global-Step 646] loss=0.0202 (ctc=0.0074, att=0.0393) grad=0.12  lr=3.47e-05 | ⏱️ 11.32s/step - ETA: 19m25s
+[Epoch 7 Step 5/107 | Global-Step 647] loss=0.0138 (ctc=0.0046, att=0.0276) grad=0.10  lr=3.45e-05 | ⏱️ 11.32s/step - ETA: 19m14s
+[Epoch 7 Step 6/107 | Global-Step 648] loss=0.0158 (ctc=0.0052, att=0.0317) grad=0.09  lr=3.44e-05 | ⏱️ 11.44s/step - ETA: 19m15s
+[Epoch 7 Step 7/107 | Global-Step 649] loss=0.0110 (ctc=0.0024, att=0.0239) grad=0.07  lr=3.42e-05 | ⏱️ 11.26s/step - ETA: 18m45s
+[Epoch 7 Step 8/107 | Global-Step 650] loss=0.0187 (ctc=0.0098, att=0.0320) grad=0.10  lr=3.41e-05 | ⏱️ 11.33s/step - ETA: 18m41s
+[Epoch 7 Step 9/107 | Global-Step 651] loss=0.0218 (ctc=0.0085, att=0.0417) grad=0.09  lr=3.40e-05 | ⏱️ 11.35s/step - ETA: 18m32s
+[Epoch 7 Step 10/107 | Global-Step 652] loss=0.0083 (ctc=0.0028, att=0.0167) grad=0.07  lr=3.38e-05 | ⏱️ 11.42s/step - ETA: 18m27s
+[Epoch 7 Step 11/107 | Global-Step 653] loss=0.0179 (ctc=0.0077, att=0.0333) grad=0.09  lr=3.37e-05 | ⏱️ 11.37s/step - ETA: 18m11s
+[Epoch 7 Step 12/107 | Global-Step 654] loss=0.0258 (ctc=0.0132, att=0.0448) grad=0.12  lr=3.36e-05 | ⏱️ 11.30s/step - ETA: 17m53s
+[Epoch 7 Step 13/107 | Global-Step 655] loss=0.0110 (ctc=0.0025, att=0.0239) grad=0.06  lr=3.34e-05 | ⏱️ 11.28s/step - ETA: 17m40s

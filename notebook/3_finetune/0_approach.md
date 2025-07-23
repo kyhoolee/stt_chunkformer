@@ -45,9 +45,9 @@ chunk:
 
 | Thay đổi                      | Ý nghĩa               | Khi nào dùng                           |
 | ----------------------------- | --------------------- | -------------------------------------- |
-| ↓ chunk\_size = 32            | Học tốt hơn đoạn ngắn | Tập VPB có nhiều cuộc ngắn             |
-| ↑ right\_context = 256        | Tăng độ nhìn xa phải  | Nếu nội dung phía sau quyết định nhiều |
-| total\_batch\_duration = 1200 | Giảm memory           | Khi gặp OOM                            |
+| ↓ chunk_size = 32            | Học tốt hơn đoạn ngắn | Tập VPB có nhiều cuộc ngắn             |
+| ↑ right_context = 256        | Tăng độ nhìn xa phải  | Nếu nội dung phía sau quyết định nhiều |
+| total_batch_duration = 1200 | Giảm memory           | Khi gặp OOM                            |
 
 ---
 
