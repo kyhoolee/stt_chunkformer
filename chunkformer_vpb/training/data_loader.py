@@ -157,3 +157,92 @@ def get_dataloaders_smoke(cfg: FinetuneConfig, ratio: float = 0.01):
         )
 
     return train_loader, valid_loader
+
+
+#########################################################################
+
+
+
+
+class VivosDatasetDebug(Dataset):
+    def __init__(self, cfg: FinetuneConfig, split: str):
+        self.cfg = cfg
+        manifest_file = os.path.join(cfg.data.manifest_dir, f"{split}_meta_debug.json")
+        with open(manifest_file, 'r', encoding='utf-8') as f:
+            entries = json.load(f)
+        self.meta = entries
+        self.tokenizer = cfg.tokenizer.tokenizer
+
+    def __len__(self):
+        return len(self.meta)
+
+    def __getitem__(self, idx):
+        entry = self.meta[idx]
+        audio_dir = self.cfg.data.audio_dir or self.cfg.data.manifest_dir
+        abs_path = os.path.join(audio_dir, entry["audio_path"])
+        wav, sr = torchaudio.load(abs_path)
+
+        if sr != self.cfg.data.sample_rate:
+            wav = torchaudio.transforms.Resample(sr, self.cfg.data.sample_rate)(wav)
+
+        if wav.dim() == 1:
+            wav = wav.unsqueeze(0)
+        if wav.abs().max() <= 1.0:
+            wav = wav * 32768.0
+        wav = wav.clamp(-32768, 32767)
+
+        feats = torchaudio.compliance.kaldi.fbank(
+            wav,
+            num_mel_bins = self.cfg.data.num_mel_bins,
+            frame_length = self.cfg.data.frame_length,
+            frame_shift  = self.cfg.data.frame_shift,
+            dither       = self.cfg.data.dither,
+            energy_floor = self.cfg.data.energy_floor,
+            sample_frequency = self.cfg.data.sample_rate
+        )
+
+        norm_text = normalize_vi(entry["text"])
+        token_ids = self.tokenizer.tokenize(norm_text)
+        toks = torch.LongTensor(token_ids)
+
+        # Return thêm gold + pred_old
+        gold_corrected = entry.get("gold_corrected", None)
+        pred_old = entry.get("pred_old", None)
+
+        return feats, feats.size(0), toks, len(token_ids), entry["utt_id"], gold_corrected, pred_old
+
+
+def collate_fn_debug(batch):
+    feats, feat_lens, toks, tok_lens, utt_ids, golds, preds = zip(*batch)
+
+    feats     = pad_sequence(feats, batch_first=True, padding_value=0)
+    feat_lens = torch.LongTensor(feat_lens)
+    toks      = pad_sequence(toks, batch_first=True, padding_value=0)
+    tok_lens  = torch.LongTensor(tok_lens)
+
+    return feats, feat_lens, toks, tok_lens, utt_ids, golds, preds
+
+
+
+def get_dataloaders_debug(cfg: FinetuneConfig):
+    bs = cfg.training.batch_size
+
+    train_ds = VivosDatasetDebug(cfg, "train")
+    valid_ds = VivosDatasetDebug(cfg, "valid")
+
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=bs,
+        shuffle=False,
+        collate_fn=collate_fn_debug
+    )
+
+    valid_loader = DataLoader(
+        valid_ds,
+        batch_size=bs,
+        shuffle=False,
+        collate_fn=collate_fn_debug
+    )
+
+    return train_loader, valid_loader
+

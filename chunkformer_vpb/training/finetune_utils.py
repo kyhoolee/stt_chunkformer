@@ -219,9 +219,6 @@ def _chunk_encoder_forward(xs: torch.Tensor,
 
 # ==================== LOSS COMPUTE UTILS ====================
 
-
-
-
 def make_pad_mask(lengths: torch.Tensor, max_len: int = None) -> torch.Tensor:
     """
     Tạo mask từ vector length. Return shape: [B, 1, T]  #NOTE_PAD

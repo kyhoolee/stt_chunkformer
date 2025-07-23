@@ -1,4 +1,5 @@
 checkpoints*
+*.csv
 data/dev-other
 __pycache__/
 decode_chunkformer_tmp.py

@@ -266,6 +266,102 @@ def evaluate(model, tokenizer, loader, cfg, device, mode="ctc", eval_ratio=1.0):
     model.train()
 
 
+####################################################
+
+import csv
+import torch
+import time
+from jiwer import wer
+from chunkformer_vpb.model_utils import decode_long_form, decode_aed_long_form, get_default_args
+
+def evaluate_debug(model, tokenizer, loader, cfg, device,
+                   output_csv="debug_eval_output.csv", mode="ctc", eval_ratio=1.0):
+    """
+    Đánh giá chi tiết để debug sự khác biệt giữa:
+    - text (label json gốc)
+    - gold_corrected (label thủ công)
+    - pred_old (output cũ của model)
+    - pred_new (output mới từ mô hình hiện tại)
+    """
+
+    if loader is None:
+        print("🚫 No eval data found. Skipping.")
+        return
+
+    model.eval()
+    args = get_default_args()
+    args.chunk_size = cfg.chunk.chunk_size
+    args.left_context_size = cfg.chunk.left_context_size
+    args.right_context_size = cfg.chunk.right_context_size
+    args.total_batch_duration = cfg.chunk.total_batch_duration
+
+    char_dict = tokenizer.vocab
+    max_samples = int(len(loader.dataset) * eval_ratio)
+    processed_samples = 0
+    total_decode_time = 0.0
+
+    rows = []
+
+    with torch.no_grad():
+        for batch in loader:
+            feats, feat_lens, toks, tok_lens, utt_ids, golds, preds = batch
+            feats, feat_lens = feats.to(device), feat_lens.to(device)
+            toks, tok_lens = toks.to(device), tok_lens.to(device)
+
+            for i in range(feats.size(0)):
+                if processed_samples >= max_samples:
+                    break
+
+                x = feats[i].unsqueeze(0)
+                y = toks[i].unsqueeze(0)
+                y_lens = tok_lens[i].item()
+
+                # text từ json (label huấn luyện cũ)
+                ref_ids = y[0, :y_lens].tolist()
+                text_json = tokenizer.decode_ids(ref_ids).lower()
+
+                # decode từ model hiện tại
+                decode_start = time.time()
+                if mode == "ctc":
+                    pred_new = decode_long_form(x, model, char_dict, args, device)
+                elif mode == "aed":
+                    _, pred_new = decode_aed_long_form(x, model, char_dict, args, device)
+                else:
+                    raise ValueError(f"Unknown mode: {mode}")
+                total_decode_time += time.time() - decode_start
+
+                pred_new = pred_new.lower()
+                gold = (golds[i] or "").lower()
+                pred_old = (preds[i] or "").lower()
+                utt_id = utt_ids[i]
+
+                rows.append({
+                    "utt_id": utt_id,
+                    "text_json": text_json,
+                    "gold_corrected": gold,
+                    "pred_old": pred_old,
+                    "pred_new": pred_new,
+                    "wer_json_vs_new": wer(text_json, pred_new),
+                    "wer_gold_vs_new": wer(gold, pred_new) if gold else None,
+                    "wer_gold_vs_old": wer(gold, pred_old) if gold and pred_old else None,
+                })
+
+                processed_samples += 1
+            if processed_samples >= max_samples:
+                break
+
+    # Ghi ra CSV để phân tích
+    output_path = os.path.join(cfg.training.checkpoint_dir, output_csv)
+    with open(output_path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=rows[0].keys())
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"✅ Saved debug result to {output_path}")
+    print(f"🔍 Evaluated {processed_samples} samples")
+    print(f"🕒 Avg decode/sample: {total_decode_time / processed_samples:.2f}s")
+
+
 
 # ======== MAIN ========
 if __name__ == "__main__":
