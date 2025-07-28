@@ -335,7 +335,7 @@ def evaluate_debug(model, tokenizer, loader, cfg, device,
                 pred_old = (preds[i] or "").lower()
                 utt_id = utt_ids[i]
 
-                rows.append({
+                r = {
                     "utt_id": utt_id,
                     "text_json": text_json,
                     "gold_corrected": gold,
@@ -344,13 +344,28 @@ def evaluate_debug(model, tokenizer, loader, cfg, device,
                     "wer_json_vs_new": wer(text_json, pred_new),
                     "wer_gold_vs_new": wer(gold, pred_new) if gold else None,
                     "wer_gold_vs_old": wer(gold, pred_old) if gold and pred_old else None,
-                })
+                }
+
+                rows.append(r)
+                print(f"🔍 Sample {processed_samples + 1}/{max_samples} - "
+                      f"utt_id: {utt_id}, WER(json vs new): {r['wer_json_vs_new']:.2%}, "
+                      f"WER(gold vs new): {r['wer_gold_vs_new']:.2%} "
+                      f"WER(gold vs old): {r['wer_gold_vs_old']:.2%}")
+                print(f"  - text_json: {text_json}")
+                print(f"  - gold_corrected: {gold}")
+                print(f"  - pred_old: {pred_old}")
+                print(f"  - pred_new: {pred_new}")
+                print("-" * 80)
+
+
 
                 processed_samples += 1
             if processed_samples >= max_samples:
                 break
 
     # Ghi ra CSV để phân tích
+    # create folder 
+    os.makedirs(cfg.training.checkpoint_dir, exist_ok=True)
     output_path = os.path.join(cfg.training.checkpoint_dir, output_csv)
     with open(output_path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=rows[0].keys())
