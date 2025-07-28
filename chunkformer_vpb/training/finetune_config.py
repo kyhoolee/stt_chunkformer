@@ -16,6 +16,8 @@ class DataConfigFT:
     dither: float = 0.0
     energy_floor: float = 0.0
 
+    train_meta_file: str = "train_meta.json"  # tên file manifest cho tập train
+
 @dataclass
 class TokenizerConfigFT:
     vocab_path: str

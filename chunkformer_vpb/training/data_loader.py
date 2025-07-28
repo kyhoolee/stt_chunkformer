@@ -12,7 +12,7 @@ from ..model.utils.common import IGNORE_ID
 from .finetune_config import FinetuneConfig
 from ..data.data import compute_fbank, MetadataEntry
 from .tokenizer import normalize_vi
-
+from .data_augment import AudioAugmenter
 
 # BẬT/TẮT DEBUG IN INFO TRONG COLLATE
 DEBUG_COLLATE = True
@@ -23,12 +23,20 @@ class VivosDataset(Dataset):
         print("==================================")
         print(self.cfg.data.audio_dir)
         print("==================================")
-        manifest_file = os.path.join(cfg.data.manifest_dir, f"{split}_meta.json")
+        meta_file = f"{split}_meta.json"
+
+        print(f"{cfg.data}")
+        if split == "train" and cfg.data.train_meta_file:
+            meta_file = cfg.data.train_meta_file
+
+        manifest_file = os.path.join(cfg.data.manifest_dir, meta_file)
         with open(manifest_file, 'r', encoding='utf-8') as f:
             entries = json.load(f)
         # dict → MetadataEntry
         self.meta: List[MetadataEntry] = [MetadataEntry(**e) for e in entries]
         self.tokenizer = cfg.tokenizer.tokenizer
+
+        self.augmenter = AudioAugmenter(cfg.data.sample_rate)
 
     def __len__(self):
         return len(self.meta)
@@ -58,6 +66,10 @@ class VivosDataset(Dataset):
         # print(f"✅ [loader] Waveform shape    : {wav.shape}")
         # print(f"📊 [loader] Min: {wav.min().item():.8f}, Max: {wav.max().item():.8f}, Mean: {wav.mean().item():.8f}")
 
+        # 🧪 Apply augmentation nếu có "augment_type"
+        augment_type = entry.augment_type
+        if augment_type:
+            wav = self.augmenter.apply(wav, augment_type)
 
         # 2) FBANK
         feats = torchaudio.compliance.kaldi.fbank(
@@ -73,7 +85,7 @@ class VivosDataset(Dataset):
         norm_text = normalize_vi(entry.text)
         token_ids = self.tokenizer.tokenize(norm_text)
         toks = torch.LongTensor(token_ids)
-        return feats, feats.size(0), toks, len(token_ids), entry
+        return feats, feats.size(0), toks, len(token_ids), (entry, wav)
 
 def collate_fn(batch):
     """
@@ -91,6 +103,24 @@ def collate_fn(batch):
     tok_lens  = torch.LongTensor(tok_lens)                               # [B]
 
     return feats, feat_lens, toks, tok_lens
+
+def collate_fn_entry(batch):
+    """
+    batch: list of tuples (feats, feat_len, toks, tok_len, entry)
+    """
+    feats, feat_lens, toks, tok_lens, entries = zip(*batch)
+
+    # if DEBUG_COLLATE:
+    #     for i, e in enumerate(entries):
+    #         print(f"[collate] sample {i}: utt_id={e.utt_id}, audio={e.audio_path}")
+
+    feats     = pad_sequence(feats, batch_first=True, padding_value=0)                   # [B, T_max, D]
+    feat_lens = torch.LongTensor(feat_lens)                             # [B]
+    toks      = pad_sequence(toks, batch_first=True, padding_value=0)    # [B, L_max]
+    tok_lens  = torch.LongTensor(tok_lens)                               # [B]
+
+    return feats, feat_lens, toks, tok_lens, entries
+
 def get_dataloaders(cfg: FinetuneConfig):
     bs = cfg.training.batch_size
     train_ds = VivosDataset(cfg, "train")
@@ -154,6 +184,39 @@ def get_dataloaders_smoke(cfg: FinetuneConfig, ratio: float = 0.01):
             batch_size=bs,
             shuffle=False,
             collate_fn=collate_fn,
+        )
+
+    return train_loader, valid_loader
+
+
+
+def get_dataloaders_aug_inspect(cfg: FinetuneConfig):
+    """
+    Tạo DataLoader để inspect từng sample đã augment (không shuffle, batch_size=1)
+    """
+    train_ds = VivosDataset(cfg, "train")
+    valid_ds = VivosDataset(cfg, "valid")
+
+    if len(train_ds) == 0:
+        print("❌ [InspectLoader] Empty train dataset.")
+        train_loader = None
+    else:
+        train_loader = DataLoader(
+            train_ds,
+            batch_size=1,  # 👈 để dễ iterate từng sample
+            shuffle=False, # 👈 đảm bảo cùng thứ tự như file meta
+            collate_fn=collate_fn_entry
+        )
+
+    if len(valid_ds) == 0:
+        print("❌ [InspectLoader] Empty valid dataset.")
+        valid_loader = None
+    else:
+        valid_loader = DataLoader(
+            valid_ds,
+            batch_size=1,
+            shuffle=False,
+            collate_fn=collate_fn_entry
         )
 
     return train_loader, valid_loader

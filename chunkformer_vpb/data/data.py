@@ -44,6 +44,7 @@ class MetadataEntry:
     text: str
     audio_path: str
     split: str = ''
+    augment_type: Optional[str] = None  # e.g. "speed", "telephony", etc.
 
 def load_audio(audio_path: str) -> torch.Tensor:
     """
