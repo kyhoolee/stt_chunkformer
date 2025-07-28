@@ -4,6 +4,27 @@ import torchaudio
 import torchaudio.functional as F
 import random
 
+'''
+⏱️ So sánh tốc độ giữa các loại augmentation
+| Augment type             | Thời gian (tương đối)            | Nguyên nhân chính             |
+| ------------------------ | -------------------------------- | ----------------------------- |
+| `vol` (gain)             | ⚡ Rất nhanh (\~1ms)              | Chỉ là nhân hệ số             |
+| `telephony` (bandpass)   | ⚡ Nhanh (\~1–2ms)                | Chỉ dùng `biquad filter`      |
+| `speed`                  | 🐢 Trung bình (\~10–20ms/sample) | Gồm 2 lần `resample`          |
+| `reverb`, `room`         | 🐌 Chậm hơn (\~50ms++)           | Convolve với impulse response |
+| `noise mixing` (wav-add) | ⚡ Nhanh – nếu preload noise      | Cộng vector đơn giản          |
+
+✅ Cách tối ưu hiệu quả
+| Chiến lược                               | Mô tả                                        | Áp dụng                      |
+| ---------------------------------------- | -------------------------------------------- | ---------------------------- |
+| **Precompute augment offline**           | Lưu `.wav` augment ra file → load nhanh      | Khi tập cố định              |
+| **Cache in-memory** (mini batch)         | Dùng `lru_cache` hoặc `dataset-level buffer` | Nếu RAM đủ                   |
+| **`num_workers > 0`** trong `DataLoader` | Tăng song song `__getitem__`                 | Bắt buộc nếu dùng on-the-fly |
+| **Chỉ augment một phần epoch**           | VD: 50% sample augment mỗi epoch             | Giảm tải thời gian           |
+
+
+'''
+
 class AudioAugmenter:
     def __init__(self, sample_rate: int):
         self.sr = sample_rate

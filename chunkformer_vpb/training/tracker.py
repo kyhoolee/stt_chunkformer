@@ -29,6 +29,9 @@ def compare_models_wer(cache_path: str, model_ids: List[str]):
     with open(cache_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    # data statistics 
+    analyze_dataset_statistics(data)
+
     print(f"📊 Tổng số sample: {len(data)}")
     results = []
 
@@ -158,6 +161,51 @@ def compare_models_wer(cache_path: str, model_ids: List[str]):
             print(f"  - 🟢 Gold      : {s['gold_corrected']}")
             print(f"  - 🟡 pred_old  : {s['pred_old']} ({w_old*100:.2f}%)")
             print(f"  - 🔴 {m:<10}: {s['preds'][m]} ({w_new*100:.2f}%)")
+
+
+def analyze_dataset_statistics(data: List[dict]):
+    """
+    Phân tích thống kê dataset: số lượng mẫu, phân bổ độ dài, tỉ lệ left/right, thống kê percentiles.
+    """
+    import numpy as np
+    from collections import Counter
+
+    total_samples = len(data)
+    segments = [s.get("segment", "unknown") for s in data]
+    segment_count = Counter(segments)
+
+    text_lens = [s.get("text_len", -1) for s in data if s.get("text_len", -1) > 0]
+    # audio_lens = [s.get("audio_len_sec", -1) for s in data if s.get("audio_len_sec", -1) > 0]
+
+    def print_percentiles(values: List[int], label: str):
+        p = np.percentile(values, [0, 10, 25, 50, 75, 90, 95, 99, 100])
+        print(f"  - {label} phân vị:")
+        print(f"    min = {p[0]:.0f} | p10 = {p[1]:.0f} | p25 = {p[2]:.0f} | median = {p[3]:.0f} | "
+              f"p75 = {p[4]:.0f} | p90 = {p[5]:.0f} | p95 = {p[6]:.0f} | p99 = {p[7]:.0f} | max = {p[8]:.0f}")
+
+    print("\n📊 Thống kê tập dữ liệu:")
+    print(f"  - Tổng số mẫu       : {total_samples}")
+    print(f"  - Phân bổ segment   : {dict(segment_count)}")
+    print(f"  - Trung bình độ dài text: {np.mean(text_lens):.2f} từ")
+    print_percentiles(text_lens, "text_len")
+    # print(f"  - Trung bình audio dài : {np.mean(audio_lens):.2f}s")
+    # print_percentiles(audio_lens, "audio_len_sec")
+
+    # Thống kê riêng theo segment
+    for seg in ["left", "right"]:
+        seg_data = [s for s in data if s.get("segment") == seg]
+        seg_text_lens = [s.get("text_len", -1) for s in seg_data if s.get("text_len", -1) > 0]
+        # seg_audio_lens = [s.get("audio_len_sec", -1) for s in seg_data if s.get("audio_len_sec", -1) > 0]
+
+        if seg_text_lens:
+            print(f"\n🔹 Segment: {seg}")
+            print(f"  - Số lượng mẫu       : {len(seg_data)}")
+            print(f"  - Trung bình độ dài text: {np.mean(seg_text_lens):.2f} từ")
+            print_percentiles(seg_text_lens, f"text_len ({seg})")
+
+            # print(f"  - Trung bình audio dài : {np.mean(seg_audio_lens):.2f}s")
+            # print_percentiles(seg_audio_lens, f"audio_len_sec ({seg})")
+
 
 
 def extract_metadata_from_uttid(utt_id: str):
