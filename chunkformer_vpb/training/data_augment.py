@@ -1,49 +1,55 @@
-# augment/audio_augmenter.py
 import torch 
 import torchaudio
 import torchaudio.functional as F
 import random
 
-'''
-⏱️ So sánh tốc độ giữa các loại augmentation
-| Augment type             | Thời gian (tương đối)            | Nguyên nhân chính             |
-| ------------------------ | -------------------------------- | ----------------------------- |
-| `vol` (gain)             | ⚡ Rất nhanh (\~1ms)              | Chỉ là nhân hệ số             |
-| `telephony` (bandpass)   | ⚡ Nhanh (\~1–2ms)                | Chỉ dùng `biquad filter`      |
-| `speed`                  | 🐢 Trung bình (\~10–20ms/sample) | Gồm 2 lần `resample`          |
-| `reverb`, `room`         | 🐌 Chậm hơn (\~50ms++)           | Convolve với impulse response |
-| `noise mixing` (wav-add) | ⚡ Nhanh – nếu preload noise      | Cộng vector đơn giản          |
-
-✅ Cách tối ưu hiệu quả
-| Chiến lược                               | Mô tả                                        | Áp dụng                      |
-| ---------------------------------------- | -------------------------------------------- | ---------------------------- |
-| **Precompute augment offline**           | Lưu `.wav` augment ra file → load nhanh      | Khi tập cố định              |
-| **Cache in-memory** (mini batch)         | Dùng `lru_cache` hoặc `dataset-level buffer` | Nếu RAM đủ                   |
-| **`num_workers > 0`** trong `DataLoader` | Tăng song song `__getitem__`                 | Bắt buộc nếu dùng on-the-fly |
-| **Chỉ augment một phần epoch**           | VD: 50% sample augment mỗi epoch             | Giảm tải thời gian           |
-
-
-'''
-
 class AudioAugmenter:
     def __init__(self, sample_rate: int):
         self.sr = sample_rate
+        self.ir_kernel = self._get_reverb_kernel()
 
     def vol_perturb(self, wav):
         factor = 0.8 + (1.2 - 0.8) * torch.rand(1).item()
         return wav * factor
 
     def speed_perturb(self, wav):
-        # speed = torch.choice(torch.tensor([0.9, 1.0, 1.1]))  # or random.uniform
         speed = random.uniform(0.9, 1.1)
         orig_len = wav.shape[1]
         new_sr = int(self.sr * speed)
-        wav = torchaudio.transforms.Resample(orig_freq=self.sr, new_freq=new_sr)(wav)
-        wav = torchaudio.transforms.Resample(orig_freq=new_sr, new_freq=self.sr)(wav)
+        # ⚡ dùng functional.resample thay vì transforms.Resample
+        wav = F.resample(wav, orig_freq=self.sr, new_freq=new_sr)
+        wav = F.resample(wav, orig_freq=new_sr, new_freq=self.sr)
         return wav[:, :orig_len]
 
     def telephony_effect(self, wav):
         return F.bandpass_biquad(wav, self.sr, central_freq=1700.0, Q=0.707)
+
+    def noise_mix(self, wav, snr_db=20):
+        """Add Gaussian noise to the waveform"""
+        noise = torch.randn_like(wav)
+        signal_power = wav.norm(p=2)
+        noise_power = noise.norm(p=2)
+        factor = (signal_power / noise_power) / (10 ** (snr_db / 20))
+        return wav + factor * noise
+
+    def pitch_shift(self, wav):
+        """Pitch shift đơn giản bằng cách resample theo tỉ lệ tần số"""
+        ratio = random.uniform(0.95, 1.05)
+        new_sr = int(self.sr * ratio)
+        wav = F.resample(wav, self.sr, new_sr)
+        wav = F.resample(wav, new_sr, self.sr)
+        return wav[:, :wav.shape[1]]
+
+    def _get_reverb_kernel(self):
+        """Create simple impulse response (decaying exponential)"""
+        decay = torch.exp(-torch.linspace(0, 3, int(0.3 * self.sr)))
+        kernel = decay.unsqueeze(0).unsqueeze(0)  # [1,1,T]
+        return kernel
+
+    def reverb_simple(self, wav):
+        if wav.dim() == 1:
+            wav = wav.unsqueeze(0)
+        return torch.nn.functional.conv1d(wav.unsqueeze(0), self.ir_kernel, padding="same").squeeze(0)
 
     def apply(self, wav, mode: str):
         if mode == "vol":
@@ -52,5 +58,11 @@ class AudioAugmenter:
             return self.speed_perturb(wav)
         elif mode == "telephony":
             return self.telephony_effect(wav)
+        elif mode == "noise":
+            return self.noise_mix(wav)
+        elif mode == "pitch":
+            return self.pitch_shift(wav)
+        elif mode == "reverb":
+            return self.reverb_simple(wav)
         else:
             return wav

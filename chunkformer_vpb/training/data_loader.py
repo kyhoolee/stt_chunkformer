@@ -66,10 +66,11 @@ class VivosDataset(Dataset):
         # print(f"✅ [loader] Waveform shape    : {wav.shape}")
         # print(f"📊 [loader] Min: {wav.min().item():.8f}, Max: {wav.max().item():.8f}, Mean: {wav.mean().item():.8f}")
 
+        # @NOTE: bỏ việc augment audio trong collate_fn -> theo hướng pre-compute trước augmented audio 
         # 🧪 Apply augmentation nếu có "augment_type"
-        augment_type = entry.augment_type
-        if augment_type:
-            wav = self.augmenter.apply(wav, augment_type)
+        # augment_type = entry.augment_type
+        # if augment_type:
+        #     wav = self.augmenter.apply(wav, augment_type)
 
         # 2) FBANK
         feats = torchaudio.compliance.kaldi.fbank(
