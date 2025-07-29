@@ -1956,3 +1956,614 @@ nohup: ignoring input
 🔁 speed      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000163670___left___000174236_aug2 | 10.57 sec
 ⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000163670___left___000174236_aug3.wav
 🔁 noise      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000163670___left___000174236_aug4 | 10.57 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000047766___right___000049002_aug5 | 1.24 sec
+🔁 reverb     | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000047766___right___000049002_aug6 | 1.24 sec
+🔁 Augmenting:   9%|▉         | 314/3413 [04:01<1:47:00,  2.07s/it]🔁 vol        | E_huongds_D_2025-04-03_H_082050_289_CLID_0962818175___000048054___left___000054154_aug1 | 6.10 sec
+🔁 pitch      | E_huongds_D_2025-04-03_H_082050_289_CLID_0962818175___000045750___left___000048522_aug5 | 2.77 sec
+🔁 reverb     | E_huongds_D_2025-04-03_H_082050_289_CLID_0962818175___000045750___left___000048522_aug6 | 2.77 sec
+🔁 Augmenting:   9%|▉         | 315/3413 [04:02<1:42:19,  1.98s/it]🔁 vol        | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000008534___left___000011626_aug1 | 3.09 sec
+🔁 speed      | E_huytq37_D_2025-03-03_H_150055_779_CLID_0963817807___000001846___left___000005290_aug2 | 3.44 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-03_H_150055_779_CLID_0963817807___000001846___left___000005290_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-03_H_150055_779_CLID_0963817807___000001846___left___000005290_aug4 | 3.44 sec
+🔁 speed      | E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000011254___left___000015786_aug2 | 4.53 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000011254___left___000015786_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000011254___left___000015786_aug4 | 4.53 sec
+🔁 pitch      | E_thaond3_D_2025-03-06_H_154245_974_CLID_0373609228___000027670___left___000031530_aug5 | 3.86 sec
+🔁 reverb     | E_thaond3_D_2025-03-06_H_154245_974_CLID_0373609228___000027670___left___000031530_aug6 | 3.86 sec
+🔁 Augmenting:   9%|▉         | 316/3413 [04:05<1:57:30,  2.28s/it]🔁 vol        | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000170422___left___000171146_aug1 | 0.72 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000069078___left___000073578_aug5 | 4.50 sec
+🔁 speed      | E_huongds_D_2025-04-03_H_082050_289_CLID_0962818175___000048054___left___000054154_aug2 | 6.10 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-03_H_082050_289_CLID_0962818175___000048054___left___000054154_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-03_H_082050_289_CLID_0962818175___000048054___left___000054154_aug4 | 6.10 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000069078___left___000073578_aug6 | 4.50 sec
+🔁 Augmenting:   9%|▉         | 317/3413 [04:07<1:39:39,  1.93s/it]🔁 vol        | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000000534___left___000004490_aug1 | 3.96 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_091503_350_CLID_0948575991___000098166___left___000102314_aug5 | 4.15 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_091503_350_CLID_0948575991___000098166___left___000102314_aug6 | 4.15 sec
+🔁 Augmenting:   9%|▉         | 318/3413 [04:09<1:41:27,  1.97s/it]🔁 vol        | E_thaond3_D_2025-03-11_H_104207_480_CLID_0382161238___000100150___left___000101066_aug1 | 0.92 sec
+🔁 pitch      | E_huytq37_D_2025-03-03_H_150055_779_CLID_0963817807___000001846___left___000005290_aug5 | 3.44 sec
+🔁 reverb     | E_huytq37_D_2025-03-03_H_150055_779_CLID_0963817807___000001846___left___000005290_aug6 | 3.44 sec
+🔁 Augmenting:   9%|▉         | 319/3413 [04:09<1:24:39,  1.64s/it]🔁 vol        | E_huytq37_D_2025-03-04_H_104842_929_CLID_0354791986___000039446___right___000041066_aug1 | 1.62 sec
+🔁 speed      | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000170422___left___000171146_aug2 | 0.72 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000170422___left___000171146_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000170422___left___000171146_aug4 | 0.72 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000163670___left___000174236_aug5 | 10.57 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000163670___left___000174236_aug6 | 10.57 sec
+🔁 Augmenting:   9%|▉         | 320/3413 [04:10<1:14:27,  1.44s/it]🔁 vol        | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000596150___left___000597898_aug1 | 1.75 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000052886___right___000058090_aug5 | 5.20 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_092748_404_CLID_0985198580___000043350___right___000047786_aug2 | 4.44 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_092748_404_CLID_0985198580___000043350___right___000047786_aug3.wav
+🔁 speed      | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000000534___left___000004490_aug2 | 3.96 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000000534___left___000004490_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-08_H_092748_404_CLID_0985198580___000043350___right___000047786_aug4 | 4.44 sec
+🔁 noise      | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000000534___left___000004490_aug4 | 3.96 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000052886___right___000058090_aug6 | 5.20 sec
+🔁 Augmenting:   9%|▉         | 321/3413 [04:12<1:21:33,  1.58s/it]🔁 vol        | E_huongds_D_2025-04-08_H_101529_870_CLID_0335174976___000074614___right___000076394_aug1 | 1.78 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000367990___left___000373962_aug2 | 5.97 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000367990___left___000373962_aug3.wav
+🔁 speed      | E_thaond3_D_2025-03-06_H_101153_200_CLID_0949504455___000023574___left___000024682_aug2 | 1.11 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-06_H_101153_200_CLID_0949504455___000023574___left___000024682_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-06_H_101153_200_CLID_0949504455___000023574___left___000024682_aug4 | 1.11 sec
+🔁 noise      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000367990___left___000373962_aug4 | 5.97 sec
+🔁 pitch      | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000170422___left___000171146_aug5 | 0.72 sec
+🔁 reverb     | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000170422___left___000171146_aug6 | 0.72 sec
+🔁 Augmenting:   9%|▉         | 322/3413 [04:14<1:17:37,  1.51s/it]🔁 vol        | E_huytq37_D_2025-03-05_H_094608_898_CLID_0934562489___000025494___left___000026218_aug1 | 0.72 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_101828_140_CLID_0762677383___000040150___left___000043146_aug5 | 3.00 sec
+🔁 speed      | E_thaond3_D_2025-03-12_H_102334_075_CLID_0938203894___000000758___left___000003946_aug2 | 3.19 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-12_H_102334_075_CLID_0938203894___000000758___left___000003946_aug3.wav
+🔁 reverb     | E_thaond3_D_2025-03-05_H_101828_140_CLID_0762677383___000040150___left___000043146_aug6 | 3.00 sec
+🔁 Augmenting:   9%|▉         | 323/3413 [04:14<1:06:52,  1.30s/it]🔁 noise      | E_thaond3_D_2025-03-12_H_102334_075_CLID_0938203894___000000758___left___000003946_aug4 | 3.19 sec
+🔁 vol        | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000011638___left___000012330_aug1 | 0.69 sec
+🔁 speed      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000596150___left___000597898_aug2 | 1.75 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000596150___left___000597898_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000596150___left___000597898_aug4 | 1.75 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000531510___left___000532586_aug5 | 1.08 sec
+🔁 pitch      | E_thaond3_D_2025-03-04_H_082211_310_CLID_0925763204___000003446___left___000004298_aug5 | 0.85 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000531510___left___000532586_aug6 | 1.08 sec
+🔁 Augmenting:   9%|▉         | 324/3413 [04:16<1:12:40,  1.41s/it]🔁 speed      | E_huytq37_D_2025-03-04_H_104842_929_CLID_0354791986___000039446___right___000041066_aug2 | 1.62 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-04_H_104842_929_CLID_0354791986___000039446___right___000041066_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-04_H_104842_929_CLID_0354791986___000039446___right___000041066_aug4 | 1.62 sec
+🔁 reverb     | E_thaond3_D_2025-03-04_H_082211_310_CLID_0925763204___000003446___left___000004298_aug6 | 0.85 sec
+🔁 Augmenting:  10%|▉         | 325/3413 [04:16<55:23,  1.08s/it]  🔁 vol        | E_huongds_D_2025-04-01_H_092355_092_CLID_0961057966___000000342___left___000004682_aug1 | 4.34 sec
+🔁 vol        | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000093046___right___000094602_aug1 | 1.56 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_092748_404_CLID_0985198580___000043350___right___000047786_aug5 | 4.44 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_101529_870_CLID_0335174976___000074614___right___000076394_aug2 | 1.78 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_101529_870_CLID_0335174976___000074614___right___000076394_aug3.wav
+🔁 pitch      | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000000534___left___000004490_aug5 | 3.96 sec
+🔁 noise      | E_huongds_D_2025-04-08_H_101529_870_CLID_0335174976___000074614___right___000076394_aug4 | 1.78 sec
+🔁 reverb     | E_huongds_D_2025-04-08_H_092748_404_CLID_0985198580___000043350___right___000047786_aug6 | 4.44 sec
+🔁 Augmenting:  10%|▉         | 326/3413 [04:18<1:01:38,  1.20s/it]🔁 vol        | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000081174___left___000082090_aug1 | 0.92 sec
+🔁 reverb     | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000000534___left___000004490_aug6 | 3.96 sec
+🔁 Augmenting:  10%|▉         | 327/3413 [04:18<48:07,  1.07it/s]  🔁 vol        | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000011414___left___000017226_aug1 | 5.81 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000596150___left___000597898_aug5 | 1.75 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000596150___left___000597898_aug6 | 1.75 sec
+🔁 Augmenting:  10%|▉         | 328/3413 [04:20<1:03:51,  1.24s/it]🔁 speed      | E_huytq37_D_2025-03-05_H_094608_898_CLID_0934562489___000025494___left___000026218_aug2 | 0.72 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-05_H_094608_898_CLID_0934562489___000025494___left___000026218_aug3.wav
+🔁 vol        | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000048022___right___000049002_aug1 | 0.98 sec
+🔁 noise      | E_huytq37_D_2025-03-05_H_094608_898_CLID_0934562489___000025494___left___000026218_aug4 | 0.72 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000367990___left___000373962_aug5 | 5.97 sec
+🔁 reverb     | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000367990___left___000373962_aug6 | 5.97 sec
+🔁 Augmenting:  10%|▉         | 329/3413 [04:21<1:02:52,  1.22s/it]🔁 speed      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000093046___right___000094602_aug2 | 1.56 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000093046___right___000094602_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000093046___right___000094602_aug4 | 1.56 sec
+🔁 vol        | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000079414___right___000086250_aug1 | 6.84 sec
+🔁 speed      | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000011638___left___000012330_aug2 | 0.69 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000011638___left___000012330_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000011638___left___000012330_aug4 | 0.69 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000011254___left___000015786_aug5 | 4.53 sec
+🔁 speed      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000081174___left___000082090_aug2 | 0.92 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000081174___left___000082090_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000081174___left___000082090_aug4 | 0.92 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000011254___left___000015786_aug6 | 4.53 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000008534___left___000011626_aug2 | 3.09 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000008534___left___000011626_aug3.wav
+🔁 Augmenting:  10%|▉         | 330/3413 [04:22<59:55,  1.17s/it]  🔁 noise      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000008534___left___000011626_aug4 | 3.09 sec
+🔁 vol        | E_huongds_D_2025-04-03_H_173001_408_CLID_0395656610___000216950___left___000227146_aug1 | 10.20 sec
+🔁 pitch      | E_thaond3_D_2025-03-12_H_102334_075_CLID_0938203894___000000758___left___000003946_aug5 | 3.19 sec
+🔁 reverb     | E_thaond3_D_2025-03-12_H_102334_075_CLID_0938203894___000000758___left___000003946_aug6 | 3.19 sec
+🔁 Augmenting:  10%|▉         | 331/3413 [04:24<1:05:07,  1.27s/it]🔁 vol        | E_thaond3_D_2025-03-10_H_103330_006_CLID_0974310552___000035926___right___000041706_aug1 | 5.78 sec
+🔁 pitch      | E_huytq37_D_2025-03-05_H_094608_898_CLID_0934562489___000025494___left___000026218_aug5 | 0.72 sec
+🔁 reverb     | E_huytq37_D_2025-03-05_H_094608_898_CLID_0934562489___000025494___left___000026218_aug6 | 0.72 sec
+🔁 Augmenting:  10%|▉         | 332/3413 [04:24<52:53,  1.03s/it]  🔁 vol        | E_thaond3_D_2025-03-03_H_144045_853_CLID_0975932252___000001590___left___000002730_aug1 | 1.14 sec
+🔁 pitch      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000093046___right___000094602_aug5 | 1.56 sec
+🔁 pitch      | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000011638___left___000012330_aug5 | 0.69 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000093046___right___000094602_aug6 | 1.56 sec
+🔁 Augmenting:  10%|▉         | 333/3413 [04:26<1:07:07,  1.31s/it]🔁 reverb     | E_huytq37_D_2025-03-05_H_140205_369_CLID_0961636579___000011638___left___000012330_aug6 | 0.69 sec
+🔁 Augmenting:  10%|▉         | 334/3413 [04:27<49:20,  1.04it/s]  🔁 vol        | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000004726___left___000006154_aug1 | 1.43 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000011414___left___000017226_aug2 | 5.81 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000011414___left___000017226_aug3.wav
+🔁 vol        | E_thaond3_D_2025-03-05_H_173808_002_CLID_0939272122___000223574___left___000228362_aug1 | 4.79 sec
+🔁 noise      | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000011414___left___000017226_aug4 | 5.81 sec
+🔁 speed      | E_huongds_D_2025-04-03_H_173001_408_CLID_0395656610___000216950___left___000227146_aug2 | 10.20 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-03_H_173001_408_CLID_0395656610___000216950___left___000227146_aug3.wav
+🔁 pitch      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000008534___left___000011626_aug5 | 3.09 sec
+🔁 noise      | E_huongds_D_2025-04-03_H_173001_408_CLID_0395656610___000216950___left___000227146_aug4 | 10.20 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_104207_480_CLID_0382161238___000100150___left___000101066_aug2 | 0.92 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_104207_480_CLID_0382161238___000100150___left___000101066_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_104207_480_CLID_0382161238___000100150___left___000101066_aug4 | 0.92 sec
+🔁 speed      | E_thaond3_D_2025-03-05_H_173808_002_CLID_0939272122___000223574___left___000228362_aug2 | 4.79 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_173808_002_CLID_0939272122___000223574___left___000228362_aug3.wav
+🔁 reverb     | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000008534___left___000011626_aug6 | 3.09 sec
+🔁 Augmenting:  10%|▉         | 335/3413 [04:28<1:00:57,  1.19s/it]🔁 noise      | E_thaond3_D_2025-03-05_H_173808_002_CLID_0939272122___000223574___left___000228362_aug4 | 4.79 sec
+🔁 vol        | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000504822___left___000506570_aug1 | 1.75 sec
+🔁 pitch      | E_huongds_D_2025-04-03_H_082050_289_CLID_0962818175___000048054___left___000054154_aug5 | 6.10 sec
+🔁 speed      | E_thaond3_D_2025-03-10_H_103330_006_CLID_0974310552___000035926___right___000041706_aug2 | 5.78 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-10_H_103330_006_CLID_0974310552___000035926___right___000041706_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-10_H_103330_006_CLID_0974310552___000035926___right___000041706_aug4 | 5.78 sec
+🔁 speed      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000504822___left___000506570_aug2 | 1.75 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000504822___left___000506570_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000504822___left___000506570_aug4 | 1.75 sec
+🔁 reverb     | E_huongds_D_2025-04-03_H_082050_289_CLID_0962818175___000048054___left___000054154_aug6 | 6.10 sec
+🔁 Augmenting:  10%|▉         | 336/3413 [04:32<1:48:05,  2.11s/it]🔁 vol        | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000108502___left___000110154_aug1 | 1.65 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_173808_002_CLID_0939272122___000223574___left___000228362_aug5 | 4.79 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_173808_002_CLID_0939272122___000223574___left___000228362_aug6 | 4.79 sec
+🔁 Augmenting:  10%|▉         | 337/3413 [04:34<1:33:09,  1.82s/it]🔁 vol        | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000198326___right___000200362_aug1 | 2.04 sec
+🔁 pitch      | E_thaond3_D_2025-03-11_H_104207_480_CLID_0382161238___000100150___left___000101066_aug5 | 0.92 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_104207_480_CLID_0382161238___000100150___left___000101066_aug6 | 0.92 sec
+🔁 Augmenting:  10%|▉         | 338/3413 [04:35<1:27:55,  1.72s/it]🔁 vol        | E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000017526___left___000019786_aug1 | 2.26 sec
+🔁 pitch      | E_thaond3_D_2025-03-06_H_101153_200_CLID_0949504455___000023574___left___000024682_aug5 | 1.11 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_101529_870_CLID_0335174976___000074614___right___000076394_aug5 | 1.78 sec
+🔁 pitch      | E_huytq37_D_2025-03-04_H_104842_929_CLID_0354791986___000039446___right___000041066_aug5 | 1.62 sec
+🔁 reverb     | E_thaond3_D_2025-03-06_H_101153_200_CLID_0949504455___000023574___left___000024682_aug6 | 1.11 sec
+🔁 Augmenting:  10%|▉         | 339/3413 [04:36<1:12:25,  1.41s/it]🔁 reverb     | E_huongds_D_2025-04-08_H_101529_870_CLID_0335174976___000074614___right___000076394_aug6 | 1.78 sec
+🔁 vol        | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000260470___left___000261546_aug1 | 1.08 sec
+🔁 vol        | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000050422___right___000053514_aug1 | 3.09 sec
+🔁 reverb     | E_huytq37_D_2025-03-04_H_104842_929_CLID_0354791986___000039446___right___000041066_aug6 | 1.62 sec
+🔁 Augmenting:  10%|▉         | 341/3413 [04:36<42:04,  1.22it/s]  🔁 vol        | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000081238___left___000082538_aug1 | 1.30 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000081238___left___000082538_aug2 | 1.30 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000081238___left___000082538_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000081238___left___000082538_aug4 | 1.30 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000017526___left___000019786_aug2 | 2.26 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000017526___left___000019786_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000017526___left___000019786_aug4 | 2.26 sec
+🔁 speed      | E_thaond3_D_2025-03-03_H_144045_853_CLID_0975932252___000001590___left___000002730_aug2 | 1.14 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-03_H_144045_853_CLID_0975932252___000001590___left___000002730_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-03_H_144045_853_CLID_0975932252___000001590___left___000002730_aug4 | 1.14 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000081174___left___000082090_aug5 | 0.92 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000198326___right___000200362_aug2 | 2.04 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000198326___right___000200362_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000198326___right___000200362_aug4 | 2.04 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000081174___left___000082090_aug6 | 0.92 sec
+🔁 Augmenting:  10%|█         | 342/3413 [04:42<1:48:15,  2.12s/it]🔁 vol        | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000017718___right___000019562_aug1 | 1.84 sec
+🔁 speed      | E_huongds_D_2025-04-01_H_092355_092_CLID_0961057966___000000342___left___000004682_aug2 | 4.34 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-01_H_092355_092_CLID_0961057966___000000342___left___000004682_aug3.wav
+🔁 pitch      | E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000017526___left___000019786_aug5 | 2.26 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000050422___right___000053514_aug2 | 3.09 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000050422___right___000053514_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-01_H_092355_092_CLID_0961057966___000000342___left___000004682_aug4 | 4.34 sec
+🔁 noise      | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000050422___right___000053514_aug4 | 3.09 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000017526___left___000019786_aug6 | 2.26 sec
+🔁 Augmenting:  10%|█         | 343/3413 [04:44<1:49:24,  2.14s/it]🔁 vol        | E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000027606___left___000028682_aug1 | 1.08 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000079414___right___000086250_aug2 | 6.84 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000079414___right___000086250_aug3.wav
+🔁 speed      | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000048022___right___000049002_aug2 | 0.98 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000048022___right___000049002_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000048022___right___000049002_aug4 | 0.98 sec
+🔁 noise      | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000079414___right___000086250_aug4 | 6.84 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000198326___right___000200362_aug5 | 2.04 sec
+🔁 reverb     | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000198326___right___000200362_aug6 | 2.04 sec
+🔁 Augmenting:  10%|█         | 344/3413 [04:47<1:52:21,  2.20s/it]🔁 pitch      | E_huongds_D_2025-04-03_H_173001_408_CLID_0395656610___000216950___left___000227146_aug5 | 10.20 sec
+🔁 vol        | E_thaond3_D_2025-03-04_H_174038_646_CLID_0975541569___000037942___left___000040266_aug1 | 2.32 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000011414___left___000017226_aug5 | 5.81 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000017718___right___000019562_aug2 | 1.84 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000017718___right___000019562_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000017718___right___000019562_aug4 | 1.84 sec
+🔁 reverb     | E_huongds_D_2025-04-03_H_173001_408_CLID_0395656610___000216950___left___000227146_aug6 | 10.20 sec
+🔁 Augmenting:  10%|█         | 345/3413 [04:47<1:32:16,  1.80s/it]🔁 speed      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000004726___left___000006154_aug2 | 1.43 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000004726___left___000006154_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000004726___left___000006154_aug4 | 1.43 sec
+🔁 vol        | E_thaond3_D_2025-03-10_H_104440_602_CLID_0906523485___000007574___right___000009066_aug1 | 1.49 sec
+🔁 reverb     | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000011414___left___000017226_aug6 | 5.81 sec
+🔁 Augmenting:  10%|█         | 346/3413 [04:48<1:13:36,  1.44s/it]🔁 vol        | E_huytq37_D_2025-03-05_H_093915_596_CLID_0961647833___000053238___left___000056490_aug1 | 3.25 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000504822___left___000506570_aug5 | 1.75 sec
+🔁 speed      | E_thaond3_D_2025-03-10_H_104440_602_CLID_0906523485___000007574___right___000009066_aug2 | 1.49 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-10_H_104440_602_CLID_0906523485___000007574___right___000009066_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-10_H_104440_602_CLID_0906523485___000007574___right___000009066_aug4 | 1.49 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000504822___left___000506570_aug6 | 1.75 sec
+🔁 Augmenting:  10%|█         | 347/3413 [04:52<1:44:43,  2.05s/it]🔁 pitch      | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000050422___right___000053514_aug5 | 3.09 sec
+🔁 vol        | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000254166___left___000257578_aug1 | 3.41 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000017718___right___000019562_aug5 | 1.84 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000004726___left___000006154_aug5 | 1.43 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000050422___right___000053514_aug6 | 3.09 sec
+🔁 Augmenting:  10%|█         | 348/3413 [04:52<1:22:44,  1.62s/it]🔁 reverb     | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000004726___left___000006154_aug6 | 1.43 sec
+🔁 Augmenting:  10%|█         | 349/3413 [04:52<59:51,  1.17s/it]  🔁 reverb     | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000017718___right___000019562_aug6 | 1.84 sec
+🔁 vol        | E_thaond3_D_2025-03-11_H_093940_709_CLID_0359396200___000007990___left___000008778_aug1 | 0.79 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_103330_006_CLID_0974310552___000035926___right___000041706_aug5 | 5.78 sec
+🔁 vol        | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000291606___left___000292458_aug1 | 0.85 sec
+🔁 vol        | E_huytq37_D_2025-03-04_H_090620_834_CLID_0812117992___000000822___left___000003276_aug1 | 2.45 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_103330_006_CLID_0974310552___000035926___right___000041706_aug6 | 5.78 sec
+🔁 Augmenting:  10%|█         | 351/3413 [04:53<44:03,  1.16it/s]🔁 vol        | E_huytq37_D_2025-03-04_H_100837_812_CLID_0975098003___000000822___left___000003914_aug1 | 3.09 sec
+🔁 speed      | E_huytq37_D_2025-03-05_H_093915_596_CLID_0961647833___000053238___left___000056490_aug2 | 3.25 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-05_H_093915_596_CLID_0961647833___000053238___left___000056490_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-05_H_093915_596_CLID_0961647833___000053238___left___000056490_aug4 | 3.25 sec
+🔁 pitch      | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000079414___right___000086250_aug5 | 6.84 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000079414___right___000086250_aug6 | 6.84 sec
+🔁 Augmenting:  10%|█         | 352/3413 [04:54<47:04,  1.08it/s]🔁 vol        | E_thaond3_D_2025-03-10_H_172142_102_CLID_0983550478___000008918___right___000009930_aug1 | 1.01 sec
+🔁 speed      | E_thaond3_D_2025-03-04_H_174038_646_CLID_0975541569___000037942___left___000040266_aug2 | 2.32 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-04_H_174038_646_CLID_0975541569___000037942___left___000040266_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-04_H_174038_646_CLID_0975541569___000037942___left___000040266_aug4 | 2.32 sec
+🔁 pitch      | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000048022___right___000049002_aug5 | 0.98 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000048022___right___000049002_aug6 | 0.98 sec
+🔁 Augmenting:  10%|█         | 353/3413 [04:56<56:02,  1.10s/it]🔁 pitch      | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000081238___left___000082538_aug5 | 1.30 sec
+🔁 vol        | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000079542___right___000082954_aug1 | 3.41 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000081238___left___000082538_aug6 | 1.30 sec
+🔁 Augmenting:  10%|█         | 354/3413 [04:56<45:21,  1.12it/s]🔁 vol        | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003286___right___000004170_aug1 | 0.88 sec
+🔁 speed      | E_huytq37_D_2025-03-04_H_090620_834_CLID_0812117992___000000822___left___000003276_aug2 | 2.45 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-04_H_090620_834_CLID_0812117992___000000822___left___000003276_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-04_H_090620_834_CLID_0812117992___000000822___left___000003276_aug4 | 2.45 sec
+🔁 speed      | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000108502___left___000110154_aug2 | 1.65 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000108502___left___000110154_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000108502___left___000110154_aug4 | 1.65 sec
+🔁 pitch      | E_thaond3_D_2025-03-03_H_144045_853_CLID_0975932252___000001590___left___000002730_aug5 | 1.14 sec
+🔁 pitch      | E_huytq37_D_2025-03-05_H_093915_596_CLID_0961647833___000053238___left___000056490_aug5 | 3.25 sec
+🔁 reverb     | E_thaond3_D_2025-03-03_H_144045_853_CLID_0975932252___000001590___left___000002730_aug6 | 1.14 sec
+🔁 Augmenting:  10%|█         | 355/3413 [04:59<1:06:45,  1.31s/it]🔁 vol        | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000142454___left___000144170_aug1 | 1.72 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_104440_602_CLID_0906523485___000007574___right___000009066_aug5 | 1.49 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_104440_602_CLID_0906523485___000007574___right___000009066_aug6 | 1.49 sec
+🔁 Augmenting:  10%|█         | 356/3413 [04:59<53:08,  1.04s/it]  🔁 vol        | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000069302___right___000071658_aug1 | 2.36 sec
+🔁 reverb     | E_huytq37_D_2025-03-05_H_093915_596_CLID_0961647833___000053238___left___000056490_aug6 | 3.25 sec
+🔁 Augmenting:  10%|█         | 357/3413 [04:59<42:09,  1.21it/s]🔁 vol        | E_thaond3_D_2025-03-07_H_143106_723_CLID_0862381797___000027542___left___000028234_aug1 | 0.69 sec
+🔁 speed      | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000260470___left___000261546_aug2 | 1.08 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000260470___left___000261546_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000260470___left___000261546_aug4 | 1.08 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_093940_709_CLID_0359396200___000007990___left___000008778_aug2 | 0.79 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_093940_709_CLID_0359396200___000007990___left___000008778_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_093940_709_CLID_0359396200___000007990___left___000008778_aug4 | 0.79 sec
+🔁 speed      | E_huytq37_D_2025-03-04_H_100837_812_CLID_0975098003___000000822___left___000003914_aug2 | 3.09 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-04_H_100837_812_CLID_0975098003___000000822___left___000003914_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-04_H_100837_812_CLID_0975098003___000000822___left___000003914_aug4 | 3.09 sec
+🔁 speed      | E_thaond3_D_2025-03-10_H_172142_102_CLID_0983550478___000008918___right___000009930_aug2 | 1.01 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-10_H_172142_102_CLID_0983550478___000008918___right___000009930_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-10_H_172142_102_CLID_0983550478___000008918___right___000009930_aug4 | 1.01 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_172142_102_CLID_0983550478___000008918___right___000009930_aug5 | 1.01 sec
+🔁 speed      | E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000027606___left___000028682_aug2 | 1.08 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000027606___left___000028682_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000027606___left___000028682_aug4 | 1.08 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_172142_102_CLID_0983550478___000008918___right___000009930_aug6 | 1.01 sec
+🔁 Augmenting:  10%|█         | 358/3413 [05:03<1:30:52,  1.78s/it]🔁 vol        | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000015990___left___000018442_aug1 | 2.45 sec
+🔁 pitch      | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000260470___left___000261546_aug5 | 1.08 sec
+🔁 speed      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000069302___right___000071658_aug2 | 2.36 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000069302___right___000071658_aug3.wav
+🔁 speed      | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003286___right___000004170_aug2 | 0.88 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003286___right___000004170_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003286___right___000004170_aug4 | 0.88 sec
+🔁 reverb     | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000260470___left___000261546_aug6 | 1.08 sec
+🔁 Augmenting:  11%|█         | 359/3413 [05:04<1:16:28,  1.50s/it]🔁 noise      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000069302___right___000071658_aug4 | 2.36 sec
+🔁 vol        | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000497942___right___000499050_aug1 | 1.11 sec
+🔁 pitch      | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000108502___left___000110154_aug5 | 1.65 sec
+🔁 reverb     | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000108502___left___000110154_aug6 | 1.65 sec
+🔁 Augmenting:  11%|█         | 360/3413 [05:06<1:23:07,  1.63s/it]🔁 vol        | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000008534___right___000010986_aug1 | 2.45 sec
+🔁 pitch      | E_huytq37_D_2025-03-04_H_100837_812_CLID_0975098003___000000822___left___000003914_aug5 | 3.09 sec
+🔁 speed      | E_thaond3_D_2025-03-07_H_143106_723_CLID_0862381797___000027542___left___000028234_aug2 | 0.69 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_143106_723_CLID_0862381797___000027542___left___000028234_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-07_H_143106_723_CLID_0862381797___000027542___left___000028234_aug4 | 0.69 sec
+🔁 reverb     | E_huytq37_D_2025-03-04_H_100837_812_CLID_0975098003___000000822___left___000003914_aug6 | 3.09 sec
+🔁 Augmenting:  11%|█         | 361/3413 [05:08<1:18:46,  1.55s/it]🔁 vol        | E_thaond3_D_2025-03-07_H_173003_117_CLID_0943701713___000231478___right___000233514_aug1 | 2.04 sec
+🔁 speed      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000497942___right___000499050_aug2 | 1.11 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000497942___right___000499050_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000497942___right___000499050_aug4 | 1.11 sec
+🔁 pitch      | E_huongds_D_2025-04-01_H_092355_092_CLID_0961057966___000000342___left___000004682_aug5 | 4.34 sec
+🔁 reverb     | E_huongds_D_2025-04-01_H_092355_092_CLID_0961057966___000000342___left___000004682_aug6 | 4.34 sec
+🔁 Augmenting:  11%|█         | 362/3413 [05:10<1:34:59,  1.87s/it]🔁 vol        | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000006486___right___000008138_aug1 | 1.65 sec
+🔁 speed      | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000008534___right___000010986_aug2 | 2.45 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000008534___right___000010986_aug3.wav
+🔁 speed      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000006486___right___000008138_aug2 | 1.65 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000006486___right___000008138_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000006486___right___000008138_aug4 | 1.65 sec
+🔁 noise      | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000008534___right___000010986_aug4 | 2.45 sec
+🔁 pitch      | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003286___right___000004170_aug5 | 0.88 sec
+🔁 reverb     | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003286___right___000004170_aug6 | 0.88 sec
+🔁 Augmenting:  11%|█         | 363/3413 [05:12<1:30:21,  1.78s/it]🔁 vol        | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000068982___right___000073290_aug1 | 4.31 sec
+🔁 speed      | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000254166___left___000257578_aug2 | 3.41 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000254166___left___000257578_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000254166___left___000257578_aug4 | 3.41 sec
+🔁 pitch      | E_thaond3_D_2025-03-04_H_174038_646_CLID_0975541569___000037942___left___000040266_aug5 | 2.32 sec
+🔁 speed      | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000079542___right___000082954_aug2 | 3.41 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000079542___right___000082954_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000079542___right___000082954_aug4 | 3.41 sec
+🔁 reverb     | E_thaond3_D_2025-03-04_H_174038_646_CLID_0975541569___000037942___left___000040266_aug6 | 2.32 sec
+🔁 Augmenting:  11%|█         | 364/3413 [05:15<1:52:47,  2.22s/it]🔁 vol        | E_huytq37_D_2025-03-03_H_142537_084_CLID_0854681835___000025206___right___000026986_aug1 | 1.78 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000291606___left___000292458_aug2 | 0.85 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000291606___left___000292458_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000291606___left___000292458_aug4 | 0.85 sec
+🔁 pitch      | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000008534___right___000010986_aug5 | 2.45 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000497942___right___000499050_aug5 | 1.11 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000497942___right___000499050_aug6 | 1.11 sec
+🔁 Augmenting:  11%|█         | 365/3413 [05:18<1:57:19,  2.31s/it]🔁 vol        | E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000112374___left___000113226_aug1 | 0.85 sec
+🔁 reverb     | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000008534___right___000010986_aug6 | 2.45 sec
+🔁 Augmenting:  11%|█         | 366/3413 [05:18<1:24:10,  1.66s/it]🔁 vol        | E_huytq37_D_2025-03-05_H_172514_222_CLID_0352079400___000007574___left___000008298_aug1 | 0.72 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000142454___left___000144170_aug2 | 1.72 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000142454___left___000144170_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000142454___left___000144170_aug4 | 1.72 sec
+🔁 pitch      | E_huytq37_D_2025-03-04_H_090620_834_CLID_0812117992___000000822___left___000003276_aug5 | 2.45 sec
+🔁 pitch      | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000079542___right___000082954_aug5 | 3.41 sec
+🔁 pitch      | E_thaond3_D_2025-03-11_H_093940_709_CLID_0359396200___000007990___left___000008778_aug5 | 0.79 sec
+🔁 reverb     | E_huytq37_D_2025-03-04_H_090620_834_CLID_0812117992___000000822___left___000003276_aug6 | 2.45 sec
+🔁 Augmenting:  11%|█         | 367/3413 [05:19<1:27:08,  1.72s/it]🔁 vol        | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000492214___left___000497066_aug1 | 4.85 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_093940_709_CLID_0359396200___000007990___left___000008778_aug6 | 0.79 sec
+🔁 Augmenting:  11%|█         | 368/3413 [05:20<1:06:57,  1.32s/it]🔁 vol        | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000011126___left___000015626_aug1 | 4.50 sec
+🔁 reverb     | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000079542___right___000082954_aug6 | 3.41 sec
+🔁 Augmenting:  11%|█         | 369/3413 [05:21<57:05,  1.13s/it]  🔁 vol        | E_huongds_D_2025-04-04_H_191042_425_CLID_0345159676___000039926___left___000041770_aug1 | 1.84 sec
+🔁 speed      | E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000112374___left___000113226_aug2 | 0.85 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000112374___left___000113226_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000112374___left___000113226_aug4 | 0.85 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000142454___left___000144170_aug5 | 1.72 sec
+🔁 reverb     | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000142454___left___000144170_aug6 | 1.72 sec
+🔁 Augmenting:  11%|█         | 370/3413 [05:22<1:06:43,  1.32s/it]🔁 vol        | E_thaond3_D_2025-03-04_H_082211_310_CLID_0925763204___000098646___left___000100650_aug1 | 2.00 sec
+🔁 speed      | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000015990___left___000018442_aug2 | 2.45 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000015990___left___000018442_aug3.wav
+🔁 pitch      | E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000027606___left___000028682_aug5 | 1.08 sec
+🔁 noise      | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000015990___left___000018442_aug4 | 2.45 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_095148_857_CLID_0913911287___000027606___left___000028682_aug6 | 1.08 sec
+🔁 Augmenting:  11%|█         | 371/3413 [05:25<1:21:58,  1.62s/it]🔁 pitch      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000069302___right___000071658_aug5 | 2.36 sec
+🔁 vol        | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000232854___left___000234826_aug1 | 1.97 sec
+🔁 speed      | E_huongds_D_2025-04-04_H_191042_425_CLID_0345159676___000039926___left___000041770_aug2 | 1.84 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-04_H_191042_425_CLID_0345159676___000039926___left___000041770_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-04_H_191042_425_CLID_0345159676___000039926___left___000041770_aug4 | 1.84 sec
+🔁 speed      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000492214___left___000497066_aug2 | 4.85 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000492214___left___000497066_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000492214___left___000497066_aug4 | 4.85 sec
+🔁 speed      | E_thaond3_D_2025-03-07_H_173003_117_CLID_0943701713___000231478___right___000233514_aug2 | 2.04 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_173003_117_CLID_0943701713___000231478___right___000233514_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-07_H_173003_117_CLID_0943701713___000231478___right___000233514_aug4 | 2.04 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000069302___right___000071658_aug6 | 2.36 sec
+🔁 Augmenting:  11%|█         | 372/3413 [05:26<1:11:22,  1.41s/it]🔁 vol        | E_huongds_D_2025-04-09_H_092332_720_CLID_0942487879___000104726___right___000105994_aug1 | 1.27 sec
+🔁 speed      | E_huytq37_D_2025-03-05_H_172514_222_CLID_0352079400___000007574___left___000008298_aug2 | 0.72 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-05_H_172514_222_CLID_0352079400___000007574___left___000008298_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-05_H_172514_222_CLID_0352079400___000007574___left___000008298_aug4 | 0.72 sec
+🔁 speed      | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000232854___left___000234826_aug2 | 1.97 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000232854___left___000234826_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000232854___left___000234826_aug4 | 1.97 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000492214___left___000497066_aug5 | 4.85 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000492214___left___000497066_aug6 | 4.85 sec
+🔁 Augmenting:  11%|█         | 373/3413 [05:28<1:21:39,  1.61s/it]🔁 vol        | E_huongds_D_2025-04-04_H_092100_428_CLID_0965399342___000010870___right___000011850_aug1 | 0.98 sec
+🔁 pitch      | E_thaond3_D_2025-03-07_H_143106_723_CLID_0862381797___000027542___left___000028234_aug5 | 0.69 sec
+🔁 pitch      | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000015990___left___000018442_aug5 | 2.45 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_143106_723_CLID_0862381797___000027542___left___000028234_aug6 | 0.69 sec
+🔁 Augmenting:  11%|█         | 374/3413 [05:29<1:19:27,  1.57s/it]🔁 vol        | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000359798___left___000361290_aug1 | 1.49 sec
+🔁 reverb     | E_thaond3_D_2025-03-12_H_192911_010_CLID_0976034058___000015990___left___000018442_aug6 | 2.45 sec
+🔁 Augmenting:  11%|█         | 375/3413 [05:30<1:03:29,  1.25s/it]🔁 vol        | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000019542___right___000020554_aug1 | 1.01 sec
+🔁 speed      | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000019542___right___000020554_aug2 | 1.01 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000019542___right___000020554_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000019542___right___000020554_aug4 | 1.01 sec
+🔁 speed      | E_huongds_D_2025-04-04_H_092100_428_CLID_0965399342___000010870___right___000011850_aug2 | 0.98 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-04_H_092100_428_CLID_0965399342___000010870___right___000011850_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-04_H_092100_428_CLID_0965399342___000010870___right___000011850_aug4 | 0.98 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000068982___right___000073290_aug2 | 4.31 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000068982___right___000073290_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000068982___right___000073290_aug4 | 4.31 sec
+🔁 pitch      | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000254166___left___000257578_aug5 | 3.41 sec
+🔁 reverb     | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000254166___left___000257578_aug6 | 3.41 sec
+🔁 Augmenting:  11%|█         | 376/3413 [05:33<1:39:06,  1.96s/it]🔁 vol        | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000556790___left___000558634_aug1 | 1.84 sec
+🔁 speed      | E_huongds_D_2025-04-09_H_092332_720_CLID_0942487879___000104726___right___000105994_aug2 | 1.27 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-09_H_092332_720_CLID_0942487879___000104726___right___000105994_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-09_H_092332_720_CLID_0942487879___000104726___right___000105994_aug4 | 1.27 sec
+🔁 pitch      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000006486___right___000008138_aug5 | 1.65 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000006486___right___000008138_aug6 | 1.65 sec
+🔁 Augmenting:  11%|█         | 377/3413 [05:36<1:56:16,  2.30s/it]🔁 pitch      | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000068982___right___000073290_aug5 | 4.31 sec
+🔁 vol        | E_thaond3_D_2025-03-06_H_094950_192_CLID_0919467813___000044886___left___000050664_aug1 | 5.78 sec
+🔁 speed      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000556790___left___000558634_aug2 | 1.84 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000556790___left___000558634_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000556790___left___000558634_aug4 | 1.84 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000068982___right___000073290_aug6 | 4.31 sec
+🔁 Augmenting:  11%|█         | 378/3413 [05:37<1:31:27,  1.81s/it]🔁 pitch      | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000019542___right___000020554_aug5 | 1.01 sec
+🔁 pitch      | E_huongds_D_2025-04-04_H_092100_428_CLID_0965399342___000010870___right___000011850_aug5 | 0.98 sec
+🔁 vol        | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000492694___right___000498346_aug1 | 5.65 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000019542___right___000020554_aug6 | 1.01 sec
+🔁 Augmenting:  11%|█         | 379/3413 [05:38<1:11:57,  1.42s/it]🔁 reverb     | E_huongds_D_2025-04-04_H_092100_428_CLID_0965399342___000010870___right___000011850_aug6 | 0.98 sec
+🔁 vol        | E_thaond3_D_2025-03-07_H_093011_926_CLID_0332637414___000005206___right___000006602_aug1 | 1.40 sec
+🔁 vol        | E_thaond3_D_2025-03-07_H_141754_161_CLID_0984395259___000027414___left___000028618_aug1 | 1.20 sec
+🔁 pitch      | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000291606___left___000292458_aug5 | 0.85 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000291606___left___000292458_aug6 | 0.85 sec
+🔁 Augmenting:  11%|█         | 381/3413 [05:39<51:29,  1.02s/it]  🔁 vol        | E_huongds_D_2025-04-08_H_085251_479_CLID_0908097679___000001110___right___000002890_aug1 | 1.78 sec
+🔁 speed      | E_huytq37_D_2025-03-03_H_142537_084_CLID_0854681835___000025206___right___000026986_aug2 | 1.78 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-03_H_142537_084_CLID_0854681835___000025206___right___000026986_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-03_H_142537_084_CLID_0854681835___000025206___right___000026986_aug4 | 1.78 sec
+🔁 speed      | E_thaond3_D_2025-03-04_H_082211_310_CLID_0925763204___000098646___left___000100650_aug2 | 2.00 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-04_H_082211_310_CLID_0925763204___000098646___left___000100650_aug3.wav
+🔁 speed      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000011126___left___000015626_aug2 | 4.50 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000011126___left___000015626_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-04_H_082211_310_CLID_0925763204___000098646___left___000100650_aug4 | 2.00 sec
+🔁 noise      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000011126___left___000015626_aug4 | 4.50 sec
+🔁 speed      | E_thaond3_D_2025-03-06_H_094950_192_CLID_0919467813___000044886___left___000050664_aug2 | 5.78 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-06_H_094950_192_CLID_0919467813___000044886___left___000050664_aug3.wav
+🔁 speed      | E_thaond3_D_2025-03-07_H_093011_926_CLID_0332637414___000005206___right___000006602_aug2 | 1.40 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_093011_926_CLID_0332637414___000005206___right___000006602_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-07_H_093011_926_CLID_0332637414___000005206___right___000006602_aug4 | 1.40 sec
+🔁 noise      | E_thaond3_D_2025-03-06_H_094950_192_CLID_0919467813___000044886___left___000050664_aug4 | 5.78 sec
+🔁 speed      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000492694___right___000498346_aug2 | 5.65 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000492694___right___000498346_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000492694___right___000498346_aug4 | 5.65 sec
+🔁 pitch      | E_thaond3_D_2025-03-07_H_173003_117_CLID_0943701713___000231478___right___000233514_aug5 | 2.04 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_173003_117_CLID_0943701713___000231478___right___000233514_aug6 | 2.04 sec
+🔁 Augmenting:  11%|█         | 382/3413 [05:43<1:33:25,  1.85s/it]🔁 pitch      | E_huytq37_D_2025-03-03_H_142537_084_CLID_0854681835___000025206___right___000026986_aug5 | 1.78 sec
+🔁 vol        | E_thaond3_D_2025-03-11_H_181946_131_CLID_0896944738___000013878___left___000017322_aug1 | 3.44 sec
+🔁 reverb     | E_huytq37_D_2025-03-03_H_142537_084_CLID_0854681835___000025206___right___000026986_aug6 | 1.78 sec
+🔁 Augmenting:  11%|█         | 383/3413 [05:44<1:18:47,  1.56s/it]🔁 vol        | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000383222___right___000384778_aug1 | 1.56 sec
+🔁 pitch      | E_huongds_D_2025-04-04_H_191042_425_CLID_0345159676___000039926___left___000041770_aug5 | 1.84 sec
+🔁 reverb     | E_huongds_D_2025-04-04_H_191042_425_CLID_0345159676___000039926___left___000041770_aug6 | 1.84 sec
+🔁 Augmenting:  11%|█▏        | 384/3413 [05:44<1:04:28,  1.28s/it]🔁 vol        | E_huongds_D_2025-04-02_H_104220_054_CLID_0776960276___000001334___left___000003562_aug1 | 2.23 sec
+🔁 speed      | E_thaond3_D_2025-03-07_H_141754_161_CLID_0984395259___000027414___left___000028618_aug2 | 1.20 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_141754_161_CLID_0984395259___000027414___left___000028618_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-07_H_141754_161_CLID_0984395259___000027414___left___000028618_aug4 | 1.20 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000556790___left___000558634_aug5 | 1.84 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000556790___left___000558634_aug6 | 1.84 sec
+🔁 Augmenting:  11%|█▏        | 385/3413 [05:46<1:05:03,  1.29s/it]🔁 vol        | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000219446___left___000220586_aug1 | 1.14 sec
+🔁 pitch      | E_thaond3_D_2025-03-04_H_082211_310_CLID_0925763204___000098646___left___000100650_aug5 | 2.00 sec
+🔁 pitch      | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000232854___left___000234826_aug5 | 1.97 sec
+🔁 reverb     | E_thaond3_D_2025-03-04_H_082211_310_CLID_0925763204___000098646___left___000100650_aug6 | 2.00 sec
+🔁 Augmenting:  11%|█▏        | 386/3413 [05:46<57:06,  1.13s/it]  🔁 vol        | E_thaond3_D_2025-03-05_H_100215_318_CLID_0382941306___000085174___left___000086282_aug1 | 1.11 sec
+🔁 reverb     | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000232854___left___000234826_aug6 | 1.97 sec
+🔁 Augmenting:  11%|█▏        | 387/3413 [05:47<45:25,  1.11it/s]🔁 pitch      | E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000112374___left___000113226_aug5 | 0.85 sec
+🔁 vol        | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000043510___left___000044298_aug1 | 0.79 sec
+🔁 reverb     | E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000112374___left___000113226_aug6 | 0.85 sec
+🔁 Augmenting:  11%|█▏        | 388/3413 [05:47<38:50,  1.30it/s]🔁 vol        | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000013494___right___000015914_aug1 | 2.42 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000492694___right___000498346_aug5 | 5.65 sec
+🔁 pitch      | E_huytq37_D_2025-03-05_H_172514_222_CLID_0352079400___000007574___left___000008298_aug5 | 0.72 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000492694___right___000498346_aug6 | 5.65 sec
+🔁 Augmenting:  11%|█▏        | 389/3413 [05:48<44:23,  1.14it/s]🔁 vol        | E_huytq37_D_2025-03-04_H_100540_190_CLID_0383602116___000053398___right___000054634_aug1 | 1.24 sec
+🔁 reverb     | E_huytq37_D_2025-03-05_H_172514_222_CLID_0352079400___000007574___left___000008298_aug6 | 0.72 sec
+🔁 speed      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000383222___right___000384778_aug2 | 1.56 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000383222___right___000384778_aug3.wav
+🔁 Augmenting:  11%|█▏        | 390/3413 [05:48<34:12,  1.47it/s]🔁 noise      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000383222___right___000384778_aug4 | 1.56 sec
+🔁 vol        | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000140982___right___000141866_aug1 | 0.88 sec
+🔁 pitch      | E_thaond3_D_2025-03-07_H_141754_161_CLID_0984395259___000027414___left___000028618_aug5 | 1.20 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_141754_161_CLID_0984395259___000027414___left___000028618_aug6 | 1.20 sec
+🔁 Augmenting:  11%|█▏        | 391/3413 [05:50<49:26,  1.02it/s]🔁 vol        | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003702___right___000004714_aug1 | 1.01 sec
+🔁 pitch      | E_thaond3_D_2025-03-07_H_093011_926_CLID_0332637414___000005206___right___000006602_aug5 | 1.40 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000011126___left___000015626_aug5 | 4.50 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_093011_926_CLID_0332637414___000005206___right___000006602_aug6 | 1.40 sec
+🔁 Augmenting:  11%|█▏        | 392/3413 [05:51<43:48,  1.15it/s]🔁 speed      | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000359798___left___000361290_aug2 | 1.49 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000359798___left___000361290_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000359798___left___000361290_aug4 | 1.49 sec
+🔁 vol        | E_huongds_D_2025-04-01_H_092612_525_CLID_0362009985___000009270___left___000017194_aug1 | 7.92 sec
+🔁 reverb     | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000011126___left___000015626_aug6 | 4.50 sec
+🔁 Augmenting:  12%|█▏        | 393/3413 [05:51<39:18,  1.28it/s]🔁 vol        | E_huytq37_D_2025-03-10_H_091159_646_CLID_0358487634___000002614___left___000004874_aug1 | 2.26 sec
+🔁 speed      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000013494___right___000015914_aug2 | 2.42 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000013494___right___000015914_aug3.wav
+🔁 speed      | E_huytq37_D_2025-03-04_H_100540_190_CLID_0383602116___000053398___right___000054634_aug2 | 1.24 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-04_H_100540_190_CLID_0383602116___000053398___right___000054634_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-04_H_100540_190_CLID_0383602116___000053398___right___000054634_aug4 | 1.24 sec
+🔁 noise      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000013494___right___000015914_aug4 | 2.42 sec
+🔁 pitch      | E_huongds_D_2025-04-09_H_092332_720_CLID_0942487879___000104726___right___000105994_aug5 | 1.27 sec
+🔁 speed      | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000219446___left___000220586_aug2 | 1.14 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000219446___left___000220586_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000219446___left___000220586_aug4 | 1.14 sec
+🔁 reverb     | E_huongds_D_2025-04-09_H_092332_720_CLID_0942487879___000104726___right___000105994_aug6 | 1.27 sec
+🔁 pitch      | E_huytq37_D_2025-03-04_H_100540_190_CLID_0383602116___000053398___right___000054634_aug5 | 1.24 sec
+🔁 Augmenting:  12%|█▏        | 394/3413 [05:54<1:04:15,  1.28s/it]🔁 speed      | E_thaond3_D_2025-03-05_H_100215_318_CLID_0382941306___000085174___left___000086282_aug2 | 1.11 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_100215_318_CLID_0382941306___000085174___left___000086282_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_100215_318_CLID_0382941306___000085174___left___000086282_aug4 | 1.11 sec
+🔁 vol        | E_huongds_D_2025-04-04_H_104731_196_CLID_0979625601___000078678___left___000080490_aug1 | 1.81 sec
+🔁 reverb     | E_huytq37_D_2025-03-04_H_100540_190_CLID_0383602116___000053398___right___000054634_aug6 | 1.24 sec
+🔁 Augmenting:  12%|█▏        | 395/3413 [05:54<51:02,  1.01s/it]  🔁 vol        | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000270038___right___000271050_aug1 | 1.01 sec
+🔁 pitch      | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000219446___left___000220586_aug5 | 1.14 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_142534_020_CLID_0333265836___000219446___left___000220586_aug6 | 1.14 sec
+🔁 Augmenting:  12%|█▏        | 396/3413 [05:55<47:17,  1.06it/s]🔁 vol        | E_thaond3_D_2025-03-10_H_091503_350_CLID_0948575991___000088470___right___000089226_aug1 | 0.76 sec
+🔁 speed      | E_huongds_D_2025-04-04_H_104731_196_CLID_0979625601___000078678___left___000080490_aug2 | 1.81 sec
+🔁 pitch      | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000359798___left___000361290_aug5 | 1.49 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-04_H_104731_196_CLID_0979625601___000078678___left___000080490_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-04_H_104731_196_CLID_0979625601___000078678___left___000080490_aug4 | 1.81 sec
+🔁 reverb     | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000359798___left___000361290_aug6 | 1.49 sec
+🔁 Augmenting:  12%|█▏        | 397/3413 [05:56<42:48,  1.17it/s]🔁 vol        | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000055510___left___000062442_aug1 | 6.93 sec
+🔁 speed      | E_huytq37_D_2025-03-10_H_091159_646_CLID_0358487634___000002614___left___000004874_aug2 | 2.26 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-10_H_091159_646_CLID_0358487634___000002614___left___000004874_aug3.wav
+🔁 speed      | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003702___right___000004714_aug2 | 1.01 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003702___right___000004714_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003702___right___000004714_aug4 | 1.01 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000140982___right___000141866_aug2 | 0.88 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000140982___right___000141866_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-10_H_091159_646_CLID_0358487634___000002614___left___000004874_aug4 | 2.26 sec
+🔁 noise      | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000140982___right___000141866_aug4 | 0.88 sec
+🔁 speed      | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000270038___right___000271050_aug2 | 1.01 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000270038___right___000271050_aug3.wav
+🔁 noise      | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000270038___right___000271050_aug4 | 1.01 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_100215_318_CLID_0382941306___000085174___left___000086282_aug5 | 1.11 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_100215_318_CLID_0382941306___000085174___left___000086282_aug6 | 1.11 sec
+🔁 Augmenting:  12%|█▏        | 398/3413 [05:59<1:28:28,  1.76s/it]🔁 pitch      | E_huongds_D_2025-04-04_H_104731_196_CLID_0979625601___000078678___left___000080490_aug5 | 1.81 sec
+🔁 vol        | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000210070___left___000216074_aug1 | 6.00 sec
+🔁 reverb     | E_huongds_D_2025-04-04_H_104731_196_CLID_0979625601___000078678___left___000080490_aug6 | 1.81 sec
+🔁 Augmenting:  12%|█▏        | 399/3413 [06:00<1:11:19,  1.42s/it]🔁 vol        | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000535542___left___000542730_aug1 | 7.19 sec
+🔁 speed      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000055510___left___000062442_aug2 | 6.93 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000055510___left___000062442_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000055510___left___000062442_aug4 | 6.93 sec
+🔁 speed      | E_thaond3_D_2025-03-10_H_091503_350_CLID_0948575991___000088470___right___000089226_aug2 | 0.76 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-10_H_091503_350_CLID_0948575991___000088470___right___000089226_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-10_H_091503_350_CLID_0948575991___000088470___right___000089226_aug4 | 0.76 sec
+🔁 speed      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000535542___left___000542730_aug2 | 7.19 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000535542___left___000542730_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000535542___left___000542730_aug4 | 7.19 sec
+🔁 pitch      | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000270038___right___000271050_aug5 | 1.01 sec
+🔁 pitch      | E_huytq37_D_2025-03-10_H_091159_646_CLID_0358487634___000002614___left___000004874_aug5 | 2.26 sec
+🔁 speed      | E_huongds_D_2025-04-02_H_104220_054_CLID_0776960276___000001334___left___000003562_aug2 | 2.23 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-02_H_104220_054_CLID_0776960276___000001334___left___000003562_aug3.wav
+🔁 reverb     | E_huytq37_D_2025-03-10_H_090136_155_CLID_0368428097___000270038___right___000271050_aug6 | 1.01 sec
+🔁 Augmenting:  12%|█▏        | 400/3413 [06:03<1:28:24,  1.76s/it]🔁 noise      | E_huongds_D_2025-04-02_H_104220_054_CLID_0776960276___000001334___left___000003562_aug4 | 2.23 sec
+🔁 vol        | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000079222___right___000080202_aug1 | 0.98 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_181946_131_CLID_0896944738___000013878___left___000017322_aug2 | 3.44 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_181946_131_CLID_0896944738___000013878___left___000017322_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_181946_131_CLID_0896944738___000013878___left___000017322_aug4 | 3.44 sec
+🔁 reverb     | E_huytq37_D_2025-03-10_H_091159_646_CLID_0358487634___000002614___left___000004874_aug6 | 2.26 sec
+🔁 Augmenting:  12%|█▏        | 401/3413 [06:03<1:07:11,  1.34s/it]🔁 vol        | E_thaond3_D_2025-03-11_H_154613_178_CLID_0933518532___000004822___left___000008074_aug1 | 3.25 sec
+🔁 speed      | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000043510___left___000044298_aug2 | 0.79 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000043510___left___000044298_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000043510___left___000044298_aug4 | 0.79 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_085251_479_CLID_0908097679___000001110___right___000002890_aug2 | 1.78 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_085251_479_CLID_0908097679___000001110___right___000002890_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-08_H_085251_479_CLID_0908097679___000001110___right___000002890_aug4 | 1.78 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000210070___left___000216074_aug2 | 6.00 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000210070___left___000216074_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000210070___left___000216074_aug4 | 6.00 sec
+🔁 speed      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000079222___right___000080202_aug2 | 0.98 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000079222___right___000080202_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000079222___right___000080202_aug4 | 0.98 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000535542___left___000542730_aug5 | 7.19 sec
+🔁 pitch      | E_thaond3_D_2025-03-06_H_094950_192_CLID_0919467813___000044886___left___000050664_aug5 | 5.78 sec
+🔁 pitch      | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000043510___left___000044298_aug5 | 0.79 sec
+🔁 pitch      | E_huongds_D_2025-04-02_H_104220_054_CLID_0776960276___000001334___left___000003562_aug5 | 2.23 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_154613_178_CLID_0933518532___000004822___left___000008074_aug2 | 3.25 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_154613_178_CLID_0933518532___000004822___left___000008074_aug3.wav
+🔁 reverb     | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000535542___left___000542730_aug6 | 7.19 sec
+🔁 Augmenting:  12%|█▏        | 402/3413 [06:08<2:07:42,  2.54s/it]🔁 noise      | E_thaond3_D_2025-03-11_H_154613_178_CLID_0933518532___000004822___left___000008074_aug4 | 3.25 sec
+🔁 reverb     | E_thaond3_D_2025-03-04_H_170357_816_CLID_0941094868___000043510___left___000044298_aug6 | 0.79 sec
+🔁 vol        | E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000088694___left___000090378_aug1 | 1.68 sec
+🔁 vol        | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000097174___right___000099498_aug1 | 2.32 sec
+🔁 reverb     | E_huongds_D_2025-04-02_H_104220_054_CLID_0776960276___000001334___left___000003562_aug6 | 2.23 sec
+🔁 Augmenting:  12%|█▏        | 404/3413 [06:09<1:12:09,  1.44s/it]🔁 reverb     | E_thaond3_D_2025-03-06_H_094950_192_CLID_0919467813___000044886___left___000050664_aug6 | 5.78 sec
+🔁 vol        | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000188854___left___000191146_aug1 | 2.29 sec
+🔁 vol        | E_huytq37_D_2025-03-04_H_085052_517_CLID_0976595738___000031094___right___000035018_aug1 | 3.92 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000210070___left___000216074_aug5 | 6.00 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000383222___right___000384778_aug5 | 1.56 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_185109_781_CLID_0787932791___000383222___right___000384778_aug6 | 1.56 sec
+🔁 Augmenting:  12%|█▏        | 406/3413 [06:11<1:06:15,  1.32s/it]🔁 reverb     | E_huongds_D_2025-04-08_H_171934_696_CLID_0987903156___000210070___left___000216074_aug6 | 6.00 sec
+🔁 Augmenting:  12%|█▏        | 407/3413 [06:11<53:52,  1.08s/it]  🔁 vol        | E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000081270___right___000083978_aug1 | 2.71 sec
+🔁 speed      | E_huongds_D_2025-04-01_H_092612_525_CLID_0362009985___000009270___left___000017194_aug2 | 7.92 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-01_H_092612_525_CLID_0362009985___000009270___left___000017194_aug3.wav
+🔁 vol        | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000066710___left___000069642_aug1 | 2.93 sec
+🔁 noise      | E_huongds_D_2025-04-01_H_092612_525_CLID_0362009985___000009270___left___000017194_aug4 | 7.92 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_085251_479_CLID_0908097679___000001110___right___000002890_aug5 | 1.78 sec
+🔁 reverb     | E_huongds_D_2025-04-08_H_085251_479_CLID_0908097679___000001110___right___000002890_aug6 | 1.78 sec
+🔁 Augmenting:  12%|█▏        | 408/3413 [06:12<51:52,  1.04s/it]🔁 vol        | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000168022___right___000170410_aug1 | 2.39 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000097174___right___000099498_aug2 | 2.32 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000097174___right___000099498_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000097174___right___000099498_aug4 | 2.32 sec
+🔁 pitch      | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003702___right___000004714_aug5 | 1.01 sec
+🔁 reverb     | E_thaond3_D_2025-03-06_H_082836_574_CLID_0937390420___000003702___right___000004714_aug6 | 1.01 sec
+🔁 Augmenting:  12%|█▏        | 409/3413 [06:18<1:48:58,  2.18s/it]🔁 vol        | E_thaond3_D_2025-03-10_H_103330_006_CLID_0974310552___000007830___left___000012234_aug1 | 4.40 sec
+🔁 pitch      | E_thaond3_D_2025-03-10_H_091503_350_CLID_0948575991___000088470___right___000089226_aug5 | 0.76 sec
+🔁 pitch      | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000097174___right___000099498_aug5 | 2.32 sec
+🔁 reverb     | E_thaond3_D_2025-03-10_H_091503_350_CLID_0948575991___000088470___right___000089226_aug6 | 0.76 sec
+🔁 Augmenting:  12%|█▏        | 410/3413 [06:18<1:29:02,  1.78s/it]🔁 vol        | E_huytq37_D_2025-03-04_H_091303_088_CLID_0939278886___000008278___left___000010538_aug1 | 2.26 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_182306_300_CLID_0937259855___000097174___right___000099498_aug6 | 2.32 sec
+🔁 Augmenting:  12%|█▏        | 411/3413 [06:19<1:10:05,  1.40s/it]🔁 vol        | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000025462___right___000027850_aug1 | 2.39 sec
+🔁 pitch      | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000013494___right___000015914_aug5 | 2.42 sec
+🔁 reverb     | E_thaond3_D_2025-03-07_H_093418_008_CLID_0982441470___000013494___right___000015914_aug6 | 2.42 sec
+🔁 Augmenting:  12%|█▏        | 412/3413 [06:19<1:01:40,  1.23s/it]🔁 vol        | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000167094___left___000169034_aug1 | 1.94 sec
+🔁 speed      | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000066710___left___000069642_aug2 | 2.93 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000066710___left___000069642_aug3.wav
+🔁 noise      | E_huongds_D_2025-04-04_H_161547_233_CLID_0812372666___000066710___left___000069642_aug4 | 2.93 sec
+🔁 speed      | E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000081270___right___000083978_aug2 | 2.71 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000081270___right___000083978_aug3.wav
+🔁 pitch      | E_huongds_D_2025-04-01_H_092612_525_CLID_0362009985___000009270___left___000017194_aug5 | 7.92 sec
+🔁 noise      | E_huytq37_D_2025-03-04_H_105905_164_CLID_0911756369___000081270___right___000083978_aug4 | 2.71 sec
+🔁 pitch      | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000140982___right___000141866_aug5 | 0.88 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_162228_415_CLID_0908331104___000140982___right___000141866_aug6 | 0.88 sec
+🔁 Augmenting:  12%|█▏        | 413/3413 [06:22<1:17:07,  1.54s/it]🔁 reverb     | E_huongds_D_2025-04-01_H_092612_525_CLID_0362009985___000009270___left___000017194_aug6 | 7.92 sec
+🔁 Augmenting:  12%|█▏        | 414/3413 [06:22<56:22,  1.13s/it]  🔁 vol        | E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000001814___left___000002794_aug1 | 0.98 sec
+🔁 vol        | E_huongds_D_2025-04-08_H_164001_120_CLID_0944989096___000002070___left___000004170_aug1 | 2.10 sec
+🔁 pitch      | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000055510___left___000062442_aug5 | 6.93 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000001814___left___000002794_aug2 | 0.98 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000001814___left___000002794_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-11_H_114551_822_CLID_0775847738___000001814___left___000002794_aug4 | 0.98 sec
+🔁 reverb     | E_thaond3_D_2025-03-05_H_180401_770_CLID_0968996644___000055510___left___000062442_aug6 | 6.93 sec
+🔁 Augmenting:  12%|█▏        | 415/3413 [06:23<1:01:38,  1.23s/it]🔁 vol        | E_thaond3_D_2025-03-11_H_171059_045_CLID_0944879568___000036342___right___000037994_aug1 | 1.65 sec
+🔁 pitch      | E_thaond3_D_2025-03-11_H_181946_131_CLID_0896944738___000013878___left___000017322_aug5 | 3.44 sec
+🔁 reverb     | E_thaond3_D_2025-03-11_H_181946_131_CLID_0896944738___000013878___left___000017322_aug6 | 3.44 sec
+🔁 Augmenting:  12%|█▏        | 416/3413 [06:26<1:16:33,  1.53s/it]🔁 vol        | E_huongds_D_2025-04-03_H_181146_270_CLID_0977075936___000109942___right___000110794_aug1 | 0.85 sec
+🔁 speed      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000188854___left___000191146_aug2 | 2.29 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000188854___left___000191146_aug3.wav
+🔁 noise      | E_thaond3_D_2025-03-05_H_175122_455_CLID_0968996644___000188854___left___000191146_aug4 | 2.29 sec
+🔁 pitch      | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000079222___right___000080202_aug5 | 0.98 sec
+🔁 speed      | E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000025462___right___000027850_aug2 | 2.39 sec
+⏩ Skipped (exists): /home/kylh/work/vpb_dataset/archive/tts_dataset_best_call_agent_audio/tts_dataset_best_call_agent_audio/wavs_telephony/E_thaond3_D_2025-03-11_H_105810_169_CLID_0944967305___000025462___right___000027850_aug3.wav
+🔁 reverb     | E_huongds_D_2025-04-08_H_115807_365_CLID_0707070706___000079222___right___000080202_aug6 | 0.98 sec
+🔁 Augmenting:  12%|█▏        | 417/3413 [06:27<1:18:27,  1.57s/it]🔁 vol        | E_thaond3_D_2025-03-06_H_101153_200_CLID_0949504455___000017174___right___000018122_aug1 | 0.95 sec
