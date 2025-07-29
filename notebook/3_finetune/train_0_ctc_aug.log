@@ -1,0 +1,52 @@
+nohup: ignoring input
+⚙️  Running in smoke mode with ratio=1
+==================================
+../../../vpb_dataset
+==================================
+DataConfigFT(manifest_dir='../../../vpb_dataset/manifest_vpb_non_empty_full', audio_dir='../../../vpb_dataset', sample_rate=16000, num_mel_bins=80, frame_length=25, frame_shift=10, dither=0.0, energy_floor=0.0, train_meta_file='train_meta_aug.json')
+==================================
+../../../vpb_dataset
+==================================
+DataConfigFT(manifest_dir='../../../vpb_dataset/manifest_vpb_non_empty_full', audio_dir='../../../vpb_dataset', sample_rate=16000, num_mel_bins=80, frame_length=25, frame_shift=10, dither=0.0, energy_floor=0.0, train_meta_file='train_meta_aug.json')
+[2025-07-29 18:14:11] INFO: Checkpoint: loading from checkpoint ../../../chunkformer-large-vie/pytorch_model.bin for GPU
+
+🧾 Loaded checkpoint from: ../../../chunkformer-large-vie/pytorch_model.bin
+📦 Checkpoint keys: ['encoder.global_cmvn.mean', 'encoder.global_cmvn.istd', 'encoder.embed.out.weight', 'encoder.embed.out.bias', 'encoder.embed.conv.0.weight'] ... (total 813)
+🔍 AED decoder head included in checkpoint? ✅ YES
+📊 Model total params: 113,852,240, trainable: 113,852,240
+!!!Vocab size: 6992
+🔰 Khởi tạo từ đầu (pretrained model)
+💻 Sử dụng thiết bị: cuda
+⚠️ Mô hình không ở thiết bị đúng! (cuda:0)
+
+🧪 Đánh giá mô hình trước khi fine-tune:
+🎯 Dev WER (CTC): 33.96%
+🌐 Global WER           : 21.89%
+🕒 Evaluate time: 13.86s (avg decode/sample: 0.03s)
+
+🌀 Epoch 1 bắt đầu...
+[Epoch 1 Step 1/747 | Global-Step 1] loss=0.5425 (ctc=0.5970, att=0.4607) grad=3.34  lr=1.00e-04 | ⏱️ 13.60s/step - ETA: 169m5s
+[Epoch 1 Step 2/747 | Global-Step 2] loss=0.4134 (ctc=0.3128, att=0.5642) grad=1.78  lr=1.00e-04 | ⏱️ 12.59s/step - ETA: 156m21s
+[Epoch 1 Step 3/747 | Global-Step 3] loss=0.3245 (ctc=0.2107, att=0.4952) grad=1.12  lr=1.00e-04 | ⏱️ 12.53s/step - ETA: 155m21s
+[Epoch 1 Step 4/747 | Global-Step 4] loss=0.3395 (ctc=0.2335, att=0.4985) grad=1.22  lr=1.00e-04 | ⏱️ 12.55s/step - ETA: 155m24s
+[Epoch 1 Step 5/747 | Global-Step 5] loss=0.2538 (ctc=0.1536, att=0.4041) grad=0.66  lr=1.00e-04 | ⏱️ 12.48s/step - ETA: 154m17s
+[Epoch 1 Step 6/747 | Global-Step 6] loss=0.2332 (ctc=0.1230, att=0.3985) grad=0.53  lr=1.00e-04 | ⏱️ 12.37s/step - ETA: 152m47s
+[Epoch 1 Step 7/747 | Global-Step 7] loss=0.1646 (ctc=0.0776, att=0.2952) grad=0.32  lr=1.00e-04 | ⏱️ 12.60s/step - ETA: 155m23s
+[Epoch 1 Step 8/747 | Global-Step 8] loss=0.2109 (ctc=0.0867, att=0.3972) grad=0.24  lr=1.00e-04 | ⏱️ 12.50s/step - ETA: 153m56s
+[Epoch 1 Step 9/747 | Global-Step 9] loss=0.1840 (ctc=0.0653, att=0.3620) grad=0.22  lr=1.00e-04 | ⏱️ 12.50s/step - ETA: 153m44s
+[Epoch 1 Step 10/747 | Global-Step 10] loss=0.2500 (ctc=0.0828, att=0.5008) grad=0.27  lr=1.00e-04 | ⏱️ 12.40s/step - ETA: 152m17s
+[Epoch 1 Step 11/747 | Global-Step 11] loss=0.1560 (ctc=0.0559, att=0.3061) grad=0.19  lr=1.00e-04 | ⏱️ 12.47s/step - ETA: 152m57s
+[Epoch 1 Step 12/747 | Global-Step 12] loss=0.1480 (ctc=0.0744, att=0.2583) grad=0.21  lr=1.00e-04 | ⏱️ 12.42s/step - ETA: 152m10s
+[Epoch 1 Step 13/747 | Global-Step 13] loss=0.1125 (ctc=0.0686, att=0.1783) grad=0.29  lr=1.00e-04 | ⏱️ 12.32s/step - ETA: 150m40s
+[Epoch 1 Step 14/747 | Global-Step 14] loss=0.1771 (ctc=0.0842, att=0.3166) grad=0.22  lr=1.00e-04 | ⏱️ 12.36s/step - ETA: 151m0s
+[Epoch 1 Step 15/747 | Global-Step 15] loss=0.2163 (ctc=0.0719, att=0.4328) grad=0.29  lr=1.00e-04 | ⏱️ 12.44s/step - ETA: 151m44s
+[Epoch 1 Step 16/747 | Global-Step 16] loss=0.1930 (ctc=0.0667, att=0.3823) grad=0.25  lr=1.00e-04 | ⏱️ 12.71s/step - ETA: 154m53s
+[Epoch 1 Step 17/747 | Global-Step 17] loss=0.1277 (ctc=0.0641, att=0.2231) grad=0.29  lr=1.00e-04 | ⏱️ 12.32s/step - ETA: 149m50s
+[Epoch 1 Step 18/747 | Global-Step 18] loss=0.1749 (ctc=0.0670, att=0.3367) grad=0.23  lr=1.00e-04 | ⏱️ 12.34s/step - ETA: 149m52s
+[Epoch 1 Step 19/747 | Global-Step 19] loss=0.1890 (ctc=0.0689, att=0.3690) grad=0.25  lr=1.00e-04 | ⏱️ 12.48s/step - ETA: 151m28s
+[Epoch 1 Step 20/747 | Global-Step 20] loss=0.1473 (ctc=0.0597, att=0.2787) grad=0.26  lr=1.00e-04 | ⏱️ 12.35s/step - ETA: 149m39s
+[Epoch 1 Step 21/747 | Global-Step 21] loss=0.1762 (ctc=0.0729, att=0.3311) grad=0.23  lr=1.00e-04 | ⏱️ 12.35s/step - ETA: 149m23s
+[Epoch 1 Step 22/747 | Global-Step 22] loss=0.2468 (ctc=0.0848, att=0.4897) grad=0.23  lr=1.00e-04 | ⏱️ 12.31s/step - ETA: 148m46s
+[Epoch 1 Step 23/747 | Global-Step 23] loss=0.1100 (ctc=0.0542, att=0.1939) grad=0.22  lr=1.00e-04 | ⏱️ 12.31s/step - ETA: 148m34s
+[Epoch 1 Step 24/747 | Global-Step 24] loss=0.1637 (ctc=0.0641, att=0.3131) grad=0.24  lr=1.00e-04 | ⏱️ 12.45s/step - ETA: 150m0s
+[Epoch 1 Step 25/747 | Global-Step 25] loss=0.1176 (ctc=0.0404, att=0.2334) grad=0.20  lr=1.00e-04 | ⏱️ 12.32s/step - ETA: 148m18s

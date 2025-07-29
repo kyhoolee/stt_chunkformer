@@ -14,7 +14,7 @@ data:
 
   # augmentation:
   # augment_enabled: true
-  train_meta_file: train_meta_augmented.json
+  train_meta_file: train_meta_aug.json
 
 
 # 2) Tokenizer / vocab
@@ -37,7 +37,7 @@ training:
   epochs: 10
   max_grad_norm: 5.0
   log_steps: 50
-  checkpoint_dir: checkpoints_vpb_ctc # @NOTE
+  checkpoint_dir: checkpoints_aug_vpb_ctc # @NOTE
   shuffle: true          #  ← thêm dòng này
 
 # 6) Freeze config (tuỳ chọn)
