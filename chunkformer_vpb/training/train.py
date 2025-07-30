@@ -183,6 +183,47 @@ def run_train(cfg_path, smoke=False, smoke_ratio=0.01,
 
 
 # ======== EVALUATE ========
+
+import json
+from jiwer import wer
+from pathlib import Path
+
+def evaluate_from_meta(meta_path: str):
+    with open(meta_path, "r", encoding="utf-8") as f:
+        entries = json.load(f)
+
+    total_wer = 0.0
+    count = 0
+    all_refs = []
+    all_preds = []
+
+    for entry in entries:
+        ref = entry.get("text", "").strip().lower()
+        hyp = entry.get("base_text", "").strip().lower()
+
+        if not ref or not hyp:
+            continue
+
+        sample_wer = wer(ref, hyp)
+        total_wer += sample_wer
+        count += 1
+
+        all_refs.append(ref)
+        all_preds.append(hyp)
+
+    if count == 0:
+        print("⚠️ No valid samples found.")
+        return
+
+    avg_wer = total_wer / count
+    global_wer = wer(all_refs, all_preds)
+
+    print(f"📊 Tổng số mẫu: {count}")
+    print(f"🎯 WER trung bình (sample avg): {avg_wer:.2%}")
+    print(f"🌐 WER toàn cục   (global):     {global_wer:.2%}")
+
+
+
 from jiwer import wer
 from chunkformer_vpb.model_utils import decode_long_form, decode_aed_long_form, get_default_args
 from jiwer import wer

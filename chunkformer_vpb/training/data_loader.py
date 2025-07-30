@@ -7,6 +7,8 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from typing import List
+from dataclasses import fields
+
 
 from ..model.utils.common import IGNORE_ID
 from .finetune_config import FinetuneConfig
@@ -33,7 +35,15 @@ class VivosDataset(Dataset):
         with open(manifest_file, 'r', encoding='utf-8') as f:
             entries = json.load(f)
         # dict → MetadataEntry
-        self.meta: List[MetadataEntry] = [MetadataEntry(**e) for e in entries]
+        # self.meta: List[MetadataEntry] = [MetadataEntry(**e) for e in entries]
+        # Lấy danh sách field hợp lệ từ dataclass
+        valid_keys = {f.name for f in fields(MetadataEntry)}
+
+        # Lọc từng dict trước khi tạo MetadataEntry
+        self.meta = [
+            MetadataEntry(**{k: v for k, v in e.items() if k in valid_keys})
+            for e in entries
+        ]
         self.tokenizer = cfg.tokenizer.tokenizer
 
         self.augmenter = AudioAugmenter(cfg.data.sample_rate)
@@ -152,6 +162,23 @@ def get_dataloaders(cfg: FinetuneConfig):
     return train_loader, valid_loader
 
 
+def get_dataloader_for_test_split(cfg, split_name="test"):
+    bs = cfg.training.batch_size
+
+    train_ds = VivosDatasetDebug(cfg, "train")
+
+    train_loader = DataLoader(
+        train_ds,
+        batch_size=bs,
+        shuffle=False,
+        collate_fn=collate_fn_debug
+    )
+
+    return train_loader
+
+
+
+
 def get_dataloaders_smoke(cfg: FinetuneConfig, ratio: float = 0.01):
     from torch.utils.data import Subset
 
@@ -231,7 +258,13 @@ def get_dataloaders_aug_inspect(cfg: FinetuneConfig):
 class VivosDatasetDebug(Dataset):
     def __init__(self, cfg: FinetuneConfig, split: str):
         self.cfg = cfg
-        manifest_file = os.path.join(cfg.data.manifest_dir, f"{split}_meta_debug.json")
+        meta_file = f"{split}_meta.json"
+
+        print(f"{cfg.data}")
+        if split == "train" and cfg.data.train_meta_file:
+            meta_file = cfg.data.train_meta_file
+
+        manifest_file = os.path.join(cfg.data.manifest_dir, meta_file)
         with open(manifest_file, 'r', encoding='utf-8') as f:
             entries = json.load(f)
         self.meta = entries
