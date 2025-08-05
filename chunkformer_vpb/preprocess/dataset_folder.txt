@@ -1,0 +1,480 @@
+📁 dataset/
+    📁 data/
+        📁 data/
+            📁 processed/
+                📁 8khz/
+                    📁 fpt_fosd/
+                        📁 dev/
+                            📁 audio/
+                                📄 fpt_fosd_dev_000000.wav
+                                📄 fpt_fosd_dev_000001.wav
+                                📄 fpt_fosd_dev_000002.wav
+                                📄 fpt_fosd_dev_000003.wav
+                                📄 fpt_fosd_dev_000004.wav
+                                📄 fpt_fosd_dev_000005.wav
+                                📄 fpt_fosd_dev_000006.wav
+                                📄 fpt_fosd_dev_000007.wav
+                                📄 fpt_fosd_dev_000008.wav
+                                📄 fpt_fosd_dev_000009.wav
+                                ... (2591 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 fpt_fosd_test_000000.wav
+                                📄 fpt_fosd_test_000001.wav
+                                📄 fpt_fosd_test_000002.wav
+                                📄 fpt_fosd_test_000003.wav
+                                📄 fpt_fosd_test_000004.wav
+                                📄 fpt_fosd_test_000005.wav
+                                📄 fpt_fosd_test_000006.wav
+                                📄 fpt_fosd_test_000007.wav
+                                📄 fpt_fosd_test_000008.wav
+                                📄 fpt_fosd_test_000009.wav
+                                ... (2593 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 fpt_fosd_train_000000.wav
+                                📄 fpt_fosd_train_000001.wav
+                                📄 fpt_fosd_train_000002.wav
+                                📄 fpt_fosd_train_000003.wav
+                                📄 fpt_fosd_train_000004.wav
+                                📄 fpt_fosd_train_000005.wav
+                                📄 fpt_fosd_train_000006.wav
+                                📄 fpt_fosd_train_000007.wav
+                                📄 fpt_fosd_train_000008.wav
+                                📄 fpt_fosd_train_000009.wav
+                                ... (20733 files total)
+                        📄 fpt_fosd_downsample_report.json
+                        (1 files total)
+                    📁 infore/
+                        📁 dev/
+                            📁 audio/
+                                📄 infore1_dev_000000.wav
+                                📄 infore1_dev_000001.wav
+                                📄 infore1_dev_000002.wav
+                                📄 infore1_dev_000003.wav
+                                📄 infore1_dev_000004.wav
+                                📄 infore1_dev_000005.wav
+                                📄 infore1_dev_000006.wav
+                                📄 infore1_dev_000007.wav
+                                📄 infore1_dev_000008.wav
+                                📄 infore1_dev_000009.wav
+                                ... (1492 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 infore1_test_000000.wav
+                                📄 infore1_test_000001.wav
+                                📄 infore1_test_000002.wav
+                                📄 infore1_test_000003.wav
+                                📄 infore1_test_000004.wav
+                                📄 infore1_test_000005.wav
+                                📄 infore1_test_000006.wav
+                                📄 infore1_test_000007.wav
+                                📄 infore1_test_000008.wav
+                                📄 infore1_test_000009.wav
+                                ... (1497 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 infore1_train_000000.wav
+                                📄 infore1_train_000001.wav
+                                📄 infore1_train_000002.wav
+                                📄 infore1_train_000003.wav
+                                📄 infore1_train_000004.wav
+                                📄 infore1_train_000005.wav
+                                📄 infore1_train_000006.wav
+                                📄 infore1_train_000007.wav
+                                📄 infore1_train_000008.wav
+                                📄 infore1_train_000009.wav
+                                ... (11946 files total)
+                        📄 infore_downsample_report.json
+                        (1 files total)
+                    📁 lsvsc/
+                        📁 dev/
+                            📁 audio/
+                                📄 lsvsc_dev_000000.wav
+                                📄 lsvsc_dev_000001.wav
+                                📄 lsvsc_dev_000002.wav
+                                📄 lsvsc_dev_000003.wav
+                                📄 lsvsc_dev_000004.wav
+                                📄 lsvsc_dev_000005.wav
+                                📄 lsvsc_dev_000006.wav
+                                📄 lsvsc_dev_000007.wav
+                                📄 lsvsc_dev_000008.wav
+                                📄 lsvsc_dev_000009.wav
+                                ... (5680 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 lsvsc_test_000000.wav
+                                📄 lsvsc_test_000001.wav
+                                📄 lsvsc_test_000002.wav
+                                📄 lsvsc_test_000003.wav
+                                📄 lsvsc_test_000004.wav
+                                📄 lsvsc_test_000005.wav
+                                📄 lsvsc_test_000006.wav
+                                📄 lsvsc_test_000007.wav
+                                📄 lsvsc_test_000008.wav
+                                📄 lsvsc_test_000009.wav
+                                ... (5686 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 lsvsc_train_000000.wav
+                                📄 lsvsc_train_000001.wav
+                                📄 lsvsc_train_000002.wav
+                                📄 lsvsc_train_000003.wav
+                                📄 lsvsc_train_000004.wav
+                                📄 lsvsc_train_000005.wav
+                                📄 lsvsc_train_000006.wav
+                                📄 lsvsc_train_000007.wav
+                                📄 lsvsc_train_000008.wav
+                                📄 lsvsc_train_000009.wav
+                                ... (45457 files total)
+                        📄 lsvsc_downsample_report.json
+                        (1 files total)
+                    📁 speech_massive/
+                        📁 dev/
+                            📁 audio/
+                                📄 speech_massive_dev_000000.wav
+                                📄 speech_massive_dev_000001.wav
+                                📄 speech_massive_dev_000002.wav
+                                📄 speech_massive_dev_000003.wav
+                                📄 speech_massive_dev_000004.wav
+                                📄 speech_massive_dev_000005.wav
+                                📄 speech_massive_dev_000006.wav
+                                📄 speech_massive_dev_000007.wav
+                                📄 speech_massive_dev_000008.wav
+                                📄 speech_massive_dev_000009.wav
+                                ... (512 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 speech_massive_test_000000.wav
+                                📄 speech_massive_test_000001.wav
+                                📄 speech_massive_test_000002.wav
+                                📄 speech_massive_test_000003.wav
+                                📄 speech_massive_test_000004.wav
+                                📄 speech_massive_test_000005.wav
+                                📄 speech_massive_test_000006.wav
+                                📄 speech_massive_test_000007.wav
+                                📄 speech_massive_test_000008.wav
+                                📄 speech_massive_test_000009.wav
+                                ... (513 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 speech_massive_train_000000.wav
+                                📄 speech_massive_train_000001.wav
+                                📄 speech_massive_train_000002.wav
+                                📄 speech_massive_train_000003.wav
+                                📄 speech_massive_train_000004.wav
+                                📄 speech_massive_train_000005.wav
+                                📄 speech_massive_train_000006.wav
+                                📄 speech_massive_train_000007.wav
+                                📄 speech_massive_train_000008.wav
+                                📄 speech_massive_train_000009.wav
+                                ... (4097 files total)
+                        📄 speech_massive_downsample_report.json
+                        (1 files total)
+                    📁 vais1000/
+                        📁 dev/
+                            📁 audio/
+                                📄 vais1000_dev_000000.wav
+                                📄 vais1000_dev_000001.wav
+                                📄 vais1000_dev_000002.wav
+                                📄 vais1000_dev_000003.wav
+                                📄 vais1000_dev_000004.wav
+                                📄 vais1000_dev_000005.wav
+                                📄 vais1000_dev_000006.wav
+                                📄 vais1000_dev_000007.wav
+                                📄 vais1000_dev_000008.wav
+                                📄 vais1000_dev_000009.wav
+                                ... (99 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 vais1000_test_000000.wav
+                                📄 vais1000_test_000001.wav
+                                📄 vais1000_test_000002.wav
+                                📄 vais1000_test_000003.wav
+                                📄 vais1000_test_000004.wav
+                                📄 vais1000_test_000005.wav
+                                📄 vais1000_test_000006.wav
+                                📄 vais1000_test_000007.wav
+                                📄 vais1000_test_000008.wav
+                                📄 vais1000_test_000009.wav
+                                ... (103 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 vais1000_train_000000.wav
+                                📄 vais1000_train_000001.wav
+                                📄 vais1000_train_000002.wav
+                                📄 vais1000_train_000003.wav
+                                📄 vais1000_train_000004.wav
+                                📄 vais1000_train_000005.wav
+                                📄 vais1000_train_000006.wav
+                                📄 vais1000_train_000007.wav
+                                📄 vais1000_train_000008.wav
+                                📄 vais1000_train_000009.wav
+                                ... (798 files total)
+                        📄 vais1000_downsample_report.json
+                        (1 files total)
+                    📁 vi_voice/
+                        📁 dev/
+                            📁 audio/
+                                📄 vivoice_dev_000000.wav
+                                📄 vivoice_dev_000001.wav
+                                📄 vivoice_dev_000002.wav
+                                📄 vivoice_dev_000003.wav
+                                📄 vivoice_dev_000004.wav
+                                📄 vivoice_dev_000005.wav
+                                📄 vivoice_dev_000006.wav
+                                📄 vivoice_dev_000007.wav
+                                📄 vivoice_dev_000008.wav
+                                📄 vivoice_dev_000009.wav
+                                ... (88776 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 vivoice_test_000000.wav
+                                📄 vivoice_test_000001.wav
+                                📄 vivoice_test_000002.wav
+                                📄 vivoice_test_000003.wav
+                                📄 vivoice_test_000004.wav
+                                📄 vivoice_test_000005.wav
+                                📄 vivoice_test_000006.wav
+                                📄 vivoice_test_000007.wav
+                                📄 vivoice_test_000008.wav
+                                📄 vivoice_test_000009.wav
+                                ... (88779 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 vivoice_train_000000.wav
+                                📄 vivoice_train_000001.wav
+                                📄 vivoice_train_000002.wav
+                                📄 vivoice_train_000003.wav
+                                📄 vivoice_train_000004.wav
+                                📄 vivoice_train_000005.wav
+                                📄 vivoice_train_000006.wav
+                                📄 vivoice_train_000007.wav
+                                📄 vivoice_train_000008.wav
+                                📄 vivoice_train_000009.wav
+                                ... (710217 files total)
+                    📁 viet_bud500/
+                        📁 dev/
+                            📁 audio/
+                                📄 bud500_dev_000000.wav
+                                📄 bud500_dev_000001.wav
+                                📄 bud500_dev_000002.wav
+                                📄 bud500_dev_000003.wav
+                                📄 bud500_dev_000004.wav
+                                📄 bud500_dev_000005.wav
+                                📄 bud500_dev_000006.wav
+                                📄 bud500_dev_000007.wav
+                                📄 bud500_dev_000008.wav
+                                📄 bud500_dev_000009.wav
+                                ... (7500 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 bud500_test_000000.wav
+                                📄 bud500_test_000001.wav
+                                📄 bud500_test_000002.wav
+                                📄 bud500_test_000003.wav
+                                📄 bud500_test_000004.wav
+                                📄 bud500_test_000005.wav
+                                📄 bud500_test_000006.wav
+                                📄 bud500_test_000007.wav
+                                📄 bud500_test_000008.wav
+                                📄 bud500_test_000009.wav
+                                ... (7500 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 bud500_train_000000.wav
+                                📄 bud500_train_000001.wav
+                                📄 bud500_train_000002.wav
+                                📄 bud500_train_000003.wav
+                                📄 bud500_train_000004.wav
+                                📄 bud500_train_000005.wav
+                                📄 bud500_train_000006.wav
+                                📄 bud500_train_000007.wav
+                                📄 bud500_train_000008.wav
+                                📄 bud500_train_000009.wav
+                                ... (634158 files total)
+                    📁 vietmed/
+                        📁 dev/
+                            📁 audio/
+                                📄 vietmed_dev_000000.wav
+                                📄 vietmed_dev_000001.wav
+                                📄 vietmed_dev_000002.wav
+                                📄 vietmed_dev_000003.wav
+                                📄 vietmed_dev_000004.wav
+                                📄 vietmed_dev_000005.wav
+                                📄 vietmed_dev_000006.wav
+                                📄 vietmed_dev_000007.wav
+                                📄 vietmed_dev_000008.wav
+                                📄 vietmed_dev_000009.wav
+                                ... (285 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 vietmed_test_000000.wav
+                                📄 vietmed_test_000001.wav
+                                📄 vietmed_test_000002.wav
+                                📄 vietmed_test_000003.wav
+                                📄 vietmed_test_000004.wav
+                                📄 vietmed_test_000005.wav
+                                📄 vietmed_test_000006.wav
+                                📄 vietmed_test_000007.wav
+                                📄 vietmed_test_000008.wav
+                                📄 vietmed_test_000009.wav
+                                ... (287 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 vietmed_train_000000.wav
+                                📄 vietmed_train_000001.wav
+                                📄 vietmed_train_000002.wav
+                                📄 vietmed_train_000003.wav
+                                📄 vietmed_train_000004.wav
+                                📄 vietmed_train_000005.wav
+                                📄 vietmed_train_000006.wav
+                                📄 vietmed_train_000007.wav
+                                📄 vietmed_train_000008.wav
+                                📄 vietmed_train_000009.wav
+                                ... (2286 files total)
+                        📄 vietmed_downsample_report.json
+                        (1 files total)
+                    📁 vietspeech/
+                        📁 dev/
+                            📁 audio/
+                                📄 vietspeech_dev_000000.wav
+                                📄 vietspeech_dev_000001.wav
+                                📄 vietspeech_dev_000002.wav
+                                📄 vietspeech_dev_000003.wav
+                                📄 vietspeech_dev_000004.wav
+                                📄 vietspeech_dev_000005.wav
+                                📄 vietspeech_dev_000006.wav
+                                📄 vietspeech_dev_000007.wav
+                                📄 vietspeech_dev_000008.wav
+                                📄 vietspeech_dev_000009.wav
+                                ... (102604 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 vietspeech_test_000000.wav
+                                📄 vietspeech_test_000001.wav
+                                📄 vietspeech_test_000002.wav
+                                📄 vietspeech_test_000003.wav
+                                📄 vietspeech_test_000004.wav
+                                📄 vietspeech_test_000005.wav
+                                📄 vietspeech_test_000006.wav
+                                📄 vietspeech_test_000007.wav
+                                📄 vietspeech_test_000008.wav
+                                📄 vietspeech_test_000009.wav
+                                ... (102606 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 vietspeech_train_000000.wav
+                                📄 vietspeech_train_000001.wav
+                                📄 vietspeech_train_000002.wav
+                                📄 vietspeech_train_000003.wav
+                                📄 vietspeech_train_000004.wav
+                                📄 vietspeech_train_000005.wav
+                                📄 vietspeech_train_000006.wav
+                                📄 vietspeech_train_000007.wav
+                                📄 vietspeech_train_000008.wav
+                                📄 vietspeech_train_000009.wav
+                                ... (820837 files total)
+                        📄 .dataset_progress.json
+                        (1 files total)
+                    📁 vivos/
+                        📁 dev/
+                            📁 audio/
+                                📄 vivos_dev_000000.wav
+                                📄 vivos_dev_000001.wav
+                                📄 vivos_dev_000002.wav
+                                📄 vivos_dev_000003.wav
+                                📄 vivos_dev_000004.wav
+                                📄 vivos_dev_000005.wav
+                                📄 vivos_dev_000006.wav
+                                📄 vivos_dev_000007.wav
+                                📄 vivos_dev_000008.wav
+                                📄 vivos_dev_000009.wav
+                                ... (1296 files total)
+                        📁 test/
+                            📁 audio/
+                                📄 vivos_test_000000.wav
+                                📄 vivos_test_000001.wav
+                                📄 vivos_test_000002.wav
+                                📄 vivos_test_000003.wav
+                                📄 vivos_test_000004.wav
+                                📄 vivos_test_000005.wav
+                                📄 vivos_test_000006.wav
+                                📄 vivos_test_000007.wav
+                                📄 vivos_test_000008.wav
+                                📄 vivos_test_000009.wav
+                                ... (760 files total)
+                        📁 train/
+                            📁 audio/
+                                📄 vivos_train_000000.wav
+                                📄 vivos_train_000001.wav
+                                📄 vivos_train_000002.wav
+                                📄 vivos_train_000003.wav
+                                📄 vivos_train_000004.wav
+                                📄 vivos_train_000005.wav
+                                📄 vivos_train_000006.wav
+                                📄 vivos_train_000007.wav
+                                📄 vivos_train_000008.wav
+                                📄 vivos_train_000009.wav
+                                ... (10364 files total)
+                        📄 vivos_downsample_report.json
+                        (1 files total)
+                    📁 vlsp2020/
+                        📁 train/
+                            📁 audio/
+                                📄 vlsp2020_train_000000.wav
+                                📄 vlsp2020_train_000001.wav
+                                📄 vlsp2020_train_000002.wav
+                                📄 vlsp2020_train_000003.wav
+                                📄 vlsp2020_train_000004.wav
+                                📄 vlsp2020_train_000005.wav
+                                📄 vlsp2020_train_000006.wav
+                                📄 vlsp2020_train_000007.wav
+                                📄 vlsp2020_train_000008.wav
+                                📄 vlsp2020_train_000009.wav
+                                ... (56427 files total)
+                        📄 vlsp2020_downsample_report.json
+                        (1 files total)
+                    📄 .dataset_progress.json
+                    📄 dataset_downsample_report.json
+                    📄 downsample_summary_report.json
+                    (3 files total)
+        📁 manifests/
+            📄 combined_dev_manifest.json
+            📄 combined_manifest.json
+            📄 combined_test_manifest.json
+            📄 combined_train_manifest.json
+            📄 fpt_fosd_manifest.json
+            📄 infore_manifest.json
+            📄 lsvsc_manifest.json
+            📄 manifest_creation_report.json
+            📄 speech_massive_manifest.json
+            📄 vais1000_manifest.json
+            ... (25 files total)
+        📁 processed/
+            📁 8khz/
+                📄 fpt_fosd.tar
+                📄 infore.tar
+                📄 lsvsc.tar
+                📄 speech_massive.tar
+                📄 vais1000.tar
+                (5 files total)
+            📄 manifests.tar
+            📄 vi_voice.tar
+            📄 viet_bud500.tar
+            📄 vietmed.tar
+            📄 vivos.tar
+            📄 vlsp2020.tar
+            (6 files total)
+        📄 manifests.tar
+        📄 voice_data_16k.tar
+        📄 voice_data_8k.tar
+        (3 files total)
+
+-----------------
+
+Kiểu mình có danh sách dữ liệu stt audio file của 11 dataset 
+
+giờ mình cần làm 1 số logic kiểu 
+- EDA: thống kê và tổng hợp thông tin cho mỗi dataset, kiểm tra sample-rate ngẫu nhiên 1 số file 
+- Augment các wav audio theo 1 số aug type mà tính toán nhanh (do dữ liệu lớn ) 

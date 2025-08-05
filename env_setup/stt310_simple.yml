@@ -1,0 +1,16 @@
+name: stt310
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - Pillow
+      - PyYAML
+      - sentencepiece
+      - textgrid
+      - pandas
+      - jiwer
+      - huggingface_hub
+      - colorama
+      - pydub

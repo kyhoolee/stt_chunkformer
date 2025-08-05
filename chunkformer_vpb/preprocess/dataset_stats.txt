@@ -1,0 +1,227 @@
+ubuntu@ip-10-0-15-60:~/work/stt_chunkformer/chunkformer_vpb/preprocess$ python _2_1_dataset_summary.py 
+✅ Found 11 datasets.
+
+📊 Dataset Summary:
+
+📁 fpt_fosd:
+  train: ✅ - 20733 .wav files
+  dev  : ✅ - 2591 .wav files
+  test : ✅ - 2593 .wav files
+
+📁 infore:
+  train: ✅ - 11946 .wav files
+  dev  : ✅ - 1492 .wav files
+  test : ✅ - 1497 .wav files
+
+📁 lsvsc:
+  train: ✅ - 45457 .wav files
+  dev  : ✅ - 5680 .wav files
+  test : ✅ - 5686 .wav files
+
+📁 speech_massive:
+  train: ✅ - 4097 .wav files
+  dev  : ✅ - 512 .wav files
+  test : ✅ - 513 .wav files
+
+📁 vais1000:
+  train: ✅ - 798 .wav files
+  dev  : ✅ - 99 .wav files
+  test : ✅ - 103 .wav files
+
+📁 vi_voice:
+  train: ✅ - 710217 .wav files
+  dev  : ✅ - 88776 .wav files
+  test : ✅ - 88779 .wav files
+
+📁 viet_bud500:
+  train: ✅ - 634158 .wav files
+  dev  : ✅ - 7500 .wav files
+  test : ✅ - 7500 .wav files
+
+📁 vietmed:
+  train: ✅ - 2286 .wav files
+  dev  : ✅ - 285 .wav files
+  test : ✅ - 287 .wav files
+
+📁 vivos:
+  train: ✅ - 10364 .wav files
+  dev  : ✅ - 1296 .wav files
+  test : ✅ - 760 .wav files
+
+📁 vlsp2020:
+  train: ✅ - 56427 .wav files
+  dev  : ❌ MISSING - 0 .wav files
+  test : ❌ MISSING - 0 .wav files
+
+📁 vietspeech:
+  train: ✅ - 820837 .wav files
+  dev  : ✅ - 102604 .wav files
+  test : ✅ - 102606 .wav files
+
+
+---------------
+
+
+(stt310) ubuntu@ip-10-0-15-60:~/work/stt_chunkformer/chunkformer_vpb/preprocess$ python _2_2_ds_wav_label.py 
+✅ Found 11 datasets.
+
+📊 Dataset Summary (File vs Manifest):
+
+📁 fpt_fosd:
+  train: ✅ - 20733 .wav files | no manifest | ❌ MISMATCH
+  dev  : ✅ - 2591 .wav files | no manifest | ❌ MISMATCH
+  test : ✅ - 2593 .wav files | no manifest | ❌ MISMATCH
+
+📁 infore:
+  train: ✅ - 11946 .wav files | no manifest | ❌ MISMATCH
+  dev  : ✅ - 1492 .wav files | no manifest | ❌ MISMATCH
+  test : ✅ - 1497 .wav files | no manifest | ❌ MISMATCH
+
+📁 lsvsc:
+  train: ✅ - 45457 .wav files | no manifest | ❌ MISMATCH
+  dev  : ✅ - 5680 .wav files | no manifest | ❌ MISMATCH
+  test : ✅ - 5686 .wav files | no manifest | ❌ MISMATCH
+
+📁 speech_massive:
+  train: ✅ - 4097 .wav files | no manifest | ❌ MISMATCH
+  dev  : ✅ - 512 .wav files | no manifest | ❌ MISMATCH
+  test : ✅ - 513 .wav files | no manifest | ❌ MISMATCH
+
+📁 vais1000:
+  train: ✅ - 798 .wav files | no manifest | ❌ MISMATCH
+  dev  : ✅ - 99 .wav files | no manifest | ❌ MISMATCH
+  test : ✅ - 103 .wav files | no manifest | ❌ MISMATCH
+
+📁 vi_voice:
+  train: ✅ - 710217 .wav files | 710217 samples | ✅ MATCH
+  dev  : ✅ - 88776 .wav files | 88776 samples | ✅ MATCH
+  test : ✅ - 88779 .wav files | 88779 samples | ✅ MATCH
+
+📁 viet_bud500:
+  train: ✅ - 634158 .wav files | 634158 samples | ✅ MATCH
+  dev  : ✅ - 7500 .wav files | 7500 samples | ✅ MATCH
+  test : ✅ - 7500 .wav files | 7500 samples | ✅ MATCH
+
+📁 vietmed:
+  train: ✅ - 2286 .wav files | no manifest | ❌ MISMATCH
+  dev  : ✅ - 285 .wav files | no manifest | ❌ MISMATCH
+  test : ✅ - 287 .wav files | no manifest | ❌ MISMATCH
+
+📁 vivos:
+  train: ✅ - 10364 .wav files | no manifest | ❌ MISMATCH
+  dev  : ✅ - 1296 .wav files | no manifest | ❌ MISMATCH
+  test : ✅ - 760 .wav files | no manifest | ❌ MISMATCH
+
+📁 vlsp2020:
+  train: ✅ - 56427 .wav files | no manifest | ❌ MISMATCH
+  dev  : ❌ MISSING - 0 .wav files | no manifest | ❌ MISMATCH
+  test : ❌ MISSING - 0 .wav files | no manifest | ❌ MISMATCH
+
+📁 vietspeech:
+  train: ✅ - 820837 .wav files | 820837 samples | ✅ MATCH
+  dev  : ✅ - 102604 .wav files | 102604 samples | ✅ MATCH
+  test : ✅ - 102606 .wav files | 102606 samples | ✅ MATCH
+
+
+(stt310) ubuntu@ip-10-0-15-60:~/work/stt_chunkformer/chunkformer_vpb/preprocess$ python _2_4_ds_split_verify.py 
+📂 Checking dataset manifest consistency and wav alignment...
+
+
+📁 Dataset: fpt_fosd
+📑 Total manifest entries: 25915
+🔢 Sample count by split:
+  - train: 20731 samples
+  - dev  : 2591 samples
+  - test : 2593 samples
+
+🔍 Verifying .wav file existence by split:
+  ✅ train: 20731 in manifest | 20733 in folder
+     ⚠️ Extra in folder:   2 files
+  ✅ dev  : 2591 in manifest | 2591 in folder
+  ✅ test : 2593 in manifest | 2593 in folder
+
+📁 Dataset: infore
+📑 Total manifest entries: 14935
+🔢 Sample count by split:
+  - train: 11946 samples
+  - dev  : 1492 samples
+  - test : 1497 samples
+
+🔍 Verifying .wav file existence by split:
+  ✅ train: 11946 in manifest | 11946 in folder
+  ✅ dev  : 1492 in manifest | 1492 in folder
+  ✅ test : 1497 in manifest | 1497 in folder
+
+📁 Dataset: lsvsc
+📑 Total manifest entries: 56823
+🔢 Sample count by split:
+  - train: 45457 samples
+  - dev  : 5680 samples
+  - test : 5686 samples
+
+🔍 Verifying .wav file existence by split:
+  ✅ train: 45457 in manifest | 45457 in folder
+  ✅ dev  : 5680 in manifest | 5680 in folder
+  ✅ test : 5686 in manifest | 5686 in folder
+
+📁 Dataset: speech_massive
+📑 Total manifest entries: 5120
+🔢 Sample count by split:
+  - train: 4096 samples
+  - dev  : 512 samples
+  - test : 512 samples
+
+🔍 Verifying .wav file existence by split:
+  ✅ train: 4096 in manifest | 4097 in folder
+     ⚠️ Extra in folder:   1 files
+  ✅ dev  : 512 in manifest | 512 in folder
+  ✅ test : 512 in manifest | 513 in folder
+     ⚠️ Extra in folder:   1 files
+
+📁 Dataset: vais1000
+📑 Total manifest entries: 1000
+🔢 Sample count by split:
+  - train: 798 samples
+  - dev  : 99 samples
+  - test : 103 samples
+
+🔍 Verifying .wav file existence by split:
+  ✅ train: 798 in manifest | 798 in folder
+  ✅ dev  : 99 in manifest | 99 in folder
+  ✅ test : 103 in manifest | 103 in folder
+
+📁 Dataset: vietmed
+📑 Total manifest entries: 2858
+🔢 Sample count by split:
+  - train: 2286 samples
+  - dev  : 285 samples
+  - test : 287 samples
+
+🔍 Verifying .wav file existence by split:
+  ✅ train: 2286 in manifest | 2286 in folder
+  ✅ dev  : 285 in manifest | 285 in folder
+  ✅ test : 287 in manifest | 287 in folder
+
+📁 Dataset: vivos
+📑 Total manifest entries: 12420
+🔢 Sample count by split:
+  - train: 10364 samples
+  - dev  : 1296 samples
+  - test : 760 samples
+
+🔍 Verifying .wav file existence by split:
+  ✅ train: 10364 in manifest | 10364 in folder
+  ✅ dev  : 1296 in manifest | 1296 in folder
+  ✅ test : 760 in manifest | 760 in folder
+
+📁 Dataset: vlsp2020
+📑 Total manifest entries: 56172
+🔢 Sample count by split:
+  - train: 56172 samples
+
+🔍 Verifying .wav file existence by split:
+  ✅ train: 56172 in manifest | 56427 in folder
+     ⚠️ Extra in folder:   255 files
+  ❌ dev  : audio folder missing
+  ❌ test : audio folder missing
+(stt310) ubuntu@ip-10-0-15-60:~/work/stt_chunkformer/chunkformer_vpb/preprocess$ 
