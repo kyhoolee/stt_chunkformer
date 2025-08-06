@@ -23,11 +23,21 @@ BASE_INPUT_DIR = Path("~/dataset/data/data/processed/8khz").expanduser()
 MANIFEST_INPUT_DIR = Path("~/dataset/data/manifests").expanduser()
 
 
+# Global augmenter per-process
+global_augmenter = None
+
+def init_worker():
+    """Initialize a single AudioAugmenter per process."""
+    global global_augmenter
+    global_augmenter = AudioAugmenter(sample_rate=TARGET_SR)
+
+
 def process_one_sample(args):
     import time
+    global global_augmenter  # Access per-process instance
+
     entry, dataset_name, split, output_root_str = args
     output_root = Path(output_root_str)
-    augmenter = AudioAugmenter(sample_rate=TARGET_SR)
 
     try:
         utt_id = entry.get("utt_id", entry.get("key", "unknown_id"))
@@ -42,19 +52,16 @@ def process_one_sample(args):
         print(f"\n🔍 Processing: {input_audio_path}")
         t0 = time.time()
 
-        # Load
         try:
             wav, sr = torchaudio.load(input_audio_path)
         except Exception as e:
             print(f"❌ [LOAD ERROR] {input_audio_path} - {e}")
             return {"error": f"Load failed: {input_audio_path}"}
-        print(f"   ✅ Loaded - shape: {wav.shape}, sr: {sr}, duration: {round(wav.shape[1] / sr, 2)}s")
 
         if sr != EXPECTED_ORIG_SR:
             print(f"⚠️  Invalid SR: {sr} (expected {EXPECTED_ORIG_SR})")
             return {"error": f"Invalid SR {sr}: {input_audio_path}"}
 
-        # Resample
         try:
             wav_16k = resample(wav, orig_freq=sr, new_freq=TARGET_SR)
         except Exception as e:
@@ -62,19 +69,12 @@ def process_one_sample(args):
             return {"error": f"Resample failed: {input_audio_path}"}
 
         duration_sec = round(wav_16k.shape[1] / TARGET_SR, 3)
-        print(f"   ✅ Resampled to 16kHz - shape: {wav_16k.shape}, duration: {duration_sec}s")
 
-        # Save origin
-        try:
-            audio_base_dir = output_root / "audio" / dataset_name / split
-            base_name = os.path.basename(wav_path).replace(".wav", "_16k.wav")
-            origin_path = audio_base_dir / "origin" / base_name
-            origin_path.parent.mkdir(parents=True, exist_ok=True)
-            torchaudio.save(origin_path, wav_16k, TARGET_SR)
-            print(f"   💾 Saved origin to {origin_path}")
-        except Exception as e:
-            print(f"❌ [SAVE ORIGIN ERROR] {origin_path} - {e}")
-            return {"error": f"Save origin failed: {origin_path}"}
+        audio_base_dir = output_root / "audio" / dataset_name / split
+        base_name = os.path.basename(wav_path).replace(".wav", "_16k.wav")
+        origin_path = audio_base_dir / "origin" / base_name
+        origin_path.parent.mkdir(parents=True, exist_ok=True)
+        torchaudio.save(origin_path, wav_16k, TARGET_SR)
 
         manifest_entries = [{
             "key": key,
@@ -87,12 +87,10 @@ def process_one_sample(args):
             "original_wav": str(input_audio_path)
         }]
 
-        # Augment
         aug_counter = defaultdict(int)
         for aug_type in AUG_TYPES:
             try:
-                t_aug_start = time.time()
-                aug_wav = augmenter.apply(wav_16k.clone(), aug_type)
+                aug_wav = global_augmenter.apply(wav_16k.clone(), aug_type)
                 aug_name = base_name.replace("_16k.wav", f"_{aug_type}.wav")
                 aug_path = audio_base_dir / aug_type / aug_name
                 aug_path.parent.mkdir(parents=True, exist_ok=True)
@@ -108,12 +106,10 @@ def process_one_sample(args):
                     "original_wav": str(input_audio_path)
                 })
                 aug_counter[aug_type] += 1
-                print(f"   🎛️  Augmented [{aug_type}] - shape: {aug_wav.shape}, saved to {aug_path} ({round(time.time() - t_aug_start, 2)}s)")
             except Exception as e:
                 print(f"❌ [AUG ERROR] {aug_type} - {e}")
                 continue
 
-        print(f"✅ Done sample {key} in {round(time.time() - t0, 2)}s")
         return {
             "manifest": manifest_entries,
             "origin": 1,
@@ -121,8 +117,8 @@ def process_one_sample(args):
         }
 
     except Exception as e:
-        print(f"❌ [FATAL ERROR] {entry.get('wav', '???')} - {e}")
         return {"error": f"{entry.get('wav', '???')}: {str(e)}"}
+
 
 def process_dataset_split(dataset_name, split, mode, limit, log_every, num_workers):
     is_debug = mode == "debug"
@@ -146,7 +142,7 @@ def process_dataset_split(dataset_name, split, mode, limit, log_every, num_worke
     args_list = [(entry, dataset_name, split, str(output_root)) for entry in entries]
 
     print(f"🚀 Using {num_workers} cores for {len(entries)} entries...")
-    with Pool(processes=num_workers) as pool:
+    with Pool(processes=num_workers, initializer=init_worker) as pool:
         if is_debug:
             results = list(tqdm(pool.imap_unordered(process_one_sample, args_list), total=len(args_list)))
         else:
