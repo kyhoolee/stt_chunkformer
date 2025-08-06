@@ -225,3 +225,26 @@ ubuntu@ip-10-0-15-60:~/work/stt_chunkformer/chunkformer_vpb/preprocess$ python _
   ❌ dev  : audio folder missing
   ❌ test : audio folder missing
 (stt310) ubuntu@ip-10-0-15-60:~/work/stt_chunkformer/chunkformer_vpb/preprocess$ 
+
+
+
+
+-------------------------
+
+
+
+
+📁 vi_voice:
+  train: ✅ - 710217 .wav files | 710217 samples | ✅ MATCH
+  dev  : ✅ - 88776 .wav files | 88776 samples | ✅ MATCH
+  test : ✅ - 88779 .wav files | 88779 samples | ✅ MATCH
+
+📁 viet_bud500:
+  train: ✅ - 634158 .wav files | 634158 samples | ✅ MATCH
+  dev  : ✅ - 7500 .wav files | 7500 samples | ✅ MATCH
+  test : ✅ - 7500 .wav files | 7500 samples | ✅ MATCH
+
+📁 vietspeech:
+  train: ✅ - 820837 .wav files | 820837 samples | ✅ MATCH
+  dev  : ✅ - 102604 .wav files | 102604 samples | ✅ MATCH
+  test : ✅ - 102606 .wav files | 102606 samples | ✅ MATCH

@@ -13,13 +13,35 @@ class AudioAugmenter:
         return wav * factor
 
     def speed_perturb(self, wav):
+        import time
+
         speed = random.uniform(0.9, 1.1)
         orig_len = wav.shape[1]
         new_sr = int(self.sr * speed)
-        # ⚡ dùng functional.resample thay vì transforms.Resample
-        wav = F.resample(wav, orig_freq=self.sr, new_freq=new_sr)
-        wav = F.resample(wav, orig_freq=new_sr, new_freq=self.sr)
-        return wav[:, :orig_len]
+
+        print(f"   ⚙️  [speed_perturb] speed={speed:.3f}, new_sr={new_sr}")
+        print(f"      📥 input shape: {wav.shape}, orig_len: {orig_len}")
+
+        t1 = time.time()
+        try:
+            wav = F.resample(wav, orig_freq=self.sr, new_freq=new_sr)
+            print(f"      🔁 Resample #1 → shape: {wav.shape} [{round(time.time() - t1, 2)}s]")
+        except Exception as e:
+            print(f"❌ [RESAMPLE 1 ERROR] - {e}")
+            raise
+
+        t2 = time.time()
+        try:
+            wav = F.resample(wav, orig_freq=new_sr, new_freq=self.sr)
+            print(f"      🔁 Resample #2 → shape: {wav.shape} [{round(time.time() - t2, 2)}s]")
+        except Exception as e:
+            print(f"❌ [RESAMPLE 2 ERROR] - {e}")
+            raise
+
+        out = wav[:, :orig_len]
+        print(f"      ✅ Final shape after truncate: {out.shape}")
+        return out
+
 
     def telephony_effect(self, wav):
         return F.bandpass_biquad(wav, self.sr, central_freq=1700.0, Q=0.707)

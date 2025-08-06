@@ -119,3 +119,10 @@ Mà **không có thêm dòng nào thông báo:**
 | Không có log cảnh báo                     | ✅ Đúng     |
 
 Bạn có thể yên tâm là các tập **fpt\_fosd, infore, lsvsc, ... vlsp2020** đều đã được chuẩn hóa đúng yêu cầu.
+
+
+----------------
+
+python -m chunkformer_vpb.preprocess._5_2_big_ds_parallel --mode debug --dataset vi_voice
+
+python -m chunkformer_vpb.preprocess._5_2_big_ds_parallel --mode benchmark
