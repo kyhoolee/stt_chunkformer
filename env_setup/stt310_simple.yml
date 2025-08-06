@@ -14,3 +14,4 @@ dependencies:
       - huggingface_hub
       - colorama
       - pydub
+      - soundfile
