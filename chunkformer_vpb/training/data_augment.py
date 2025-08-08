@@ -19,13 +19,13 @@ class AudioAugmenter:
         orig_len = wav.shape[1]
         new_sr = int(self.sr * speed)
 
-        print(f"   ⚙️  [speed_perturb] speed={speed:.3f}, new_sr={new_sr}")
-        print(f"      📥 input shape: {wav.shape}, orig_len: {orig_len}")
+        # print(f"   ⚙️  [speed_perturb] speed={speed:.3f}, new_sr={new_sr}")
+        # print(f"      📥 input shape: {wav.shape}, orig_len: {orig_len}")
 
         t1 = time.time()
         try:
             wav = F.resample(wav, orig_freq=self.sr, new_freq=new_sr)
-            print(f"      🔁 Resample #1 → shape: {wav.shape} [{round(time.time() - t1, 2)}s]")
+            # print(f"      🔁 Resample #1 → shape: {wav.shape} [{round(time.time() - t1, 2)}s]")
         except Exception as e:
             print(f"❌ [RESAMPLE 1 ERROR] - {e}")
             raise
@@ -33,13 +33,13 @@ class AudioAugmenter:
         t2 = time.time()
         try:
             wav = F.resample(wav, orig_freq=new_sr, new_freq=self.sr)
-            print(f"      🔁 Resample #2 → shape: {wav.shape} [{round(time.time() - t2, 2)}s]")
+            # print(f"      🔁 Resample #2 → shape: {wav.shape} [{round(time.time() - t2, 2)}s]")
         except Exception as e:
             print(f"❌ [RESAMPLE 2 ERROR] - {e}")
             raise
 
         out = wav[:, :orig_len]
-        print(f"      ✅ Final shape after truncate: {out.shape}")
+        # print(f"      ✅ Final shape after truncate: {out.shape}")
         return out
 
 

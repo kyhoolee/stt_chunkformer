@@ -12,6 +12,9 @@ from torchaudio.functional import resample
 from chunkformer_vpb.training.data_augment import AudioAugmenter
 from tqdm import tqdm
 
+import torch
+torch.set_num_threads(1)
+
 AUG_TYPES = ["speed", "vol", "telephony", "noise"]
 EXPECTED_ORIG_SR = 8000
 TARGET_SR = 16000
@@ -19,11 +22,19 @@ TARGET_SR = 16000
 BASE_INPUT_DIR = Path("~/dataset/data/data/processed/8khz").expanduser()
 MANIFEST_INPUT_DIR = Path("~/dataset/data/manifests").expanduser()
 
+# Shared per-process augmenter
+_GLOBAL_AUGMENTER = None
+
+
+
+def init_worker():
+    global _GLOBAL_AUGMENTER
+    _GLOBAL_AUGMENTER = AudioAugmenter(sample_rate=TARGET_SR)
 
 def process_one_sample(args):
     entry, dataset_name, output_root_str = args
     output_root = Path(output_root_str)
-    augmenter = AudioAugmenter(sample_rate=TARGET_SR)
+    global _GLOBAL_AUGMENTER
 
     try:
         utt_id = entry.get("utt_id", entry.get("key", "unknown_id"))
@@ -64,7 +75,7 @@ def process_one_sample(args):
         aug_counter = defaultdict(int)
 
         for aug_type in AUG_TYPES:
-            aug_wav = augmenter.apply(wav_16k.clone(), aug_type)
+            aug_wav = _GLOBAL_AUGMENTER.apply(wav_16k.clone(), aug_type)
             aug_name = base_name.replace("_16k.wav", f"_{aug_type}.wav")
             aug_path = audio_base_dir / aug_type / aug_name
             aug_path.parent.mkdir(parents=True, exist_ok=True)
@@ -134,7 +145,7 @@ def process_dataset(dataset_name: str, mode: str = "debug", limit: int = 100, lo
 
     print(f"🚀 Using {num_workers} cores for {len(entries)} entries...")
 
-    with Pool(processes=num_workers) as pool:
+    with Pool(processes=num_workers, initializer=init_worker) as pool:
         if is_debug:
             results = list(tqdm(pool.imap_unordered(process_one_sample, args_list), total=len(args_list)))
         else:
@@ -173,6 +184,7 @@ def process_dataset(dataset_name: str, mode: str = "debug", limit: int = 100, lo
             print("   ❌", err)
         if len(errors) > 10:
             print("   ...")
+
 
 
 def run_benchmark_estimate(datasets, core_list, debug_n=100, output_path="benchmark_result.tsv"):
@@ -221,25 +233,30 @@ def run_benchmark_estimate(datasets, core_list, debug_n=100, output_path="benchm
     print(f"\n📄 Benchmark results saved to: {output_path}")
 
     gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
     time.sleep(1)
 
 
-
+import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", required=False, help="Dataset name (e.g. vietmed)")
+    parser.add_argument("--dataset", required=False, help="Single dataset name (e.g. vietmed)")
+    parser.add_argument("--datasets", nargs="+", help="List of dataset names (e.g. vietmed vivos)")
     parser.add_argument("--mode", choices=["debug", "full", "benchmark"], default="debug", help="Run mode")
-    parser.add_argument("--n", type=int, default=100, help="Number of samples in debug mode")
+    parser.add_argument("--n", type=int, default=100, help="Number of samples in debug/benchmark mode")
     parser.add_argument("--log_every", type=int, default=50, help="Log every N samples (for full mode)")
-    parser.add_argument("--num_workers", type=int, default=4, help="Number of processes for multiprocessing")
+    parser.add_argument("--num_workers", type=int, default=16, help="Number of processes for multiprocessing")
     args = parser.parse_args()
 
-    datasets_unsplit = [
-        "fpt_fosd", "infore", "lsvsc", "speech_massive", "vais1000",
-        "vietmed", "vivos", "vlsp2020"
+    DEFAULT_DATASETS = [
+        "fpt_fosd", 
+        "infore", 
+        "lsvsc", 
+        "speech_massive", 
+        "vais1000",
+        "vietmed", 
+        "vivos", 
+        "vlsp2020"
     ]
 
     def run(ds_name):
@@ -251,15 +268,17 @@ if __name__ == "__main__":
             num_workers=args.num_workers
         )
 
+    selected_datasets = args.datasets or DEFAULT_DATASETS
+
     if args.mode == 'debug':
-        run(args.dataset)
+        run(args.dataset or selected_datasets[0])
     elif args.mode == 'full':
-        for ds in datasets_unsplit:
+        for ds in selected_datasets:
             run(ds)
     elif args.mode == 'benchmark':
-        core_list = [8,4,1]
+        core_list = [8, 4, 1]
         run_benchmark_estimate(
-            datasets=datasets_unsplit,
+            datasets=selected_datasets,
             core_list=core_list,
             debug_n=args.n,
             output_path="benchmark_result.tsv"
