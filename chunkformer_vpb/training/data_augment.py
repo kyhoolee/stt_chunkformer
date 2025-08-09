@@ -3,6 +3,34 @@ import torchaudio.functional as F
 import torchaudio.transforms as T
 import random
 
+from torchaudio.functional import resample as ta_resample
+
+def resample_fast(x, orig, new):
+    return ta_resample(
+        x, orig, new,
+        lowpass_filter_width=6,      # mặc định thường lớn hơn; 6–8 khá nhanh
+        rolloff=0.90,                # hạ nhẹ
+        resampling_method="sinc_interp_hann",
+        beta=None
+    )
+
+def speed_simple(wav_16k, sr=16000, min_rate=0.95, max_rate=1.05):
+    rate = random.uniform(min_rate, max_rate)
+    sr_mid = max(8000, min(48000, int(sr * rate)))
+    tmp = resample_fast(wav_16k, sr, sr_mid)
+    out = resample_fast(tmp, sr_mid, sr)
+    return out
+
+
+def speed_simple(wav_16k, sr=16000, min_rate=0.9, max_rate=1.1):
+    """Fork-safe speed via resample, no external DSP state."""
+    rate = random.uniform(min_rate, max_rate)
+    sr_mid = int(sr * rate)
+    sr_mid = max(8000, min(48000, sr_mid))  # clamp
+    tmp = resample_fast(wav_16k, sr, sr_mid)
+    out = resample_fast(tmp, sr_mid, sr)
+    return out
+
 class AudioAugmenter:
     _resampler_cache = {}
     _resampler_sr = None
@@ -43,7 +71,11 @@ class AudioAugmenter:
             AudioAugmenter._resampler_cache[key] = T.Resample(orig_freq=new_sr, new_freq=self.sr)
         return AudioAugmenter._resampler_cache[key]
 
+
     def speed_perturb(self, wav):
+        return speed_simple(wav, self.sr, 0.9, 1.1)
+
+    def speed_perturb_old(self, wav):
         speed = random.uniform(0.9, 1.1)
         orig_len = wav.shape[1]
         new_sr = int(self.sr * speed)

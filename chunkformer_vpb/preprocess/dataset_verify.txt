@@ -123,6 +123,4 @@ Bạn có thể yên tâm là các tập **fpt\_fosd, infore, lsvsc, ... vlsp202
 
 ----------------
 
-python -m chunkformer_vpb.preprocess._5_2_big_ds_parallel --mode debug --dataset vi_voice
 
-python -m chunkformer_vpb.preprocess._5_2_big_ds_parallel --mode benchmark
