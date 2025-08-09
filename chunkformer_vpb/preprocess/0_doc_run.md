@@ -45,7 +45,7 @@ nohup python -m chunkformer_vpb.preprocess._5_1_small_ds_parallel --mode full --
 
 
 nohup bash -c 'PYTHONWARNINGS=ignore python -m chunkformer_vpb.preprocess._5_1_small_ds_parallel \
-    --mode full --datasets infore speech_massive vais1000 vietmed --num_workers 8 \
+    --mode full --datasets infore speech_massive vais1000 vietmed --num_workers 16 \
     > log_vp4.txt 2>&1' &
 
 
@@ -93,8 +93,20 @@ pkill -f "python -m chunkformer_vpb.preprocess._6_1_small_ds_no_queue"
 
 
 nohup bash -c 'PYTHONWARNINGS=ignore python -m chunkformer_vpb.preprocess._6_1_small_ds_no_queue \
-    --mode full --datasets infore speech_massive vais1000 vietmed --num_workers 4 \
+    --mode full --datasets infore speech_massive vais1000 vietmed --num_workers 16 \
     > log_vp4.txt 2>&1' &
+
+nohup bash -c 'PYTHONWARNINGS=ignore python -m chunkformer_vpb.preprocess._6_1_small_ds_no_queue \
+    --mode full --datasets fpt_fosd vivos --num_workers 16 \
+    > log_vp3.txt 2>&1' &
+
+nohup bash -c 'PYTHONWARNINGS=ignore python -m chunkformer_vpb.preprocess._6_1_small_ds_no_queue \
+    --mode full --datasets vlsp2020 --num_workers 16 \
+    > log_vp2.txt 2>&1' &
+
+nohup bash -c 'PYTHONWARNINGS=ignore python -m chunkformer_vpb.preprocess._6_1_small_ds_no_queue \
+    --mode full --datasets lsvsc --num_workers 16 \
+    > log_vp1.txt 2>&1' &
 
 
 PYTHONUNBUFFERED=1 python -m chunkformer_vpb.preprocess._6_1_small_ds_no_queue \
