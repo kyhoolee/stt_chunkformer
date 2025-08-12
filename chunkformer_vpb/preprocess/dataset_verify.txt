@@ -1,0 +1,126 @@
+Hoàn hảo! Script đã chạy chính xác và cung cấp được:
+
+---
+
+## ✅ **Tổng hợp đánh giá cuối cùng**
+
+| Dataset             | Split in manifest | Folder tồn tại | Khớp manifest - folder          |
+| ------------------- | ----------------- | -------------- | ------------------------------- |
+| **fpt\_fosd**       | train/dev/test    | ✅ ✅ ✅          | ✅ (2 extra file ở `train`)      |
+| **infore**          | train/dev/test    | ✅ ✅ ✅          | ✅ hoàn toàn                     |
+| **lsvsc**           | train/dev/test    | ✅ ✅ ✅          | ✅ hoàn toàn                     |
+| **speech\_massive** | train/dev/test    | ✅ ✅ ✅          | ⚠ 1 extra ở `train`, 1 ở `test` |
+| **vais1000**        | train/dev/test    | ✅ ✅ ✅          | ✅ hoàn toàn                     |
+| **vietmed**         | train/dev/test    | ✅ ✅ ✅          | ✅ hoàn toàn                     |
+| **vivos**           | train/dev/test    | ✅ ✅ ✅          | ✅ hoàn toàn                     |
+| **vlsp2020**        | chỉ `train`       | ✅ ❌ ❌          | ⚠ 255 file extra ở `train`      |
+
+---
+
+## 🔍 Các điểm cần xử lý tiếp:
+
+1. **`fpt_fosd`** có 2 file `.wav` **thừa** không nằm trong manifest
+   → Có thể là audio chưa được transcript hoặc lỗi khi sinh manifest.
+
+2. **`speech_massive`** có:
+
+   * 1 file thừa ở `train`
+   * 1 file thừa ở `test`
+     → Tình huống tương tự — nên xác định và loại nếu cần đảm bảo strict consistency.
+
+3. **`vlsp2020`**:
+
+   * Chỉ có `train` manifest, không có `dev/test`
+   * Nhưng folder `train/audio` lại nhiều hơn manifest 255 file
+     → Có thể là manifest đã lọc audio lỗi, hoặc chưa cập nhật đủ.
+
+---
+
+## ✅ Hành động gợi ý
+
+| Tình huống                     | Hành động gợi ý                                         |
+| ------------------------------ | ------------------------------------------------------- |
+| Extra `.wav` file              | Xác định file nào, nếu không dùng thì xóa/bỏ qua        |
+| Thiếu `dev/test` manifest      | Có thể tự chia từ `train` nếu cần (đã có field `split`) |
+| Dư `.wav` nhưng không có `txt` | Kiểm tra raw data source – có thể lỗi khi sinh manifest |
+
+---
+
+Đúng rồi! ✅
+
+Nếu output là như sau:
+
+```
+✅ [split]: [N] in manifest | [N] in folder
+```
+
+Mà **không có thêm dòng nào thông báo:**
+
+* ❗ `Missing files in folder`
+* ⚠️ `Extra files in folder`
+
+→ Thì có nghĩa là:
+
+### ✅ **Manifest và folder audio của mỗi split khớp hoàn toàn**
+
+* Không thiếu `.wav` file nào trong thư mục audio so với manifest
+* Không có file `.wav` dư thừa trong thư mục audio
+
+---
+
+## 🔍 Tóm lại:
+
+| Điều kiện                   | Trạng thái  |
+| --------------------------- | ----------- |
+| Số lượng file bằng nhau     | ✅ Đúng      |
+| Không có missing file       | ✅ Đúng      |
+| Không có extra file         | ✅ Đúng      |
+| Không có dòng cảnh báo khác | ✅ Tất cả OK |
+
+
+---------------------------
+
+✅ **Đúng rồi** — theo đoạn log bạn gửi:
+
+---
+
+### ✅ **8 dataset đầu** thuộc nhóm **"unsplit manifest"**:
+
+```
+📁 fpt_fosd: 25915 samples
+📁 infore: 14935 samples
+📁 lsvsc: 56823 samples
+📁 speech_massive: 5120 samples
+📁 vais1000: 1000 samples
+📁 vietmed: 2858 samples
+📁 vivos: 12420 samples
+📁 vlsp2020: 56172 samples
+```
+
+---
+
+### ⚙️ Vì code bạn dùng in ra **các lỗi (nếu có)** như:
+
+* ❗ Missing file
+* ❌ Wrong sample rate
+
+→ **Mà hoàn toàn không có thông báo gì thêm** → nghĩa là:
+
+> ✅ **Toàn bộ file trong manifest của các dataset này đều tồn tại và có sample-rate = 8kHz.**
+
+---
+
+### 💡 Tóm lại:
+
+| Tiêu chí                                  | Trạng thái |
+| ----------------------------------------- | ---------- |
+| Tên `.wav` trong manifest có tồn tại file | ✅ Đúng     |
+| Sample-rate = 8000Hz                      | ✅ Đúng     |
+| Không có log cảnh báo                     | ✅ Đúng     |
+
+Bạn có thể yên tâm là các tập **fpt\_fosd, infore, lsvsc, ... vlsp2020** đều đã được chuẩn hóa đúng yêu cầu.
+
+
+----------------
+
+

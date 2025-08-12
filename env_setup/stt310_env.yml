@@ -180,4 +180,3 @@ dependencies:
     - xxhash==3.5.0
     - yarl==1.20.1
 
-prefix: "/home/kyhoolee/work/software/mamba/envs/stt310"
