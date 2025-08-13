@@ -28,19 +28,19 @@ model:
 # 4) Training hyper-params
 training:
   batch_size: 32
-  lr: 1e-4
+  lr: 2e-4
   weight_decay: 0.01
   warmup_steps: 1000
   epochs: 20
   max_grad_norm: 5.0
   log_steps: 50
-  checkpoint_dir: checkpoints_vpb_ctc # @NOTE
+  checkpoint_dir: checkpoints_vpb_full_layers # @NOTE
   shuffle: true          #  ← thêm dòng này
 
 # 6) Freeze config (tuỳ chọn)
 freeze:
   cmvn: false
-  subsampling: true
+  subsampling: false
   post_embed_norm: false
   encoder_layers: 0   # freeze 0 layer đầu trong encoder
   ctc: false

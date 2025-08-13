@@ -12,7 +12,7 @@ data:
   dither: 0.0
   energy_floor: 0.0
 
-  train_meta_file: train_meta_right_2.json
+  train_meta_file: valid_meta_filtered_snr_clean.json
 
 # 2) Tokenizer / vocab
 tokenizer:
@@ -31,7 +31,7 @@ training:
   lr: 1e-4
   weight_decay: 0.01
   warmup_steps: 1000
-  epochs: 20
+  epochs: 10
   max_grad_norm: 5.0
   log_steps: 50
   checkpoint_dir: checkpoints_vpb_ctc # @NOTE
