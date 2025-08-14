@@ -111,3 +111,30 @@ nohup bash -c 'PYTHONWARNINGS=ignore python -m chunkformer_vpb.preprocess._6_1_s
 
 PYTHONUNBUFFERED=1 python -m chunkformer_vpb.preprocess._6_1_small_ds_no_queue \
     --mode full --datasets vietmed --num_workers 8 --verbose 2
+
+
+
+
+# 1) vi_voice
+nohup env PYTHONWARNINGS=ignore python -m chunkformer_vpb.preprocess._6_2_big_ds_no_queue \
+    --dataset vi_voice \
+    --mode full \
+    --num_workers 16 \
+    --log_every 2000 \
+    > log_vi_voice.txt 2>&1 &
+
+# 2) viet_bud500
+nohup env PYTHONWARNINGS=ignore python -m chunkformer_vpb.preprocess._6_2_big_ds_no_queue \
+    --dataset viet_bud500 \
+    --mode full \
+    --num_workers 16 \
+    --log_every 2000 \
+    > log_viet_bud500.txt 2>&1 &
+
+# 3) vietspeech
+nohup env PYTHONWARNINGS=ignore python -m chunkformer_vpb.preprocess._6_2_big_ds_no_queue \
+    --dataset vietspeech \
+    --mode full \
+    --num_workers 16 \
+    --log_every 2000 \
+    > log_vietspeech.txt 2>&1 &
