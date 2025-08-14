@@ -68,3 +68,12 @@ def read_symbol_table(symbol_table_file):
             assert len(arr) == 2
             symbol_table[arr[0]] = int(arr[1])
     return symbol_table
+
+
+def load_vocab(vocab_file: str) -> dict:
+    vocab = {}
+    with open(vocab_file, 'r', encoding='utf8') as f:
+        for i, line in enumerate(f):
+            token = line.strip()
+            vocab[i] = token
+    return vocab

@@ -104,13 +104,13 @@ def init(model_checkpoint, device):
     return model, char_dict
 
 
-# def load_audio(audio_path):
-#     audio = AudioSegment.from_file(audio_path)
-#     audio = audio.set_frame_rate(16000)
-#     audio = audio.set_sample_width(2)  # set bit depth to 16bit
-#     audio = audio.set_channels(1)  # set to mono
-#     audio = torch.as_tensor(audio.get_array_of_samples(), dtype=torch.float32).unsqueeze(0)
-#     return audio
+def load_audio_origin(audio_path):
+    audio = AudioSegment.from_file(audio_path)
+    audio = audio.set_frame_rate(16000)
+    audio = audio.set_sample_width(2)  # set bit depth to 16bit
+    audio = audio.set_channels(1)  # set to mono
+    audio = torch.as_tensor(audio.get_array_of_samples(), dtype=torch.float32).unsqueeze(0)
+    return audio
 
 
 

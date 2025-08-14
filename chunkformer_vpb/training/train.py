@@ -531,6 +531,163 @@ def _cer(ref: str, hyp: str, strip_spaces: bool = True) -> float:
     dist = editdistance.eval(ref_chars, hyp_chars)
     return dist / max(1, len(ref_chars))
 
+
+def _which_source(audio_path: str) -> str:
+    if not audio_path:
+        return "other"
+    # chuẩn hoá nhẹ để tránh khác biệt viết hoa
+    p = audio_path.strip().lower()
+    if p.startswith("archive/"):
+        return "old_data"
+    if p.startswith("archive_2/"):
+        return "new_data"
+    return "other"
+
+def evaluate_from_meta_by_bucket_and_source(
+    meta_path: str,
+    bucket_field: str = "snr_bucket",
+    ref_field: str = "text",
+    hyp_field: str = "base_text",
+    audio_path_field: str = "audio_path",
+    exclude_buckets: Optional[List[str]] = None,
+    cer_strip_spaces: bool = True,
+):
+    """
+    In WER/CER tổng thể, theo bucket, và theo (source x bucket)
+    Source xác định từ prefix audio_path:
+      - old_data: "archive/..."
+      - new_data: "archive_2/..."
+      - other   : còn lại
+    """
+    with open(meta_path, "r", encoding="utf-8") as f:
+        entries: List[Dict[str, Any]] = json.load(f)
+
+    if exclude_buckets is None:
+        exclude_buckets = []
+
+    # ===== Tổng thể =====
+    total_wer = total_cer = 0.0
+    count = 0
+    all_refs, all_hyps = [], []
+
+    # ===== Theo bucket (toàn bộ nguồn gộp) =====
+    bucket_refs: Dict[str, List[str]] = defaultdict(list)
+    bucket_hyps: Dict[str, List[str]] = defaultdict(list)
+    bucket_sum_wer: Dict[str, float] = defaultdict(float)
+    bucket_sum_cer: Dict[str, float] = defaultdict(float)
+    bucket_count: Dict[str, int] = defaultdict(int)
+
+    # ===== Theo (source x bucket) =====
+    # source -> bucket -> accumulators
+    sb_refs: Dict[str, Dict[str, List[str]]] = defaultdict(lambda: defaultdict(list))
+    sb_hyps: Dict[str, Dict[str, List[str]]] = defaultdict(lambda: defaultdict(list))
+    sb_sum_wer: Dict[str, Dict[str, float]] = defaultdict(lambda: defaultdict(float))
+    sb_sum_cer: Dict[str, Dict[str, float]] = defaultdict(lambda: defaultdict(float))
+    sb_count: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
+
+    for e in entries:
+        ref = _norm(e.get(ref_field, ""))
+        hyp = _norm(e.get(hyp_field, ""))
+        if not ref or not hyp:
+            continue
+
+        b = (e.get(bucket_field) or "unknown")
+        if b in exclude_buckets:
+            continue
+
+        audio_path = e.get(audio_path_field) or e.get("wav") or ""
+        src = _which_source(audio_path)
+
+        s_wer = wer(ref, hyp)
+        s_cer = _cer(ref, hyp, strip_spaces=cer_strip_spaces)
+
+        # overall
+        total_wer += s_wer
+        total_cer += s_cer
+        count += 1
+        all_refs.append(ref)
+        all_hyps.append(hyp)
+
+        # by bucket
+        bucket_sum_wer[b] += s_wer
+        bucket_sum_cer[b] += s_cer
+        bucket_count[b] += 1
+        bucket_refs[b].append(ref)
+        bucket_hyps[b].append(hyp)
+
+        # by source x bucket
+        sb_sum_wer[src][b] += s_wer
+        sb_sum_cer[src][b] += s_cer
+        sb_count[src][b] += 1
+        sb_refs[src][b].append(ref)
+        sb_hyps[src][b].append(hyp)
+
+    if count == 0:
+        print("⚠️ No valid samples after filtering.")
+        return
+
+    # ===== In tổng thể =====
+    avg_wer = total_wer / count
+    avg_cer = total_cer / count
+    global_wer = wer(all_refs, all_hyps)
+    # global CER gộp
+    global_cer = _cer("".join(all_refs), "".join(all_hyps), strip_spaces=cer_strip_spaces)
+
+    print("===== OVERALL =====")
+    print(f"📊 Tổng số mẫu: {count}")
+    print(f"🎯 WER trung bình: {avg_wer:.2%}")
+    print(f"🅲 CER trung bình: {avg_cer:.2%}")
+    print(f"🌐 WER toàn cục : {global_wer:.2%}")
+    print(f"🌐 CER toàn cục : {global_cer:.2%}")
+    print()
+
+    # ===== In theo bucket (gộp mọi source) =====
+    preferred = {"clean": 0, "mid": 1, "noisy": 2, "unknown": 3}
+    buckets = sorted(bucket_count.keys(), key=lambda x: (preferred.get(x, 99), x))
+
+    print("===== BY SNR BUCKET (ALL SOURCES) =====")
+    for b in buckets:
+        n = bucket_count[b]
+        if n == 0:
+            continue
+        b_avg_wer = bucket_sum_wer[b] / n
+        b_avg_cer = bucket_sum_cer[b] / n
+        b_glb_wer = wer(bucket_refs[b], bucket_hyps[b])
+        b_glb_cer = _cer("".join(bucket_refs[b]), "".join(bucket_hyps[b]), strip_spaces=cer_strip_spaces)
+        print(f"[{b}]")
+        print(f"  📦 samples        : {n}")
+        print(f"  🎯 sample-avg WER : {b_avg_wer:.2%}")
+        print(f"  🅲 sample-avg CER : {b_avg_cer:.2%}")
+        print(f"  🌐 global WER     : {b_glb_wer:.2%}")
+        print(f"  🌐 global CER     : {b_glb_cer:.2%}")
+        print()
+
+    # ===== In theo (source x bucket) =====
+    print("===== BY SOURCE × SNR BUCKET =====")
+    source_order = ["old_data", "new_data", "other"]
+    for src in source_order:
+        if src not in sb_count:
+            continue
+        print(f"--- Source: {src} ---")
+        src_buckets = sorted(sb_count[src].keys(), key=lambda x: (preferred.get(x, 99), x))
+        total_src = sum(sb_count[src].values())
+        print(f"  Tổng mẫu (src): {total_src}")
+        for b in src_buckets:
+            n = sb_count[src][b]
+            if n == 0:
+                continue
+            b_avg_wer = sb_sum_wer[src][b] / n
+            b_avg_cer = sb_sum_cer[src][b] / n
+            b_glb_wer = wer(sb_refs[src][b], sb_hyps[src][b])
+            b_glb_cer = _cer("".join(sb_refs[src][b]), "".join(sb_hyps[src][b]), strip_spaces=cer_strip_spaces)
+            print(f"  [{b}]")
+            print(f"    📦 samples        : {n}")
+            print(f"    🎯 sample-avg WER : {b_avg_wer:.2%}")
+            print(f"    🅲 sample-avg CER : {b_avg_cer:.2%}")
+            print(f"    🌐 global WER     : {b_glb_wer:.2%}")
+            print(f"    🌐 global CER     : {b_glb_cer:.2%}")
+        print()
+
 def evaluate_from_meta_by_bucket(
     meta_path: str,
     bucket_field: str = "snr_bucket",
@@ -693,7 +850,7 @@ def evaluate_from_meta(meta_path: str):
 
 
 from jiwer import wer
-from chunkformer_vpb.model_utils import decode_long_form, decode_aed_long_form, get_default_args
+from chunkformer_vpb.model_utils import decode_long_form, decode_aed_long_form, get_default_args, endless_decode
 from jiwer import wer
 
 def evaluate(model, tokenizer, loader, cfg, device, mode="ctc", eval_ratio=1.0):
@@ -774,6 +931,88 @@ def evaluate(model, tokenizer, loader, cfg, device, mode="ctc", eval_ratio=1.0):
     print(f"🕒 Evaluate time: {total_eval_time:.2f}s "
           f"(avg decode/sample: {avg_decode_time:.2f}s)")
     model.train()
+
+
+
+def evaluate_v0(model, tokenizer, loader, cfg, device, mode="ctc", eval_ratio=1.0):
+    if loader is None:
+        print("🚫 No eval data found. Skipping evaluation.")
+        return
+
+    model.eval()
+    total_wer, count = 0.0, 0
+    all_refs, all_preds = [], []
+
+    args = get_default_args()
+    args.chunk_size = cfg.chunk.chunk_size
+    args.left_context_size = cfg.chunk.left_context_size
+    args.right_context_size = cfg.chunk.right_context_size
+    args.total_batch_duration = cfg.chunk.total_batch_duration
+
+    char_dict = tokenizer.vocab
+
+    max_samples = int(len(loader.dataset) * eval_ratio)
+    processed_samples = 0
+
+    start_eval_time = time.time()  # ⏱️ Tổng thời gian evaluate
+    total_decode_time = 0.0
+
+    with torch.no_grad():
+        for loader_item in loader:
+            feats, feat_lens, toks, tok_lens = loader_item[0:4]  # Lấy 4 phần đầu tiên
+            feats, feat_lens = feats.to(device), feat_lens.to(device)
+            toks,  tok_lens  = toks.to(device),  tok_lens.to(device)
+
+            for i in range(feats.size(0)):
+                if processed_samples >= max_samples:
+                    break
+
+                x = feats[i].unsqueeze(0)
+                y = toks[i].unsqueeze(0)
+                y_lens = tok_lens[i].item()
+
+                ref_ids = y[0, :y_lens].tolist()
+                ref_text = tokenizer.decode_ids(ref_ids)
+
+                decode_start = time.time()
+                if mode == "ctc":
+                    pred_text = endless_decode(x, model, char_dict, args, device)
+                elif mode == "aed":
+                    _, pred_text = decode_aed_long_form(x, model, char_dict, args, device)
+                else:
+                    raise ValueError(f"Unknown mode: {mode}")
+                decode_duration = time.time() - decode_start
+                total_decode_time += decode_duration
+
+                ref_text = ref_text.lower()
+                pred_text = pred_text.lower()
+
+                total_wer += wer(ref_text, pred_text)
+                count += 1
+                processed_samples += 1
+
+                all_refs.append(ref_text)
+                all_preds.append(pred_text)
+
+            if processed_samples >= max_samples:
+                break
+
+    total_eval_time = time.time() - start_eval_time
+
+    if count == 0:
+        print("⚠️ No samples evaluated.")
+        return
+
+    avg_wer = total_wer / count
+    global_wer = wer(all_refs, all_preds)
+    avg_decode_time = total_decode_time / count
+
+    print(f"🎯 Dev WER ({mode.upper()}): {avg_wer:.2%}")
+    print(f"🌐 Global WER           : {global_wer:.2%}")
+    print(f"🕒 Evaluate time: {total_eval_time:.2f}s "
+          f"(avg decode/sample: {avg_decode_time:.2f}s)")
+    model.train()
+
 
 
 ####################################################

@@ -9,7 +9,7 @@ from chunkformer_vpb.model_utils import decode_long_form, get_default_args
 from chunkformer_vpb.training.finetune_config import FinetuneConfig
 from chunkformer_vpb.training.data_loader import get_dataloaders_debug, get_dataloader_for_test_split
 from chunkformer_vpb.training.optimizer import build_model_and_optimizer
-from chunkformer_vpb.training.train import evaluate
+from chunkformer_vpb.training.train import evaluate, evaluate_v0
 
 import json
 from typing import List
@@ -349,3 +349,35 @@ def prediction_std_test(cfg_path: str,
     model.eval()
 
     evaluate(model, tokenizer, loader, cfg, device)
+
+
+
+def prediction_std_test_v0(cfg_path: str,
+                            cache_path: str,
+                            ckpt_path,
+                            model_id: str,
+                            device: str = "cuda",
+                            overwrite: bool = False):
+    """
+    Dự đoán và cập nhật cache JSON với kết quả mới từ checkpoint model_id.
+    """
+    cfg = FinetuneConfig.from_yaml(cfg_path)
+    loader = get_dataloader_for_test_split(cfg, split_name="train")
+    
+
+
+    total_steps = len(loader) * cfg.training.epochs
+    model, tokenizer, _, _ = build_model_and_optimizer(cfg, device, total_steps)
+
+    if not ckpt_path or not os.path.exists(ckpt_path):
+        # use base model if ckpt_path is not provided
+        print(f"❌ Checkpoint not found at {ckpt_path}. Using base model instead.")
+    else:
+        print(f"✅ Loading checkpoint from {ckpt_path} for model_id={model_id}")
+        ckpt = torch.load(ckpt_path, map_location=device)
+        model.load_state_dict(ckpt["model_state_dict"])
+    
+    model.to(device)
+    model.eval()
+
+    evaluate_v0(model, tokenizer, loader, cfg, device)

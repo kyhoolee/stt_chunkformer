@@ -180,6 +180,82 @@ def transcript_clean(token_ids, char_dict,
     return "".join(parts).strip()
 
 
+
+@torch.no_grad()
+def endless_decode(xs, model, char_dict, args, device):    
+    def get_max_input_context(c, r, n):
+        return r + max(c, r) * (n-1)
+    
+    # print(f"ARGS:: {args}")
+
+    # print(f"DEVICE: {device} ,{device == 'cuda'}")
+
+    # device = next(model.parameters()).device
+    # audio_path = args.long_form_audio
+    # model configuration
+    subsampling_factor = model.encoder.embed.subsampling_factor
+    chunk_size = args.chunk_size
+    left_context_size = args.left_context_size
+    right_context_size = args.right_context_size
+    conv_lorder = model.encoder.cnn_module_kernel // 2
+
+    # get the maximum length that the gpu can consume
+    max_length_limited_context = args.total_batch_duration
+    max_length_limited_context = int((max_length_limited_context // 0.01))//2 # in 10ms second
+
+    multiply_n = max_length_limited_context // chunk_size // subsampling_factor
+    truncated_context_size = chunk_size * multiply_n # we only keep this part for text decoding
+
+    # get the relative right context size
+    rel_right_context_size = get_max_input_context(chunk_size, max(right_context_size, conv_lorder), model.encoder.num_blocks)
+    rel_right_context_size = rel_right_context_size * subsampling_factor
+
+
+    # waveform = load_audio(audio_path)
+    offset = torch.zeros(1, dtype=torch.int, device=device)
+
+ 
+
+    hyps = []
+    att_cache = torch.zeros((model.encoder.num_blocks, left_context_size, model.encoder.attention_heads, model.encoder._output_size * 2 // model.encoder.attention_heads)).to(device)
+    cnn_cache = torch.zeros((model.encoder.num_blocks, model.encoder._output_size, conv_lorder)).to(device)    # print(context_size)
+    for idx, _ in enumerate(range(0, xs.shape[1], truncated_context_size * subsampling_factor)):
+        start = max(truncated_context_size * subsampling_factor * idx, 0)
+        end = min(truncated_context_size * subsampling_factor * (idx+1) + 7, xs.shape[1])
+
+        x = xs[:, start:end+rel_right_context_size]
+        x_len = torch.tensor([x[0].shape[0]], dtype=torch.int).to(device)
+
+        encoder_outs, encoder_lens, _, att_cache, cnn_cache, offset = model.encoder.forward_parallel_chunk(xs=x, 
+                                                                    xs_origin_lens=x_len, 
+                                                                    chunk_size=chunk_size,
+                                                                    left_context_size=left_context_size,
+                                                                    right_context_size=right_context_size,
+                                                                    att_cache=att_cache,
+                                                                    cnn_cache=cnn_cache,
+                                                                    truncated_context_size=truncated_context_size,
+                                                                    offset=offset
+                                                                    )
+        encoder_outs = encoder_outs.reshape(1, -1, encoder_outs.shape[-1])[:, :encoder_lens]
+        if chunk_size * multiply_n * subsampling_factor * idx + rel_right_context_size < xs.shape[1]:
+            encoder_outs = encoder_outs[:, :truncated_context_size]  # (B, maxlen, vocab_size) # exclude the output of rel right context
+        offset = offset - encoder_lens + encoder_outs.shape[1]
+
+
+        hyp = model.encoder.ctc_forward(encoder_outs).squeeze(0)
+        hyps.append(hyp)
+
+        
+        if device == "cuda":
+            torch.cuda.empty_cache()
+        if chunk_size * multiply_n * subsampling_factor * idx + rel_right_context_size >= xs.shape[1]:
+            break
+    hyps = torch.cat(hyps)
+    decode = get_output_with_timestamps([hyps], char_dict)[0]
+
+    return " ".join([item["decode"] for item in decode])
+
+
 @torch.no_grad()  # Không cần gradient vì đang trong chế độ inference
 def decode_long_form(xs, model, char_dict, args, device):
     """
@@ -308,8 +384,12 @@ def decode_long_form(xs, model, char_dict, args, device):
 
     # === Duyệt qua toàn bộ input xs (T_raw frame) theo từng chunk ===
     num_chunks = 0
-    for idx in range(0, xs.shape[1], truncated_context_size * subsampling_factor):
-        start = truncated_context_size * subsampling_factor * idx
+    # for idx in range(0, xs.shape[1], truncated_context_size * subsampling_factor):
+    #     start = truncated_context_size * subsampling_factor * idx
+    #@NOTE: bug chỗ này do sử dụng idx nhảy step -> idx phải là giá trị 0,1,2,...
+    for idx, _ in enumerate(range(0, xs.shape[1], truncated_context_size * subsampling_factor)):
+        start = max(truncated_context_size * subsampling_factor * idx, 0)
+
         end = min(start + truncated_context_size * subsampling_factor + 7, xs.shape[1])
 
         # x: [1, T_chunk + context_right, 80]

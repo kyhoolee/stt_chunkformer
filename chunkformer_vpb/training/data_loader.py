@@ -15,6 +15,7 @@ from .finetune_config import FinetuneConfig
 from ..data.data import compute_fbank, MetadataEntry
 from .tokenizer import normalize_vi
 from .data_augment import AudioAugmenter
+from ..decode import load_audio_origin
 
 # BẬT/TẮT DEBUG IN INFO TRONG COLLATE
 DEBUG_COLLATE = True
@@ -30,6 +31,8 @@ class VivosDataset(Dataset):
         print(f"{cfg.data}")
         if split == "train" and cfg.data.train_meta_file:
             meta_file = cfg.data.train_meta_file
+        if split == "valid" and cfg.data.valid_meta_file:
+            meta_file = cfg.data.valid_meta_file
 
         manifest_file = os.path.join(cfg.data.manifest_dir, meta_file)
         with open(manifest_file, 'r', encoding='utf-8') as f:
@@ -58,20 +61,23 @@ class VivosDataset(Dataset):
         if not audio_dir:
             audio_dir = self.cfg.data.manifest_dir
         abs_path = audio_dir + os.sep + entry.audio_path
-        wav, sr = torchaudio.load(abs_path)
+
+        wav = load_audio_origin(abs_path)
+
+        # wav, sr = torchaudio.load(abs_path)
 
         
-        # print(f"✅ [loader] Audio path       : {entry.audio_path}")
-        # print(f"📏 [loader] Sample rate      : {sr}")
-        # print(f"   [loader] wav.shape: {wav.shape}, sample_rate: {sr}")
-        if sr != self.cfg.data.sample_rate:
-            wav = torchaudio.transforms.Resample(sr, self.cfg.data.sample_rate)(wav)
+        # # print(f"✅ [loader] Audio path       : {entry.audio_path}")
+        # # print(f"📏 [loader] Sample rate      : {sr}")
+        # # print(f"   [loader] wav.shape: {wav.shape}, sample_rate: {sr}")
+        # if sr != self.cfg.data.sample_rate:
+        #     wav = torchaudio.transforms.Resample(sr, self.cfg.data.sample_rate)(wav)
 
-        if wav.dim() == 1:
-            wav = wav.unsqueeze(0)
-        if wav.abs().max() <= 1.0:
-            wav = wav * 32768.0
-        wav = wav.clamp(-32768, 32767)
+        # if wav.dim() == 1:
+        #     wav = wav.unsqueeze(0)
+        # if wav.abs().max() <= 1.0:
+        #     wav = wav * 32768.0
+        # wav = wav.clamp(-32768, 32767)
 
         # print(f"✅ [loader] Waveform shape    : {wav.shape}")
         # print(f"📊 [loader] Min: {wav.min().item():.8f}, Max: {wav.max().item():.8f}, Mean: {wav.mean().item():.8f}")

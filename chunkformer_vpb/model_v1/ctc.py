@@ -13,6 +13,7 @@
 # limitations under the License.
 # Modified from ESPnet(https://github.com/espnet/espnet)
 
+from typing import Tuple
 import torch
 import torch.nn.functional as F
 import random
@@ -39,7 +40,7 @@ class CTC(torch.nn.Module):
         self.dropout_rate = dropout_rate
         self.ctc_lo = torch.nn.Linear(eprojs * 1, odim)
 
-        reduction_type = "sum" if reduce else "none"
+        reduction_type = "mean" if reduce else "none"
         self.ctc_loss = torch.nn.CTCLoss(reduction=reduction_type)
         self.blank = blank
 
@@ -64,3 +65,27 @@ class CTC(torch.nn.Module):
         """
         return torch.argmax(self.ctc_lo(hs_pad), dim=2)
     
+
+    def forward(
+        self,
+        hs_pad: torch.Tensor,   # [B, Tmax, eprojs]
+        hs_lens: torch.Tensor,  # [B]
+        ys_pad: torch.Tensor,   # [B, L]
+        ys_lens: torch.Tensor   # [B]
+    ) -> Tuple[torch.Tensor, None]:
+        """
+        Compute CTC loss.
+        Returns: (loss, None)
+        """
+        # 1) project + log_softmax → [B, Tmax, V]
+        logp = self.log_softmax(hs_pad)
+
+        # 2) to time-major: [Tmax, B, V]
+        logp_t = logp.transpose(0, 1)
+
+        # 3) compute CTC loss
+        #    expects (T, B, V), targets, input_lengths, target_lengths
+        loss = self.ctc_loss(logp_t, ys_pad, hs_lens, ys_lens)
+
+        # 4) no accuracy here
+        return loss, None
